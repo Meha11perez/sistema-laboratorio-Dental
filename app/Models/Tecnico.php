@@ -4,6 +4,7 @@ namespace App\Models;
 
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
+use Illuminate\Database\Eloquent\Relations\HasMany;
 
 class Tecnico extends Model
 {
@@ -23,5 +24,21 @@ class Tecnico extends Model
     public function user(): BelongsTo
     {
         return $this->belongsTo(User::class);
+    }
+
+    public function ordenesActuales(): HasMany
+    {
+        return $this->hasMany(
+            OrdenTrabajo::class,
+            'tecnico_actual_id'
+        );
+    }
+
+    public function historialProduccion(): HasMany
+    {
+        return $this->hasMany(
+            HistorialProduccion::class,
+            'tecnico_id'
+        );
     }
 }

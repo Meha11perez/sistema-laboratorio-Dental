@@ -11,16 +11,21 @@ return new class extends Migration
      */
     public function up(): void
     {
-        Schema::create('tipo_protesis', function (Blueprint $table) {
+        Schema::create('tipos_protesis', function (Blueprint $table) {
             $table->id();
+
             $table->string('nombre', 150);
+
             $table->enum('categoria', [
                 'removible',
                 'fija',
                 'ortodoncia',
             ]);
+
             $table->text('descripcion')->nullable();
+
             $table->boolean('estado')->default(true);
+
             $table->timestamps();
 
             $table->unique(['nombre', 'categoria']);
@@ -32,6 +37,6 @@ return new class extends Migration
      */
     public function down(): void
     {
-        Schema::dropIfExists('tipo_proteses');
+        Schema::dropIfExists('tipos_protesis');
     }
 };

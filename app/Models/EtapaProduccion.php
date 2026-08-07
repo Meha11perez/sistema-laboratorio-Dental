@@ -26,4 +26,11 @@ class EtapaProduccion extends Model
     {
         return $this->hasMany(HistorialProduccion::class);
     }
+    public function ordenesActuales(): HasMany
+    {
+        return $this->hasMany(
+            OrdenTrabajo::class,
+              'etapa_actual_id'
+      );
+    }
 }
