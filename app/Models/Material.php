@@ -33,4 +33,8 @@ class Material extends Model
         {
             return $this->hasMany(MovimientoInventario::class);
         }
+        public function ordenesMaterial(): HasMany
+        {
+            return $this->hasMany(OrdenMaterial::class);
+        }
 }

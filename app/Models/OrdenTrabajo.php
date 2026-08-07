@@ -93,5 +93,9 @@ class OrdenTrabajo extends Model
     {
         return $this->hasMany(MovimientoInventario::class);
     }
+    public function materiales(): HasMany
+    {
+        return $this->hasMany(OrdenMaterial::class);
+    }
 
 }
