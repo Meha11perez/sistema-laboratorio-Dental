@@ -41,4 +41,8 @@ class Tecnico extends Model
             'tecnico_id'
         );
     }
+    public function inventarios(): HasMany
+    {
+        return $this->hasMany(InventarioTecnico::class, 'tecnico_id');
+    }
 }
