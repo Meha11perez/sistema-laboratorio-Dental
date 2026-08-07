@@ -89,4 +89,9 @@ class OrdenTrabajo extends Model
         return $this->hasMany(HistorialProduccion::class);
     }
     
+    public function movimientoInventario(): HasMany
+    {
+        return $this->hasMany(MovimientoInventario::class);
+    }
+
 }
