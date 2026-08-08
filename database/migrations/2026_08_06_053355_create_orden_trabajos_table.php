@@ -57,12 +57,13 @@ return new class extends Migration
             $table->date('fecha_ingreso');
             $table->date('fecha_entrega_estimada')->nullable();
             $table->date('fecha_entrega_real')->nullable();
+            $table->date('fecha_entrega_programada')->nullable();
 
             $table->unsignedSmallInteger('cantidad')->default(1);
 
             $table->text('especificaciones');
             $table->text('observaciones')->nullable();
-
+            
             $table->string('color', 100)->nullable();
 
             $table->enum('prioridad', [

@@ -15,6 +15,8 @@ class Material extends Model
             'stock_minimo',
             'costo_unitario',
             'estado',
+            'codigo',
+            
         ];
 
         protected $casts = [

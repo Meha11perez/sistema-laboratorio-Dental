@@ -20,6 +20,7 @@ return new class extends Migration
             $table->decimal('stock_minimo', 10, 2)->default(0);
             $table->decimal('costo_unitario', 10, 2)->default(0);
             $table->boolean('estado')->default(true);
+            $table->string('codigo',50)->unique();
             $table->timestamps();
         });
     }

@@ -20,6 +20,7 @@ return new class extends Migration
                 ->restrictOnDelete();
 
             $table->string('nombre', 150);
+            $table->string('apellido',150)->nullable();
             $table->string('telefono', 20)->nullable();
             $table->text('observaciones')->nullable();
             $table->boolean('estado')->default(true);

@@ -47,9 +47,8 @@ return new class extends Migration
         ])->default('En proceso');
 
         $table->text('observaciones')->nullable();
-
+        $table->integer('duracion_minutos')->nullable();
         $table->timestamps();
-
         $table->index('fecha_inicio');
         $table->index('fecha_fin');
     });

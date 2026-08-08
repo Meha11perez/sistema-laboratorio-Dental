@@ -24,6 +24,7 @@ class OrdenTrabajo extends Model
         'fecha_ingreso',
         'fecha_entrega_estimada',
         'fecha_entrega_real',
+        'fecha_entrega_programada',
         'cantidad',
         'especificaciones',
         'observaciones',
@@ -36,6 +37,7 @@ class OrdenTrabajo extends Model
         'fecha_ingreso' => 'date',
         'fecha_entrega_estimada' => 'date',
         'fecha_entrega_real' => 'date',
+        'fecha_entrega_programada'=>'date',
         'cantidad' => 'integer',
         'total' => 'decimal:2',
     ];

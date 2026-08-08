@@ -11,6 +11,7 @@ class Paciente extends Model
      protected $fillable = [
         'odontologo_id',
         'nombre',
+        'apellido',
         'telefono',
         'observaciones',
         'estado',
