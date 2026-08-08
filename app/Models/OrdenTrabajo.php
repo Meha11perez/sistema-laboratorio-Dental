@@ -5,6 +5,7 @@ namespace App\Models;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\HasMany;
+use Illuminate\Database\Eloquent\Relations\HasOne;
 
 
 class OrdenTrabajo extends Model
@@ -99,5 +100,12 @@ class OrdenTrabajo extends Model
     {
         return $this->hasMany(OrdenMaterial::class);
     }
-
+    public function garantia(): HasOne
+    {
+        return $this->hasOne(Garantia::class);
+    }
+    public function devoluciones(): HasMany
+    {
+        return $this->hasMany(Devolucion::class);
+    }
 }
