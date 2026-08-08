@@ -108,4 +108,8 @@ class OrdenTrabajo extends Model
     {
         return $this->hasMany(Devolucion::class);
     }
+    public function pagos(): HasMany
+    {
+        return $this->hasMany(Pago::class);
+    }
 }
