@@ -112,4 +112,8 @@ class OrdenTrabajo extends Model
     {
         return $this->hasMany(Pago::class);
     }
+    public function detallesMensajeria(): HasMany
+    {
+        return $this->hasMany(DetalleMensajeria::class);
+    }
 }
