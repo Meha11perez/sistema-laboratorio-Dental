@@ -17,5 +17,14 @@ class DatabaseSeeder extends Seeder
             EstadoOrdenSeeder::class,
             EtapaProduccionSeeder::class,
         ]);
+
+         $this->call([
+        RolesSeeder::class,
+        EstadoOrdenSeeder::class,
+        EtapaProduccionSeeder::class,
+        AdminUserSeeder::class,
+        ]);
+
     }
+  
 }

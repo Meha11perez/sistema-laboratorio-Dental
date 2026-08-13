@@ -116,4 +116,8 @@ class OrdenTrabajo extends Model
     {
         return $this->hasMany(DetalleMensajeria::class);
     }
+    public function historialEstados(): HasMany
+    {
+        return $this->hasMany(HistorialEstadoOrden::class);
+    }
 }
