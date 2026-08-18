@@ -5,9 +5,18 @@ namespace App\Models;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Database\Eloquent\Relations\HasOne;
+use Illuminate\Database\Eloquent\Relations\BelongsTo;
 
 class Odontologo extends Model
 {
+
+    protected $fillable = [
+        'clinica_id',
+        'nombre',
+        'telefono',
+        'estado',
+    ];
+
     public function pacientes(): HasMany
         {
             return $this->hasMany(Paciente::class);
@@ -23,5 +32,10 @@ class Odontologo extends Model
     public function pagos(): HasMany
     {
         return $this->hasMany(Pago::class);
+    }
+    
+    public function clinica(): BelongsTo
+    {
+        return $this->belongsTo(Clinica::class);
     }
 }

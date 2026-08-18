@@ -19,10 +19,6 @@
     {{-- LOGO --}}
     <div class="h-20 flex items-center px-6 border-b border-slate-200">
 
-        <div class="w-11 h-11 rounded-lg bg-blue-900 text-white flex items-center justify-center mr-3">
-            🦷
-        </div>
-
         <div>
             <h1 class="font-bold text-sm text-slate-900">
                 LABORATORIO DENTAL
@@ -53,7 +49,7 @@
 
         {{-- AGENDA --}}
         <a
-            href="#"
+            href="{{ route('agenda.index') }}"
             class="flex items-center gap-3 px-6 py-4
                    text-slate-600 hover:bg-slate-50
                    hover:text-blue-900 transition"
@@ -110,7 +106,7 @@
             <div class="bg-slate-50 border-y border-slate-100">
 
                 <a
-                    href="#"
+                    href="{{ route('inventario.index') }}"
                     class="block pl-14 pr-6 py-3 text-sm
                            text-slate-600 hover:text-blue-900
                            hover:bg-slate-100"
@@ -414,7 +410,7 @@
                 </span>
 
                 <button class="text-slate-500">
-                    🔔
+                    
                 </button>
 
                 <div class="w-9 h-9 rounded-full border border-slate-300 flex items-center justify-center">
