@@ -32,6 +32,9 @@ class OrdenTrabajo extends Model
         'color',
         'prioridad',
         'total',
+        'tipo_orden',
+        'orden_origen_id',
+        'motivo_repeticion',
     ];
 
     protected $casts = [
@@ -119,5 +122,20 @@ class OrdenTrabajo extends Model
     public function historialEstados(): HasMany
     {
         return $this->hasMany(HistorialEstadoOrden::class);
+    }
+    public function ordenOrigen(): BelongsTo
+    {
+        return $this->belongsTo(
+            OrdenTrabajo::class,
+            'orden_origen_id'
+        );
+    }
+
+    public function repeticiones(): HasMany
+    {
+        return $this->hasMany(
+            OrdenTrabajo::class,
+            'orden_origen_id'
+        );
     }
 }

@@ -7,6 +7,7 @@ use Illuminate\Database\Eloquent\Relations\BelongsTo;
 
 class Devolucion extends Model
 {
+    protected $table = 'devoluciones';
     protected $fillable = [
         'orden_trabajo_id',
         'garantia_id',

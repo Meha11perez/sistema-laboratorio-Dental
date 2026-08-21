@@ -40,6 +40,9 @@
                     <th class="text-left px-6 py-4">Paciente</th>
                     <th class="text-left px-6 py-4">Odontólogo</th>
                     <th class="text-left px-6 py-4">Prótesis</th>
+
+                    <th class="text-left px-6 py-4">Tipo</th>
+                    
                     <th class="text-left px-6 py-4">Estado</th>
                     <th class="text-left px-6 py-4">Entrega</th>
                     <th class="text-left px-6 py-4">Acciones</th>
@@ -51,64 +54,103 @@
 
                 @forelse ($ordenes as $orden)
 
-                    <tr class="hover:bg-slate-50">
+            <tr class="hover:bg-slate-50">
 
-                        <td class="px-6 py-4 font-semibold text-blue-900">
-                            {{ $orden->codigo }}
-                        </td>
+                {{-- CÓDIGO --}}
+                <td class="px-6 py-4 font-semibold text-blue-900">
+                    {{ $orden->codigo }}
+                </td>
 
-                        <td class="px-6 py-4">
-                            {{ $orden->codigo_caja ?? '—' }}
-                        </td>
+                {{-- CAJA --}}
+                <td class="px-6 py-4">
+                    {{ $orden->codigo_caja ?? '—' }}
+                </td>
 
-                        <td class="px-6 py-4">
-                            {{ $orden->paciente?->nombre }}
-                        </td>
+                {{-- PACIENTE --}}
+                <td class="px-6 py-4">
+                    {{ $orden->paciente?->nombre }}
+                </td>
 
-                        <td class="px-6 py-4">
-                            {{ $orden->odontologo?->nombre }}
-                        </td>
+                {{-- ODONTÓLOGO --}}
+                <td class="px-6 py-4">
+                    {{ $orden->odontologo?->nombre }}
+                </td>
 
-                        <td class="px-6 py-4">
-                            {{ $orden->tipoProtesis?->nombre }}
-                        </td>
+                {{-- PRÓTESIS --}}
+                <td class="px-6 py-4">
+                    {{ $orden->tipoProtesis?->nombre }}
+                </td>
 
-                        <td class="px-6 py-4">
-                            <span class="bg-blue-50 text-blue-800 px-3 py-1 rounded-full text-xs font-semibold">
-                                {{ $orden->estadoOrden?->nombre }}
-                            </span>
-                        </td>
+                {{-- TIPO DE ORDEN --}}
+                <td class="px-6 py-4">
 
-                        <td class="px-6 py-4">
-                            {{ $orden->fecha_entrega_estimada?->format('d/m/Y') ?? '—' }}
-                        </td>
+                    @if($orden->tipo_orden === 'Repeticion')
 
-                        <td class="px-6 py-4">
+                        <span class="inline-flex items-center px-3 py-1
+                                    rounded-full text-xs font-bold
+                                    bg-amber-100 text-amber-700">
+                            ↻ Repetición
+                        </span>
 
-                            <a
-                            href="{{ route('ordenes.show', $orden) }}"
-                            class="text-blue-700 font-semibold hover:underline">
-                                Ver
-                            </a>
+                    @else
 
-                            <a
-                                href="{{ route('ordenes.edit', $orden) }}"
-                                class="ml-3 text-amber-700 font-semibold hover:underline">
-                                Editar
-                            </a>
-                        </td>
+                        <span class="inline-flex items-center px-3 py-1
+                                    rounded-full text-xs font-bold
+                                    bg-blue-50 text-blue-700">
+                            Nueva
+                        </span>
 
-                    </tr>
+                    @endif
 
-                @empty
+                </td>
 
-                    <tr>
-                        <td colspan="8" class="px-6 py-12 text-center text-slate-400">
-                            No hay órdenes registradas.
-                        </td>
-                    </tr>
+                {{-- ESTADO --}}
+                <td class="px-6 py-4">
+                    <span class="bg-blue-50 text-blue-800
+                                px-3 py-1 rounded-full
+                                text-xs font-semibold">
+                        {{ $orden->estadoOrden?->nombre }}
+                    </span>
+                </td>
 
-                @endforelse
+                {{-- FECHA DE ENTREGA --}}
+                <td class="px-6 py-4">
+                    {{ $orden->fecha_entrega_estimada?->format('d/m/Y') ?? '—' }}
+                </td>
+
+                {{-- ACCIONES --}}
+                <td class="px-6 py-4">
+
+                    <a
+                        href="{{ route('ordenes.show', $orden) }}"
+                        class="text-blue-700 font-semibold hover:underline"
+                    >
+                        Ver
+                    </a>
+
+                    <a
+                        href="{{ route('ordenes.edit', $orden) }}"
+                        class="ml-3 text-amber-700 font-semibold hover:underline"
+                    >
+                        Editar
+                    </a>
+
+                </td>
+
+            </tr>
+
+        @empty
+
+            <tr>
+                <td
+                    colspan="9"
+                    class="px-6 py-12 text-center text-slate-400"
+                >
+                    No hay órdenes registradas.
+                </td>
+            </tr>
+
+        @endforelse
 
             </tbody>
 
@@ -117,19 +159,19 @@
     </div>
 
 
-    @if ($ordenes->hasPages())
-        <div class="px-6 py-4 border-t border-slate-200">
-            {{ $ordenes->links() }}
-        </div>
-    @endif
+        @if ($ordenes->hasPages())
+            <div class="px-6 py-4 border-t border-slate-200">
+                {{ $ordenes->links() }}
+            </div>
+        @endif
 
-</div>
+    </div>
 
-    @if (session('success'))
+        @if (session('success'))
 
-        <div class="mb-6 bg-emerald-50 border border-emerald-200 text-emerald-700 px-5 py-4 rounded-xl">
-            {{ session('success') }}
-        </div>
+            <div class="mb-6 bg-emerald-50 border border-emerald-200 text-emerald-700 px-5 py-4 rounded-xl">
+                {{ session('success') }}
+            </div>
 
-    @endif
-@endsection
+        @endif
+    @endsection

@@ -35,6 +35,14 @@ class AgendaController extends Controller
         if ($request->filled('estado')) {
             $query->where('estado_orden_id', $request->estado);
         }
+        if ($request->filled('prioridad')) {
+            $query->where('prioridad', $request->prioridad);
+        }
+        if (auth()->user()->role?->nombre === 'Tecnico') {
+            $query->whereHas('tecnicoActual', function ($q) {
+                $q->where('user_id', auth()->id());
+            });
+        }
 
         if ($request->filled('categoria')) {
             $query->whereHas('tipoProtesis', function ($q) use ($request) {

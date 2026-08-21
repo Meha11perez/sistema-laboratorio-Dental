@@ -24,7 +24,7 @@ class OrdenTrabajoController extends Controller
             'odontologo',
             'tipoProtesis',
             'estadoOrden',
-            'tecnicoActual', 
+            'tecnicoActual.user', 
         ])
         ->latest()
         ->paginate(10);
@@ -66,79 +66,123 @@ class OrdenTrabajoController extends Controller
             'estados',
             'etapas',
             'tecnicos'
+
+        
         ));
     }
-
     public function store(Request $request)
-    {
-        $request->validate([
-            'codigo_caja' => 'nullable|string|max:20',
-            'odontologo_id' => 'required|exists:odontologos,id',
-            'paciente_id' => 'required|exists:pacientes,id',
-            'tipo_protesis_id' => 'required|exists:tipos_protesis,id',
-            'etapa_actual_id' => 'nullable|exists:etapas_produccion,id',
-            'tecnico_actual_id' => 'nullable|exists:tecnicos,id',
+     {
+        $datos = $request->validate([
+        'codigo_caja' => 'nullable|string|max:20',
 
-            'fecha_ingreso' => 'required|date',
-            'fecha_entrega_estimada' => 'nullable|date|after_or_equal:fecha_ingreso',
+        'odontologo_id' => 'required|exists:odontologos,id',
+        'paciente_id' => 'required|exists:pacientes,id',
+        'tipo_protesis_id' => 'required|exists:tipos_protesis,id',
 
-            'cantidad' => 'required|integer|min:1',
-            'especificaciones' => 'required|string',
-            'observaciones' => 'nullable|string',
-            'color' => 'nullable|string|max:100',
+        'etapa_actual_id' => 'nullable|exists:etapas_produccion,id',
+        'tecnico_actual_id' => 'nullable|exists:tecnicos,id',
 
-            'prioridad' => 'required|in:Normal,Urgente',
-            'total' => 'nullable|numeric|min:0',
-        ]);
+        'fecha_ingreso' => 'required|date',
 
-        $estadoInicial = EstadoOrden::where('nombre', 'Pendiente')->firstOrFail();
+        'fecha_entrega_estimada' => [
+            'nullable',
+            'date',
+            'after_or_equal:fecha_ingreso',
+        ],
 
-        $ultimaOrden = OrdenTrabajo::latest('id')->first();
+        'cantidad' => 'required|integer|min:1',
 
-        $numero = $ultimaOrden
-            ? $ultimaOrden->id + 1
-            : 1;
+        'especificaciones' => 'required|string',
+        'observaciones' => 'nullable|string',
+        'color' => 'nullable|string|max:100',
 
-        $codigo = 'ORD-' . now()->format('Y') . '-' . str_pad(
-            $numero,
-            6,
-            '0',
-            STR_PAD_LEFT
-        );
+        'prioridad' => 'required|in:Normal,Urgente',
 
+        'total' => 'nullable|numeric|min:0',
+
+        'tipo_orden' => 'required|in:Nueva,Repeticion',
+
+        'orden_origen_id' => [
+            'nullable',
+            'required_if:tipo_orden,Repeticion',
+            'exists:ordenes_trabajo,id',
+        ],
+    ]);
+
+
+    $estadoInicial = EstadoOrden::where('nombre', 'Pendiente')
+        ->firstOrFail();
+
+
+    $ultimaOrden = OrdenTrabajo::latest('id')->first();
+
+    $numero = $ultimaOrden
+        ? $ultimaOrden->id + 1
+        : 1;
+
+    $codigo = 'ORD-' . now()->format('Y') . '-' . str_pad(
+        $numero,
+        6,
+        '0',
+        STR_PAD_LEFT
+    );
+
+    $orden = null;
+
+    DB::transaction(function () use (
+        $datos,
+        $estadoInicial,
+        $codigo,
+        &$orden
+    ) {
+
+        // ==========================================
+        // CREAR ORDEN
+        // ==========================================
         $orden = OrdenTrabajo::create([
             'codigo' => $codigo,
 
-            'codigo_caja' => $request->codigo_caja,
+            'codigo_caja' => $datos['codigo_caja'] ?? null,
 
-            'odontologo_id' => $request->odontologo_id,
-            'paciente_id' => $request->paciente_id,
-            'tipo_protesis_id' => $request->tipo_protesis_id,
+            'odontologo_id' => $datos['odontologo_id'],
+            'paciente_id' => $datos['paciente_id'],
+            'tipo_protesis_id' => $datos['tipo_protesis_id'],
 
             'estado_orden_id' => $estadoInicial->id,
 
-            'etapa_actual_id' => $request->etapa_actual_id,
+            'etapa_actual_id' => $datos['etapa_actual_id'] ?? null,
+            'tecnico_actual_id' => $datos['tecnico_actual_id'] ?? null,
 
             'registrado_por' => auth()->id(),
 
-            'tecnico_actual_id' => $request->tecnico_actual_id,
+            'fecha_ingreso' => $datos['fecha_ingreso'],
 
-            'fecha_ingreso' => $request->fecha_ingreso,
-            'fecha_entrega_estimada' => $request->fecha_entrega_estimada,
+            'fecha_entrega_estimada' =>
+                $datos['fecha_entrega_estimada'] ?? null,
 
-            'cantidad' => $request->cantidad,
+            'cantidad' => $datos['cantidad'],
 
-            'especificaciones' => $request->especificaciones,
-            'observaciones' => $request->observaciones,
-            'color' => $request->color,
+            'especificaciones' => $datos['especificaciones'],
 
-            'prioridad' => $request->prioridad,
+            'observaciones' => $datos['observaciones'] ?? null,
 
-            'total' => $request->total ?? 0,
+            'color' => $datos['color'] ?? null,
+
+            'prioridad' => $datos['prioridad'],
+
+            'total' => $datos['total'] ?? 0,
+
+            'tipo_orden' => $datos['tipo_orden'],
+
+            'orden_origen_id' =>
+                $datos['orden_origen_id'] ?? null,
+            
         ]);
 
-        //creamos un historial de produccion si la orden tiene una etapa asignada
 
+        // ==========================================
+        // HISTORIAL DE PRODUCCIÓN INICIAL
+        // ==========================================
         if ($orden->etapa_actual_id) {
 
             HistorialProduccion::create([
@@ -167,28 +211,50 @@ class OrdenTrabajoController extends Controller
             ]);
         }
 
+
+        // ==========================================
+        // HISTORIAL DE ESTADO INICIAL
+        // ==========================================
         HistorialEstadoOrden::create([
             'orden_trabajo_id' => $orden->id,
-            'estado_orden_id' => $estadoInicial->id,
-            'registrado_por' => auth()->id(),
-            'motivo' => null,
-            'observaciones' => 'Estado inicial de la orden.',
-            'fecha' => now(),
-        ]);
 
-        return redirect()
-            ->route('ordenes.index')
-            ->with('success', 'Orden de trabajo registrada correctamente.');
+            'estado_orden_id' =>
+                $estadoInicial->id,
+
+            'registrado_por' =>
+                auth()->id(),
+
+            'motivo' =>
+                null,
+
+            'observaciones' =>
+                'Estado inicial de la orden.',
+
+            'fecha' =>
+                now(),
+        ]);
+    });
+
+
+    return redirect()
+        ->route('ordenes.index')
+        ->with(
+            'success',
+            $orden->tipo_orden === 'Repeticion'
+                ? 'Repetición registrada correctamente.'
+                : 'Orden de trabajo registrada correctamente.'
+        );
+
     }
     public function show(OrdenTrabajo $orden)
     {
         $orden->load([
             'paciente',
-            'odontologo',
+            'odontologo.clinica',
             'tipoProtesis',
             'estadoOrden',
             'etapaActual',
-            'tecnicoActual',
+            'tecnicoActual.user',
             'usuarioRegistro',
 
             'historialProduccion.etapaProduccion',
@@ -196,9 +262,16 @@ class OrdenTrabajoController extends Controller
 
             'historialEstados.estadoOrden',
             'historialEstados.usuarioRegistro',
+
+            'ordenOrigen',
+            'repeticiones',
+
+            'devoluciones.garantia',
+            'devoluciones.tecnicoResponsable.user',
+            'devoluciones.usuarioRegistro',
         ]);
 
-        return view('ordenes.show', compact('orden'));
+    return view('ordenes.show', compact('orden'));
     }
     public function edit(OrdenTrabajo $orden)
     {
@@ -252,6 +325,7 @@ class OrdenTrabajoController extends Controller
         }
 
         $datos = $request->validate([
+
             'codigo_caja' => 'nullable|string|max:20',
 
             'odontologo_id' => 'required|exists:odontologos,id',
@@ -359,81 +433,127 @@ class OrdenTrabajoController extends Controller
                             'Orden actualizada correctamente.'
                         );
                 }
-    public function confirmarCancelacion(OrdenTrabajo $orden)
-    {
-        if ($orden->estadoOrden?->nombre === 'Cancelado') {
-            return redirect()
-                ->route('ordenes.show', $orden)
-                ->with('error', 'La orden ya se encuentra cancelada.');
-        }
+     public function confirmarCancelacion(OrdenTrabajo $orden)
+         {
+           if ($orden->estadoOrden?->nombre === 'Cancelado') {
+                return redirect()
+                    ->route('ordenes.show', $orden)
+                    ->with('error', 'La orden ya se encuentra cancelada.');
+                }
 
-        return view('ordenes.cancelar', compact('orden'));
-    }
+                return view('ordenes.cancelar', compact('orden'));
+            }
 
 
-    // ==========================================
-    // CANCELAR LA ORDEN
-    // ==========================================
+            // ==========================================
+            // CANCELAR LA ORDEN
+            // ==========================================
     public function cancelar(Request $request, OrdenTrabajo $orden)
-    {
-        if ($orden->estadoOrden?->nombre === 'Cancelado') {
-            return redirect()
-                ->route('ordenes.show', $orden)
-                ->with('error', 'La orden ya se encuentra cancelada.');
-        }
+            {
+                if ($orden->estadoOrden?->nombre === 'Cancelado') {
+                    return redirect()
+                        ->route('ordenes.show', $orden)
+                        ->with('error', 'La orden ya se encuentra cancelada.');
+                }
 
-        $datos = $request->validate([
-            'motivo' => 'required|in:odontologo,paciente,error,duplicada,imposibilidad,otro',
-            'observaciones' => 'nullable|string|max:1000',
-        ]);
-
-        $motivos = [
-            'odontologo' => 'Cancelación solicitada por odontólogo',
-            'paciente' => 'Cancelación solicitada por paciente',
-            'error' => 'Orden registrada por error',
-            'duplicada' => 'Orden duplicada',
-            'imposibilidad' => 'Imposibilidad de continuar',
-            'otro' => 'Otro motivo',
-        ];
-
-        $estadoCancelado = EstadoOrden::where('nombre', 'Cancelado')
-            ->firstOrFail();
-
-        DB::transaction(function () use (
-            $orden,
-            $estadoCancelado,
-            $datos,
-            $motivos
-        ) {
-
-            // Cierra la etapa de producción que esté activa
-            HistorialProduccion::where('orden_trabajo_id', $orden->id)
-                ->whereNull('fecha_fin')
-                ->update([
-                    'fecha_fin' => now(),
-                    'estado' => 'Pausado',
+                $datos = $request->validate([
+                    'motivo' => 'required|in:odontologo,paciente,error,duplicada,imposibilidad,otro',
+                    'observaciones' => 'nullable|string|max:1000',
                 ]);
 
-            // Cambia la orden a Cancelado
-            $orden->update([
-                'estado_orden_id' => $estadoCancelado->id,
-                'etapa_actual_id' => null,
-                'tecnico_actual_id' => null,
-            ]);
+                $motivos = [
+                    'odontologo' => 'Cancelación solicitada por odontólogo',
+                    'paciente' => 'Cancelación solicitada por paciente',
+                    'error' => 'Orden registrada por error',
+                    'duplicada' => 'Orden duplicada',
+                    'imposibilidad' => 'Imposibilidad de continuar',
+                    'otro' => 'Otro motivo',
+                ];
 
-            // Registra por qué se canceló
-            HistorialEstadoOrden::create([
-                'orden_trabajo_id' => $orden->id,
-                'estado_orden_id' => $estadoCancelado->id,
-                'registrado_por' => auth()->id(),
-                'motivo' => $motivos[$datos['motivo']],
-                'observaciones' => $datos['observaciones'] ?? null,
-                'fecha' => now(),
-            ]);
-        }); 
+                $estadoCancelado = EstadoOrden::where('nombre', 'Cancelado')
+                    ->firstOrFail();
 
-        return redirect()
+                DB::transaction(function () use (
+                    $orden,
+                    $estadoCancelado,
+                    $datos,
+                    $motivos
+                ) {
+
+                    // Cierra la etapa de producción que esté activa
+                    HistorialProduccion::where('orden_trabajo_id', $orden->id)
+                        ->whereNull('fecha_fin')
+                        ->update([
+                            'fecha_fin' => now(),
+                            'estado' => 'Pausado',
+                        ]);
+
+                    // Cambia la orden a Cancelado
+                    $orden->update([
+                        'estado_orden_id' => $estadoCancelado->id,
+                        'etapa_actual_id' => null,
+                        'tecnico_actual_id' => null,
+                    ]);
+
+                    // Registra por qué se canceló
+                    HistorialEstadoOrden::create([
+                        'orden_trabajo_id' => $orden->id,
+                        'estado_orden_id' => $estadoCancelado->id,
+                        'registrado_por' => auth()->id(),
+                        'motivo' => $motivos[$datos['motivo']],
+                        'observaciones' => $datos['observaciones'] ?? null,
+                        'fecha' => now(),
+                    ]);
+                }); 
+          return redirect()
             ->route('ordenes.show', $orden)
-            ->with('success', 'La orden fue cancelada correctamente.');
+             ->with('success', 'La orden fue cancelada correctamente.');
     }
+    public function rotulo(OrdenTrabajo $orden)
+        {
+            $orden->load([
+                'paciente',
+                'odontologo.clinica',
+                'tipoProtesis',
+            ]);
+
+            return view('ordenes.rotulo', compact('orden'));
+        }
+    public function repetir(OrdenTrabajo $orden)
+        {
+            if ($orden->estadoOrden?->nombre === 'Cancelado') {
+                return redirect()
+                    ->route('ordenes.show', $orden)
+                    ->with('error', 'No se puede crear una repetición de una orden cancelada.');
+            }
+
+            $odontologos = Odontologo::where('estado', true)
+                ->orderBy('nombre')
+                ->get();
+
+            $pacientes = Paciente::where('estado', true)
+                ->orderBy('nombre')
+                ->get();
+
+            $tiposProtesis = TipoProtesis::where('estado', true)
+                ->orderBy('nombre')
+                ->get();
+
+            $etapas = EtapaProduccion::where('estado', true)
+                ->orderBy('orden')
+                ->get();
+
+            $tecnicos = Tecnico::with('user')
+                ->where('estado', true)
+                ->get();
+
+            return view('ordenes.create', compact(
+                'orden',
+                'odontologos',
+                'pacientes',
+                'tiposProtesis',
+                'etapas',
+                'tecnicos'
+            ));
+        }
 }

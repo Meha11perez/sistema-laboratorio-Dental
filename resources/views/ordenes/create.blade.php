@@ -6,7 +6,56 @@
 
 <div class="max-w-6xl mx-auto">
 
-    {{-- ENCABEZADO --}}
+        {{-- ENCABEZADO --}}
+        @if(isset($orden))
+
+        <div class="mb-6 bg-amber-50 border border-amber-200
+                    rounded-xl px-5 py-4">
+
+            <p class="text-sm font-bold text-amber-700 uppercase">
+                ↻ Creando repetición
+            </p>
+
+            <p class="text-slate-700 mt-2">
+                Esta orden será una repetición de
+                <span class="font-bold">
+                    {{ $orden->codigo }}
+                </span>
+            </p>
+
+            <div class="grid grid-cols-1 md:grid-cols-3 gap-4 mt-4 text-sm">
+
+                <div>
+                    <span class="text-slate-400">Paciente:</span>
+
+                    <p class="font-semibold">
+                        {{ $orden->paciente?->nombre }}
+                        {{ $orden->paciente?->apellido }}
+                    </p>
+                </div>
+
+                <div>
+                    <span class="text-slate-400">Odontólogo:</span>
+
+                    <p class="font-semibold">
+                        {{ $orden->odontologo?->nombre }}
+                    </p>
+                </div>
+
+                <div>
+                    <span class="text-slate-400">Prótesis:</span>
+
+                    <p class="font-semibold">
+                        {{ $orden->tipoProtesis?->nombre }}
+                    </p>
+                </div>
+
+            </div>
+
+        </div>
+
+    @endif
+
     <div class="flex items-center justify-between mb-8">
 
         <div>
@@ -21,7 +70,7 @@
 
         <a
             href="{{ route('ordenes.index') }}"
-            class="text-sm text-slate-600 hover:text-blue-900 font-semibold"
+    class="text-sm text-slate-600 hover:text-blue-900 font-semibold"
         >
             ← Volver
         </a>
@@ -148,8 +197,13 @@
 
                             <option
                                 value="{{ $odontologo->id }}"
-                                @selected(old('odontologo_id') == $odontologo->id)
-                            >
+                                    @selected(
+                                        old(
+                                            'odontologo_id',
+                                            isset($orden) ? $orden->odontologo_id : null
+                                        ) == $odontologo->id
+                                    )                            
+                                >
                                 {{ $odontologo->nombre }}
                             </option>
 
@@ -181,8 +235,13 @@
 
                             <option
                                 value="{{ $paciente->id }}"
-                                @selected(old('paciente_id') == $paciente->id)
-                            >
+                                    @selected(
+                                        old(
+                                            'paciente_id',
+                                            isset($orden) ? $orden->paciente_id : null
+                                        ) == $paciente->id
+                                    )
+                                >
                                 {{ $paciente->nombre }}
                                 {{ $paciente->apellido }}
                             </option>
@@ -234,40 +293,141 @@
 
             <div class="p-6 grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
 
-                {{-- TIPO PRÓTESIS --}}
-                <div>
-                    <label class="block text-sm font-semibold text-slate-700 mb-2">
-                        Tipo de prótesis *
-                    </label>
+            {{-- TIPO DE PRÓTESIS --}}
+            <div>
+                <label class="block text-sm font-semibold text-slate-700 mb-2">
+                    Tipo de prótesis *
+                </label>
 
-                    <select
-                        name="tipo_protesis_id"
-                        required
-                        class="w-full border border-slate-300 rounded-lg px-4 py-3 bg-white"
+                <select
+                    name="tipo_protesis_id"
+                    required
+                    class="w-full border border-slate-300 rounded-lg px-4 py-3 bg-white"
+                >
+                    @foreach($tiposProtesis as $tipo)
+                        <option
+                            value="{{ $tipo->id }}"
+                            @selected(
+                                old(
+                                    'tipo_protesis_id',
+                                    isset($orden) ? $orden->tipo_protesis_id : null
+                                ) == $tipo->id
+                            )
+                        >
+                            {{ $tipo->nombre }}
+                        </option>
+                    @endforeach
+                </select>
+            </div>
+
+            {{-- TIPO DE ORDEN --}}
+            <div>
+
+                <label class="block text-sm font-semibold text-slate-700 mb-2">
+                    Tipo de orden
+                </label>
+
+                @if(isset($orden))
+
+                    {{-- REPETICIÓN --}}
+                    <input
+                        type="text"
+                        value="Repetición"
+                        disabled
+                        class="w-full bg-amber-50 border border-amber-200
+                            text-amber-700 font-semibold
+                            rounded-lg px-4 py-3"
                     >
 
-                        <option value="">
-                            Seleccione...
-                        </option>
+                    <input
+                        type="hidden"
+                        name="tipo_orden"
+                        value="Repeticion"
+                    >
 
-                        @foreach ($tiposProtesis as $tipo)
+                    <input
+                        type="hidden"
+                        name="orden_origen_id"
+                        value="{{ $orden->id }}"
+                    >
 
-                            <option
-                                value="{{ $tipo->id }}"
-                                @selected(old('tipo_protesis_id') == $tipo->id)
-                            >
-                                {{ ucfirst($tipo->categoria) }}
-                                — {{ $tipo->nombre }}
-                            </option>
+                @else
 
-                        @endforeach
+                    {{-- NUEVA --}}
+                    <input
+                        type="text"
+                        value="Nueva"
+                        disabled
+                        class="w-full bg-blue-50 border border-blue-200
+                            text-blue-700 font-semibold
+                            rounded-lg px-4 py-3"
+                    >
 
-                    </select>
+                    <input
+                        type="hidden"
+                        name="tipo_orden"
+                        value="Nueva"
+                    >
 
-                </div>
+                @endif
 
+            </div>
 
-                {{-- CANTIDAD --}}
+        @if(isset($orden))
+        <div class="md:col-span-2 lg:col-span-3">
+
+            <label class="block text-sm font-semibold text-slate-700 mb-2">
+                Motivo de repetición *
+            </label>
+
+            <select
+                name="motivo_repeticion"
+                required
+                class="w-full border border-slate-300 rounded-lg
+                    px-4 py-3 bg-white"
+            >
+
+                <option value="">
+                    Seleccione...
+                </option>
+
+                <option value="Paciente no conforme"
+                    @selected(old('motivo_repeticion') === 'Paciente no conforme')>
+                    Paciente no conforme
+                </option>
+
+                <option value="Problema de ajuste"
+                    @selected(old('motivo_repeticion') === 'Problema de ajuste')>
+                    Problema de ajuste
+                </option>
+
+                <option value="Cambio de color"
+                    @selected(old('motivo_repeticion') === 'Cambio de color')>
+                    Cambio de color
+                </option>
+
+                <option value="Fractura"
+                    @selected(old('motivo_repeticion') === 'Fractura')>
+                    Fractura
+                </option>
+
+                <option value="Error de laboratorio"
+                    @selected(old('motivo_repeticion') === 'Error de laboratorio')>
+                    Error de laboratorio
+                </option>
+
+                <option value="Otro"
+                    @selected(old('motivo_repeticion') === 'Otro')>
+                    Otro
+                </option>
+
+            </select>
+
+        </div>
+
+    @endif
+
+            {{-- CANTIDAD --}}
                 <div>
                     <label class="block text-sm font-semibold text-slate-700 mb-2">
                         Cantidad *
@@ -277,7 +437,10 @@
                         type="number"
                         name="cantidad"
                         min="1"
-                        value="{{ old('cantidad', 1) }}"
+                        value="{{ old(
+                            'cantidad',
+                            isset($orden) ? $orden->cantidad : 1
+                        ) }}"
                         required
                         class="w-full border border-slate-300 rounded-lg px-4 py-3"
                     >
@@ -293,7 +456,10 @@
                     <input
                         type="text"
                         name="color"
-                        value="{{ old('color') }}"
+                        value="{{ old(
+                            'color',
+                            isset($orden) ? $orden->color : ''
+                        ) }}"
                         placeholder="Ej. A2, Chromascop 130..."
                         class="w-full border border-slate-300 rounded-lg px-4 py-3"
                     >
@@ -303,16 +469,21 @@
                 {{-- ETAPA --}}
                 <div>
                     <label class="block text-sm font-semibold text-slate-700 mb-2">
-                        Etapa inicial
+                        {{ isset($orden)
+                            ? 'Etapa a la que regresa *'
+                            : 'Etapa inicial' }}
                     </label>
 
                     <select
                         name="etapa_actual_id"
+                        {{ isset($orden) ? 'required' : '' }}
                         class="w-full border border-slate-300 rounded-lg px-4 py-3 bg-white"
                     >
 
                         <option value="">
-                            Sin asignar
+                            {{ isset($orden)
+                                ? 'Seleccione la etapa a la que regresa...'
+                                : 'Sin asignar' }}
                         </option>
 
                         @foreach ($etapas as $etapa)
@@ -451,7 +622,7 @@
             </div>
 
         </div>
-
+        
     </form>
 
 </div>

@@ -99,7 +99,6 @@ class InventarioController extends Controller
         return view('inventario.movimiento', compact('material'));
     }
 
-
     public function storeMovimiento(Request $request, Material $material)
     {
         $datos = $request->validate([
@@ -155,4 +154,29 @@ class InventarioController extends Controller
                 ->route('inventario.show', $material)
                 ->with('success', 'Movimiento registrado correctamente.');
         }
+                    public function edit(Material $material)
+        {
+            return view('inventario.edit', compact('material'));
+        }
+
+
+    public function update(Request $request, Material $material)
+    {
+        $datos = $request->validate([
+            'codigo' => 'required|string|max:50|unique:materiales,codigo,' . $material->id,
+            'nombre' => 'required|string|max:150',
+            'descripcion' => 'nullable|string',
+            'unidad_medida' => 'required|string|max:50',
+            'stock_minimo' => 'required|numeric|min:0',
+            'costo_unitario' => 'required|numeric|min:0',
+            'estado' => 'required|boolean',
+        ]);
+
+        $material->update($datos);
+
+        return redirect()
+            ->route('inventario.show', $material)
+            ->with('success', 'Material actualizado correctamente.');
     }
+}
+

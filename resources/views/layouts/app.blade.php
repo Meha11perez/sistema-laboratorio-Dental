@@ -148,7 +148,7 @@
 
         {{-- GARANTÍAS --}}
         <a
-            href="#"
+            href="{{ route('garantias.index') }}"
             class="flex items-center gap-3 px-6 py-4
                    text-slate-600 hover:bg-slate-50
                    hover:text-blue-900 transition"
@@ -181,7 +181,7 @@
             <div class="bg-slate-50 border-y border-slate-100">
 
                 <a
-                    href="#"
+                    href="{{ route('pagos.index') }}"
                     class="block pl-14 pr-6 py-3 text-sm
                            text-slate-600 hover:text-blue-900
                            hover:bg-slate-100"
@@ -235,7 +235,7 @@
             <div class="bg-slate-50 border-y border-slate-100">
 
                 <a
-                    href="#"
+                    href="{{ route('mensajeria.index') }}"
                     class="block pl-14 pr-6 py-3 text-sm
                            text-slate-600 hover:text-blue-900
                            hover:bg-slate-100"
@@ -253,8 +253,8 @@
                 </a>
 
                 <a
-                    href="#"
-                    class="block pl-14 pr-6 py-3 text-sm
+                    href=""
+                class="block pl-14 pr-6 py-3 text-sm
                            text-slate-600 hover:text-blue-900
                            hover:bg-slate-100"
                 >
@@ -268,7 +268,7 @@
 
         {{-- REPORTES --}}
         <a
-            href="#"
+            href="{{ route('reportes.index') }}"
             class="flex items-center gap-3 px-6 py-4
                    text-slate-600 hover:bg-slate-50
                    hover:text-blue-900 transition"
@@ -311,7 +311,7 @@
                     <div class="bg-slate-50 border-y border-slate-100">
 
                         <a
-                            href="#"
+                            href="{{ route('administracion.index') }}"
                             class="block pl-14 pr-6 py-3 text-sm
                                    text-slate-600 hover:text-blue-900
                                    hover:bg-slate-100"
