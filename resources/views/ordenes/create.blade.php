@@ -350,6 +350,13 @@
                         name="orden_origen_id"
                         value="{{ $orden->id }}"
                     >
+                    @if(isset($devolucionId))
+                        <input
+                            type="hidden"
+                            name="devolucion_id"
+                            value="{{ $devolucionId }}"
+                        >
+                    @endif
 
                 @else
 

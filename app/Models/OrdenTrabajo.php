@@ -1,7 +1,7 @@
 <?php
 
 namespace App\Models;
-
+use App\Models\Abono;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\HasMany;
@@ -35,6 +35,7 @@ class OrdenTrabajo extends Model
         'tipo_orden',
         'orden_origen_id',
         'motivo_repeticion',
+        'devolucion_id',
     ];
 
     protected $casts = [
@@ -75,67 +76,73 @@ class OrdenTrabajo extends Model
     }
 
     public function usuarioRegistro(): BelongsTo
-    {
-        return $this->belongsTo(
-            User::class,
-            'registrado_por'
-        );
-    }
+        {
+            return $this->belongsTo(
+                User::class,
+                'registrado_por'
+            );
+        }
 
     public function tecnicoActual(): BelongsTo
-    {
-        return $this->belongsTo(
-            Tecnico::class,
-            'tecnico_actual_id'
-        );
-    }   
+        {
+            return $this->belongsTo(
+                Tecnico::class,
+                'tecnico_actual_id'
+            );
+        }   
 
     public function historialProduccion(): HasMany
-    {
-        return $this->hasMany(HistorialProduccion::class);
-    }
-    
+        {
+            return $this->hasMany(HistorialProduccion::class);
+        }
     public function movimientoInventario(): HasMany
-    {
-        return $this->hasMany(MovimientoInventario::class);
-    }
+        {
+            return $this->hasMany(MovimientoInventario::class);
+        }
     public function materiales(): HasMany
-    {
-        return $this->hasMany(OrdenMaterial::class);
-    }
+        {
+            return $this->hasMany(OrdenMaterial::class);
+        }
     public function garantia(): HasOne
-    {
-        return $this->hasOne(Garantia::class);
-    }
+        {
+            return $this->hasOne(Garantia::class);
+        }
     public function devoluciones(): HasMany
-    {
-        return $this->hasMany(Devolucion::class);
-    }
+        {
+            return $this->hasMany(Devolucion::class);
+        }
     public function pagos(): HasMany
-    {
-        return $this->hasMany(Pago::class);
-    }
+        {
+            return $this->hasMany(Pago::class);
+        }
     public function detallesMensajeria(): HasMany
-    {
-        return $this->hasMany(DetalleMensajeria::class);
-    }
+        {
+            return $this->hasMany(DetalleMensajeria::class);
+        }
     public function historialEstados(): HasMany
-    {
-        return $this->hasMany(HistorialEstadoOrden::class);
-    }
+        {
+             return $this->hasMany(HistorialEstadoOrden::class);
+         }
     public function ordenOrigen(): BelongsTo
-    {
-        return $this->belongsTo(
-            OrdenTrabajo::class,
-            'orden_origen_id'
-        );
-    }
+        {
+            return $this->belongsTo(
+                OrdenTrabajo::class,
+                'orden_origen_id'
+            );
+        }
 
     public function repeticiones(): HasMany
-    {
-        return $this->hasMany(
-            OrdenTrabajo::class,
-            'orden_origen_id'
-        );
-    }
+        {
+            return $this->hasMany(
+                OrdenTrabajo::class,
+                'orden_origen_id'
+            );
+        }
+    public function devolucionOrigen()
+        {
+            return $this->belongsTo(
+                Devolucion::class,
+                'devolucion_id'
+            );
+        }
 }

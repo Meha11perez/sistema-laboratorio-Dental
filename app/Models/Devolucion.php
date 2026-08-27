@@ -4,6 +4,7 @@ namespace App\Models;
 
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
+use Illuminate\Database\Eloquent\Relations\HasOne;
 
 class Devolucion extends Model
 {
@@ -28,17 +29,17 @@ class Devolucion extends Model
         'perdida_estimada' => 'decimal:2',
     ];
 
-    public function ordenTrabajo(): BelongsTo
+public function ordenTrabajo(): BelongsTo
     {
         return $this->belongsTo(OrdenTrabajo::class);
     }
 
-    public function garantia(): BelongsTo
+public function garantia(): BelongsTo
     {
         return $this->belongsTo(Garantia::class);
     }
 
-    public function tecnicoResponsable(): BelongsTo
+public function tecnicoResponsable(): BelongsTo
     {
         return $this->belongsTo(
             Tecnico::class,
@@ -46,11 +47,18 @@ class Devolucion extends Model
         );
     }
 
-    public function usuarioRegistro(): BelongsTo
+ public function usuarioRegistro(): BelongsTo
     {
         return $this->belongsTo(
             User::class,
             'registrado_por'
         );
     }
+public function repeticion(): HasOne
+        {
+            return $this->hasOne(
+                OrdenTrabajo::class,
+                'devolucion_id'
+            );
+        }
 }

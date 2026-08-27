@@ -30,4 +30,23 @@ class Garantia extends Model
     {
         return $this->hasMany(Devolucion::class);
     }
+    public function getEstadoActualAttribute(): string
+{
+    if (!$this->fecha_vencimiento) {
+        return 'Sin fecha';
+    }
+
+    $hoy = now()->startOfDay();
+    $vencimiento = $this->fecha_vencimiento->copy()->startOfDay();
+
+    if ($vencimiento->lt($hoy)) {
+        return 'Vencida';
+    }
+
+    if ($hoy->diffInDays($vencimiento) <= 15) {
+        return 'Por vencer';
+    }
+
+       return 'Vigente';
+    }
 }

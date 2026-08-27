@@ -5,6 +5,12 @@ use App\Http\Controllers\AgendaController;
 use App\Http\Controllers\DashboardController;
 use App\Http\Controllers\InventarioController;
 use App\Http\Controllers\DevolucionController;
+use App\Http\Controllers\GarantiaDevolucionController;
+use App\Http\Controllers\AbonoController;
+use App\Http\Controllers\PagoController;
+use App\Http\Controllers\PagoCreditoController;
+use App\Http\Controllers\CuentaOdontologoController;
+
 use Illuminate\Support\Facades\Route;
 
 Route::get('/', function () {
@@ -46,11 +52,7 @@ Route::middleware('auth')->group(function () {
     Route::post('/inventario/{material}/movimiento', [InventarioController::class, 'storeMovimiento'])->name('inventario.movimiento.store');
     Route::put('/inventario/{material}', [InventarioController::class, 'update'])->name('inventario.update');
     
-    Route::view('/garantias', 'garantias.index')
-    ->name('garantias.index');
-
-    Route::view('/pagos', 'pagos.index')
-    ->name('pagos.index');
+    Route::get('/garantias', [GarantiaDevolucionController::class, 'index'])->name('garantias.index');
 
     Route::view('/mensajeria', 'mensajeria.index')
     ->name('mensajeria.index');
@@ -64,7 +66,17 @@ Route::middleware('auth')->group(function () {
     //Devoluciones
     Route::get('/ordenes/{orden}/devolucion/crear', [DevolucionController::class, 'create'])->name('devoluciones.create');
     Route::post('/ordenes/{orden}/devolucion',[DevolucionController::class, 'store'])->name('devoluciones.store');  
+    //Abonos
+    Route::post('/pagos/{pago}/abonos',[AbonoController::class, 'store'])->name('abonos.store');
+    //Pagos
+    Route::view('/pagos', 'pagos.index')->name('pagos.index');
+    Route::get('/ordenes/{orden}/pago',[PagoController::class, 'show'])->name('pagos.show');
+    //Pagos a crédito
+    Route::get('/pagos',[PagoCreditoController::class, 'index'])->name('pagos.index');
+
+    Route::get('/odontologos/{odontologo}/cuenta',[CuentaOdontologoController::class, 'edit'])->name('cuentas-odontologos.edit');
+    Route::put('/odontologos/{odontologo}/cuenta',[CuentaOdontologoController::class, 'update'])->name('cuentas-odontologos.update');
     
-    });
+});
 
     

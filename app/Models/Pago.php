@@ -57,4 +57,4 @@ class Pago extends Model
     {
         return $this->hasMany(Abono::class);
     }
-}
+} 

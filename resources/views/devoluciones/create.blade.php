@@ -104,55 +104,59 @@
 
     @endif
 
-
     {{-- FORMULARIO --}}
-    <form
-        method="POST"
-        action="{{ route('devoluciones.store', $orden) }}"
-        class="bg-white border border-slate-200
-               rounded-xl shadow-sm overflow-hidden"
-    >
+        <form
+            method="POST"
+            action="{{ route('devoluciones.store', $orden) }}"
+            class="bg-white border border-slate-200
+                rounded-xl shadow-sm overflow-hidden"
+            >
+            @csrf
 
-        @csrf
+            <div class="p-6 grid grid-cols-1 md:grid-cols-2 gap-6">
 
+                {{-- TIPO --}}
+                <div>
 
-        <div class="p-6 grid grid-cols-1 md:grid-cols-2 gap-6">
+                    <label class="block text-sm font-semibold text-slate-700 mb-2">
+                        Tipo *
+                    </label>
 
-            {{-- TIPO --}}
-            <div>
+                    <select
+                        name="tipo"
+                        required
+                        class="w-full border border-slate-300
+                            rounded-lg px-4 py-3 bg-white"
+                        >
 
-                <label class="block text-sm font-semibold text-slate-700 mb-2">
-                    Tipo *
-                </label>
+                        <option value="">
+                            Seleccione...
+                        </option>
 
-                <select
-                    name="tipo"
-                    required
-                    class="w-full border border-slate-300
-                           rounded-lg px-4 py-3 bg-white"
-                >
+                        <option
+                            value="Devolución"
+                            @selected(old('tipo') === 'Devolución')
+                        >
+                            Devolución
+                        </option>
 
-                    <option value="">
-                        Seleccione...
-                    </option>
+                        <option
+                            value="Repetición"
+                            @selected(old('tipo') === 'Repetición')
+                        >
+                            Repetición
+                        </option>
 
-                    <option
-                        value="Garantia"
-                        @selected(old('tipo') === 'Garantia')
-                    >
-                        Garantía
-                    </option>
+                        <option
+                            value="Corrección"
+                            @selected(old('tipo') === 'Corrección')
+                        >
+                            Corrección
+                        </option>
 
-                    <option
-                        value="Devolucion"
-                        @selected(old('tipo') === 'Devolucion')
-                    >
-                        Devolución
-                    </option>
+                    </select>
 
-                </select>
-
-            </div>
+                </div>
 
 
             {{-- FECHA --}}
@@ -232,7 +236,6 @@
 
             </div>
 
-
             {{-- ESTADO --}}
             <div>
 
@@ -244,19 +247,42 @@
                     name="estado"
                     required
                     class="w-full border border-slate-300
-                           rounded-lg px-4 py-3 bg-white"
+                        rounded-lg px-4 py-3 bg-white"
                 >
 
-                    <option value="Pendiente">
-                        Pendiente
+                    <option
+                        value="Registrada"
+                        @selected(old('estado', 'Registrada') === 'Registrada')
+                    >
+                        Registrada
                     </option>
 
-                    <option value="En revision">
+                    <option
+                        value="En revisión"
+                        @selected(old('estado') === 'En revisión')
+                    >
                         En revisión
                     </option>
 
-                    <option value="Resuelta">
+                    <option
+                        value="En corrección"
+                        @selected(old('estado') === 'En corrección')
+                    >
+                        En corrección
+                    </option>
+
+                    <option
+                        value="Resuelta"
+                        @selected(old('estado') === 'Resuelta')
+                    >
                         Resuelta
+                    </option>
+
+                    <option
+                        value="Rechazada"
+                        @selected(old('estado') === 'Rechazada')
+                    >
+                        Rechazada
                     </option>
 
                 </select>

@@ -83,7 +83,7 @@
                         px-5 py-3 border border-purple-300
                         text-purple-700 hover:bg-purple-50
                         rounded-lg font-semibold text-sm"
-                >
+                > 
                     Registrar Devolución
                 </a>
 
@@ -112,7 +112,6 @@
 
             @endif
 
-
             <a
                 href="{{ route('ordenes.rotulo', $orden) }}"
                 target="_blank"
@@ -124,6 +123,15 @@
                 🖨 Imprimir Rótulo
             </a>
 
+            <a
+                href="{{ route('pagos.show', $orden) }}"
+                class="inline-flex items-center justify-center
+                    px-5 py-3 border border-emerald-600
+                    text-emerald-700 hover:bg-emerald-50
+                    rounded-lg font-semibold text-sm"
+            >
+                💰 Ver Pago
+            </a>
 
             @if($orden->estadoOrden?->nombre !== 'Cancelado')
 
@@ -664,6 +672,142 @@
         </div>
 
     </section>
+        {{-- =========================================================
+                GARANTÍA
+            ========================================================== --}}
+            <section class="bg-white border border-slate-200
+                            rounded-xl shadow-sm overflow-hidden mb-8">
+
+                <div class="px-6 py-5 border-b border-slate-200">
+
+                    <h2 class="text-lg font-bold text-slate-900">
+                        Garantía
+                    </h2>
+
+                    <p class="text-sm text-slate-500 mt-1">
+                        Información de garantía asociada a esta orden.
+                    </p>
+
+                </div>
+
+
+                <div class="p-6">
+
+                    @if($orden->garantia)
+
+                        @php
+                            $hoy = now()->startOfDay();
+                            $vencimiento = $orden->garantia->fecha_vencimiento?->startOfDay();
+
+                            if (!$vencimiento) {
+                                $estadoGarantia = 'Sin fecha';
+                            } elseif ($vencimiento->lt($hoy)) {
+                                $estadoGarantia = 'Vencida';
+                            } elseif ($vencimiento->diffInDays($hoy) <= 15) {
+                                $estadoGarantia = 'Por vencer';
+                            } else {
+                                $estadoGarantia = 'Vigente';
+                            }
+                        @endphp
+
+                        <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+
+                            <div>
+                                <p class="text-xs font-semibold text-slate-400 uppercase">
+                                    Inicio
+                                </p>
+
+                                <p class="font-semibold text-slate-900 mt-1">
+                                    {{ $orden->garantia->fecha_inicio?->format('d/m/Y') ?? '—' }}
+                                </p>
+                            </div>
+
+
+                            <div>
+                                <p class="text-xs font-semibold text-slate-400 uppercase">
+                                    Vencimiento
+                                </p>
+
+                                <p class="font-semibold text-slate-900 mt-1">
+                                    {{ $orden->garantia->fecha_vencimiento?->format('d/m/Y') ?? '—' }}
+                                </p>
+                            </div>
+
+
+                            <div>
+                                <p class="text-xs font-semibold text-slate-400 uppercase">
+                                    Estado
+                                </p>
+
+                                <div class="mt-2">
+
+                                    @if($estadoGarantia === 'Vigente')
+
+                                        <span class="bg-emerald-100 text-emerald-700
+                                                    px-3 py-1 rounded-full text-xs font-bold">
+                                            Vigente
+                                        </span>
+
+                                    @elseif($estadoGarantia === 'Por vencer')
+
+                                        <span class="bg-amber-100 text-amber-700
+                                                    px-3 py-1 rounded-full text-xs font-bold">
+                                            Por vencer
+                                        </span>
+
+                                    @elseif($estadoGarantia === 'Vencida')
+
+                                        <span class="bg-red-100 text-red-700
+                                                    px-3 py-1 rounded-full text-xs font-bold">
+                                            Vencida
+                                        </span>
+
+                                    @else
+
+                                        <span class="bg-slate-100 text-slate-600
+                                                    px-3 py-1 rounded-full text-xs font-bold">
+                                            Sin fecha
+                                        </span>
+
+                                    @endif
+
+                                </div>
+                            </div>
+
+                        </div>
+
+
+                        @if($orden->garantia->observaciones)
+
+                            <div class="mt-6 pt-5 border-t border-slate-100">
+
+                                <p class="text-xs font-semibold text-slate-400 uppercase">
+                                    Observaciones
+                                </p>
+
+                                <p class="text-slate-600 mt-2">
+                                    {{ $orden->garantia->observaciones }}
+                                </p>
+
+                            </div>
+
+                        @endif
+
+                    @else
+
+                        <div class="text-center py-6">
+
+                            <p class="text-slate-400">
+                                Esta orden no tiene una garantía registrada.
+                            </p>
+
+                        </div>
+
+                    @endif
+
+                </div>
+
+            </section>
 
     {{-- =========================================================
      DEVOLUCIONES Y GARANTÍAS
@@ -855,27 +999,59 @@
 
 
                         {{-- ACCIÓN --}}
-                        @if(
-                            $devolucion->requiere_repeticion &&
-                            $orden->estadoOrden?->nombre !== 'Cancelado'
-                        )
+                        @if($devolucion->requiere_repeticion)
 
                             <div class="lg:shrink-0">
 
-                                <a
-                                    href="{{ route('ordenes.repetir', $orden) }}"
-                                    class="inline-flex items-center justify-center
-                                        px-4 py-2.5 bg-amber-600
-                                        hover:bg-amber-700 text-white
-                                        rounded-lg font-semibold text-sm"
-                                >
-                                    ↻ Crear Repetición
-                                </a>
+                                @if($devolucion->repeticion)
+
+                                    {{-- YA EXISTE UNA REPETICIÓN --}}
+                                    <div class="flex flex-col gap-2">
+
+                                        <span
+                                            class="inline-flex items-center justify-center
+                                                px-4 py-2
+                                                bg-emerald-50 text-emerald-700
+                                                border border-emerald-200
+                                                rounded-lg font-semibold text-sm"
+                                        >
+                                            ✓ Repetición creada
+                                        </span>
+
+                                        <a
+                                            href="{{ route(
+                                                'ordenes.show',
+                                                $devolucion->repeticion
+                                            ) }}"
+                                            class="text-center text-blue-700
+                                                hover:underline font-semibold text-sm"
+                                        >
+                                            Ver {{ $devolucion->repeticion->codigo }} →
+                                        </a>
+
+                                    </div>
+
+                                @elseif($orden->estadoOrden?->nombre !== 'Cancelado')
+
+                                    {{-- TODAVÍA NO EXISTE REPETICIÓN --}}
+                                    <a
+                                        href="{{ route('ordenes.repetir', [
+                                            'orden' => $orden,
+                                            'devolucion' => $devolucion->id
+                                        ]) }}"
+                                        class="inline-flex items-center justify-center
+                                            px-4 py-2.5 bg-amber-600
+                                            hover:bg-amber-700 text-white
+                                            rounded-lg font-semibold text-sm"
+                                    >
+                                        ↻ Crear Repetición
+                                    </a>
+
+                                @endif
 
                             </div>
 
                         @endif
-
                     </div>
 
                 </div>
@@ -1073,7 +1249,5 @@
         </div>
 
     </section>
-
 </div>
-
 @endsection
