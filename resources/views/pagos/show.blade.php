@@ -12,10 +12,10 @@
         <div>
 
             <a
-                href="{{ route('ordenes.show', $orden) }}"
+                href="{{ route('pagos.index', $orden) }}"
                 class="text-sm font-semibold text-blue-700 hover:underline"
             >
-                ← Volver a la orden
+                ← Volver a Pagos
             </a>
 
             <h1 class="text-3xl font-bold text-slate-900 mt-3">
@@ -168,7 +168,6 @@
             {{-- =========================================================
                 ALERTA DE LÍMITE DE CRÉDITO
             ========================================================== --}}
-
             @if(
                 $pago->cuentaOdontologo &&
                 $pago->cuentaOdontologo->modalidad_pago === 'Crédito'
@@ -176,84 +175,74 @@
 
                 @php
                     $cuenta = $pago->cuentaOdontologo;
-
-                    $limiteCredito = (float) $cuenta->limite_credito;
-                    $saldoCuenta = (float) $cuenta->saldo_pendiente;
-
-                    $creditoDisponible = max(
-                        0,
-                        $limiteCredito - $saldoCuenta
-                    );
-
-                    $limiteSuperado =
-                        $limiteCredito > 0 &&
-                        $saldoCuenta > $limiteCredito;
                 @endphp
 
 
-                @if($limiteSuperado)
+                {{-- LÍMITE SUPERADO --}}
+                @if($cuenta->limite_superado)
 
                     <div class="mb-8 bg-red-50 border border-red-200
                                 rounded-xl p-5">
 
-                        <div class="flex items-start gap-4">
+                        <p class="font-bold text-red-800">
+                            Límite de crédito superado
+                        </p>
 
-                            <div class="text-2xl">
-                                ⚠
-                            </div>
+                        <p class="text-sm text-red-700 mt-1">
+                            El saldo pendiente del odontólogo supera
+                            el límite de crédito configurado.
+                        </p>
+
+
+                        <div class="grid grid-cols-1 sm:grid-cols-3 gap-4 mt-4">
 
                             <div>
 
+                                <p class="text-xs uppercase font-semibold text-red-500">
+                                    Límite
+                                </p>
+
                                 <p class="font-bold text-red-800">
-                                    Límite de crédito superado
+                                    Q {{ number_format(
+                                        $cuenta->limite_credito,
+                                        2
+                                    ) }}
                                 </p>
 
-                                <p class="text-sm text-red-700 mt-1">
-                                    El odontólogo tiene un saldo pendiente superior
-                                    al límite de crédito configurado.
+                            </div>
+
+
+                            <div>
+
+                                <p class="text-xs uppercase font-semibold text-red-500">
+                                    Saldo actual
                                 </p>
 
+                                <p class="font-bold text-red-800">
+                                    Q {{ number_format(
+                                        $cuenta->saldo_pendiente,
+                                        2
+                                    ) }}
+                                </p>
 
-                                <div class="grid grid-cols-1 sm:grid-cols-3 gap-4 mt-4">
-
-                                    <div>
-                                        <p class="text-xs uppercase font-semibold text-red-500">
-                                            Límite
-                                        </p>
-
-                                        <p class="font-bold text-red-800">
-                                            Q {{ number_format($limiteCredito, 2) }}
-                                        </p>
-                                    </div>
+                            </div>
 
 
-                                    <div>
-                                        <p class="text-xs uppercase font-semibold text-red-500">
-                                            Saldo actual
-                                        </p>
+                            <div>
 
-                                        <p class="font-bold text-red-800">
-                                            Q {{ number_format($saldoCuenta, 2) }}
-                                        </p>
-                                    </div>
+                                <p class="text-xs uppercase font-semibold text-red-500">
+                                    Excedente
+                                </p>
 
+                                <p class="font-bold text-red-800">
 
-                                    <div>
-                                        <p class="text-xs uppercase font-semibold text-red-500">
-                                            Excedente
-                                        </p>
+                                    Q {{ number_format(
+                                        (float) $cuenta->saldo_pendiente
+                                        - (float) $cuenta->limite_credito,
+                                        2
+                                    ) }}
 
-                                        <p class="font-bold text-red-800">
-                                            Q {{
-                                                number_format(
-                                                    $saldoCuenta - $limiteCredito,
-                                                    2
-                                                )
-                                            }}
-                                        </p>
-                                    </div>
-
-                                </div>
+                                </p>
 
                             </div>
 
@@ -262,9 +251,11 @@
                     </div>
 
 
+                {{-- CERCA DEL LÍMITE --}}
                 @elseif(
-                    $limiteCredito > 0 &&
-                    $creditoDisponible <= ($limiteCredito * 0.20)
+                    (float) $cuenta->limite_credito > 0 &&
+                    (float) $cuenta->credito_disponible
+                        <= ((float) $cuenta->limite_credito * 0.20)
                 )
 
                     <div class="mb-8 bg-amber-50 border border-amber-200
@@ -275,11 +266,18 @@
                         </p>
 
                         <p class="text-sm text-amber-700 mt-1">
+
                             El odontólogo dispone únicamente de
+
                             <strong>
-                                Q {{ number_format($creditoDisponible, 2) }}
+                                Q {{ number_format(
+                                    $cuenta->credito_disponible,
+                                    2
+                                ) }}
                             </strong>
-                            de su límite de crédito.
+
+                            de crédito disponible.
+
                         </p>
 
                     </div>
@@ -287,6 +285,7 @@
                 @endif
 
             @endif
+            
     {{-- RESUMEN DEL PAGO --}}
     <div class="grid grid-cols-1 md:grid-cols-3 gap-5 mb-8">
 

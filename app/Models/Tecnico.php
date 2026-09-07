@@ -47,7 +47,7 @@ class Tecnico extends Model
     }
     public function movimientosInventario(): HasMany
     {
-        return $this->hasMany(MovimientoInventario::class, );
+        return $this->hasMany(MovimientoInventario::class, 'tecnico_id');
     }
     public function devolucionesResponsables(): HasMany
         {

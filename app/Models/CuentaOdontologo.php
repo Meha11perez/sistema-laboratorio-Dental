@@ -34,4 +34,28 @@ class CuentaOdontologo extends Model
     {
         return $this->hasMany(Pago::class);
     }
+
+    public function getCreditoDisponibleAttribute(): float
+    {
+        if ($this->modalidad_pago !== 'Crédito') {
+            return 0;
+       }
+
+       return max(
+            0,                   
+            (float) $this->limite_credito
+            - (float) $this->saldo_pendiente
+        );
+    }
+
+    public function getLimiteSuperadoAttribute(): bool
+    {
+        if ($this->modalidad_pago !== 'Crédito') {
+              return false;
+          }
+
+        return (float) $this->saldo_pendiente
+        > (float) $this->limite_credito;
+    }
+
 }

@@ -158,13 +158,13 @@
         </a>
 
 
-        {{-- PAGOS --}}
+           {{-- PAGOS --}}
         <details class="group">
 
             <summary
                 class="flex items-center justify-between px-6 py-4
-                       text-slate-600 hover:bg-slate-50
-                       hover:text-blue-900 transition cursor-pointer"
+                    text-slate-600 hover:bg-slate-50
+                    hover:text-blue-900 transition cursor-pointer"
             >
 
                 <div class="flex items-center gap-3">
@@ -183,26 +183,17 @@
                 <a
                     href="{{ route('pagos.index') }}"
                     class="block pl-14 pr-6 py-3 text-sm
-                           text-slate-600 hover:text-blue-900
-                           hover:bg-slate-100"
+                        text-slate-600 hover:text-blue-900
+                        hover:bg-slate-100"
                 >
                     Pagos
                 </a>
 
                 <a
-                    href="#"
+                    href="{{ route('cuentas-odontologos.index') }}"
                     class="block pl-14 pr-6 py-3 text-sm
-                           text-slate-600 hover:text-blue-900
-                           hover:bg-slate-100"
-                >
-                    Abonos
-                </a>
-
-                <a
-                    href="#"
-                    class="block pl-14 pr-6 py-3 text-sm
-                           text-slate-600 hover:text-blue-900
-                           hover:bg-slate-100"
+                        text-slate-600 hover:text-blue-900
+                        hover:bg-slate-100"
                 >
                     Cuentas de Odontólogos
                 </a>

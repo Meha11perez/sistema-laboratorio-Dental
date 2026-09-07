@@ -10,10 +10,10 @@
     <div class="mb-8">
 
         <a
-            href="{{ route('pagos.index') }}"
+            href="{{ route('cuentas-odontologos.index') }}"
             class="text-sm font-semibold text-blue-700 hover:underline"
         >
-            ← Volver a Pagos y Créditos
+            ← Volver a Cuentas
         </a>
 
         <h1 class="text-3xl font-bold text-slate-900 mt-3">

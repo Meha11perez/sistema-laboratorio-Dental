@@ -10,6 +10,8 @@ use App\Http\Controllers\AbonoController;
 use App\Http\Controllers\PagoController;
 use App\Http\Controllers\PagoCreditoController;
 use App\Http\Controllers\CuentaOdontologoController;
+use App\Http\Controllers\RutaMensajeriaController;
+use App\Http\Controllers\DetalleMensajeriaController;
 
 use Illuminate\Support\Facades\Route;
 
@@ -54,8 +56,6 @@ Route::middleware('auth')->group(function () {
     
     Route::get('/garantias', [GarantiaDevolucionController::class, 'index'])->name('garantias.index');
 
-    Route::view('/mensajeria', 'mensajeria.index')
-    ->name('mensajeria.index');
 
     Route::view('/reportes', 'reportes.index')
     ->name('reportes.index');
@@ -73,10 +73,26 @@ Route::middleware('auth')->group(function () {
     Route::get('/ordenes/{orden}/pago',[PagoController::class, 'show'])->name('pagos.show');
     //Pagos a crédito
     Route::get('/pagos',[PagoCreditoController::class, 'index'])->name('pagos.index');
-
+    //Cuentas odontólogos
+    Route::get('/cuentas-odontologos',[CuentaOdontologoController::class, 'index'])->name('cuentas-odontologos.index');
     Route::get('/odontologos/{odontologo}/cuenta',[CuentaOdontologoController::class, 'edit'])->name('cuentas-odontologos.edit');
     Route::put('/odontologos/{odontologo}/cuenta',[CuentaOdontologoController::class, 'update'])->name('cuentas-odontologos.update');
+   
+    Route::view('/mensajeria', 'mensajeria.index')->name('mensajeria.index');
+    Route::get('/mensajeria',[RutaMensajeriaController::class, 'index'])->name('mensajeria.index');
+    Route::get('/mensajeria/crear',[RutaMensajeriaController::class, 'create'])->name('mensajeria.create');
+    Route::post('/mensajeria',[RutaMensajeriaController::class, 'store'])->name('mensajeria.store');
+    Route::get('/mensajeria/{ruta}',[RutaMensajeriaController::class, 'show'])->name('mensajeria.show');
+    Route::get('/mensajeria/{ruta}/visitas/crear',[DetalleMensajeriaController::class, 'create'])->name('mensajeria.detalles.create');
+    Route::post('/mensajeria/{ruta}/visitas',[DetalleMensajeriaController::class, 'store'])->name('mensajeria.detalles.store');
+    Route::put('/mensajeria/visitas/{detalle}/estado',[DetalleMensajeriaController::class, 'updateEstado'])->name('mensajeria.detalles.estado');
+
+    Route::put('/mensajeria/{ruta}/iniciar',[RutaMensajeriaController::class, 'iniciar'])->name('mensajeria.iniciar');
+    Route::put('/mensajeria/{ruta}/finalizar',[RutaMensajeriaController::class, 'finalizar'])->name('mensajeria.finalizar');
+
+    Route::get('/mensajeria/visitas/{detalle}/reprogramar',[DetalleMensajeriaController::class, 'reprogramarForm'])->name('mensajeria.detalles.reprogramar.form');  
+    Route::post('/mensajeria/visitas/{detalle}/reprogramar',[DetalleMensajeriaController::class, 'reprogramar'])->name('mensajeria.detalles.reprogramar');
     
-});
+    });
 
     

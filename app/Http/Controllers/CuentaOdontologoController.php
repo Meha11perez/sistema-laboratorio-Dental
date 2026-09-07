@@ -8,6 +8,22 @@ use Illuminate\Http\Request;
 
 class CuentaOdontologoController extends Controller
 {
+    public function index(Request $request)
+    {
+        $odontologos = Odontologo::with([
+            'clinica',
+            'cuenta',
+        ])
+        ->orderBy('nombre')
+        ->paginate(15);
+
+        return view(
+            'cuentas_odontologos.index',
+            compact('odontologos')
+        );
+    }
+
+
     public function edit(Odontologo $odontologo)
     {
         $cuenta = CuentaOdontologo::firstOrCreate(

@@ -54,11 +54,9 @@ return new class extends Migration
             ])->default('Pendiente');
 
             $table->time('hora_realizada')->nullable();
-
             $table->string('recibido_por', 150)->nullable();
-
+            $table->string('firma_recibido')->nullable();
             $table->text('observaciones')->nullable();
-
             $table->timestamps();
         });
     }

@@ -70,6 +70,19 @@ return new class extends Migration
                 'Normal',
                 'Urgente',
             ])->default('Normal');
+            
+            $table->enum('tipo_orden', [
+                'Nueva',
+                'Repeticion',
+            ])->default('Nueva');
+
+            $table->foreignId('orden_origen_id')
+                ->nullable()
+                ->constrained('ordenes_trabajo')
+                ->nullOnDelete();
+
+            $table->string('motivo_repeticion', 255)
+                ->nullable();
 
             $table->decimal('total', 10, 2)->default(0);
 

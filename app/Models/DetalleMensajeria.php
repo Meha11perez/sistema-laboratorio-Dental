@@ -20,6 +20,7 @@ class DetalleMensajeria extends Model
         'estado',
         'hora_realizada',
         'recibido_por',
+        'firma_recibido',
         'observaciones',
     ];
 

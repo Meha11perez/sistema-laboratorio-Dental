@@ -3,9 +3,7 @@
 namespace App\Http\Controllers;
 use App\Models\HistorialProduccion;
 use App\Models\HistorialEstadoOrden;
-use Illuminate\Support\Facades\DB;
 use App\Models\Devolucion;
-use Illuminate\Http\Request;
 use App\Models\OrdenTrabajo;
 use App\Models\Odontologo;
 use App\Models\Paciente;
@@ -14,6 +12,11 @@ use App\Models\EstadoOrden;
 use App\Models\EtapaProduccion;
 use App\Models\Tecnico;
 use App\Models\Garantia;
+use App\Models\Pago;
+
+use Illuminate\Support\Facades\DB;
+use Illuminate\Http\Request;
+
 
 
 class OrdenTrabajoController extends Controller
@@ -114,8 +117,6 @@ class OrdenTrabajoController extends Controller
             'exists:devoluciones,id',
         ],
         ]);
-
-
 
     $estadoInicial = EstadoOrden::where('nombre', 'Pendiente')
         ->firstOrFail();
@@ -368,6 +369,30 @@ class OrdenTrabajoController extends Controller
 
                 'total' => 'nullable|numeric|min:0',
             ]);
+            
+                $pago = Pago::where(
+                        'orden_trabajo_id',
+                        $orden->id
+                    )->first();
+
+                if ($pago) {
+
+                    $montoPagado = (float) $pago->monto_pagado;
+                    $nuevoTotal = (float) ($datos['total'] ?? 0);
+
+                    if ($nuevoTotal < $montoPagado) {
+
+                        return redirect()
+                            ->back()
+                            ->withErrors([
+                                'total' =>
+                                    'El nuevo total no puede ser menor al monto ya pagado de Q '
+                                    . number_format($montoPagado, 2)
+                                    . '.',
+                            ])
+                            ->withInput();
+                    }
+                }
 
             DB::transaction(function () use ($datos, $orden) {
 
