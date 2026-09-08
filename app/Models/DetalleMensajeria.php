@@ -22,8 +22,8 @@ class DetalleMensajeria extends Model
         'recibido_por',
         'firma_recibido',
         'observaciones',
+        'reprogramada_desde_id',
     ];
-
     public function rutaMensajeria(): BelongsTo
     {
         return $this->belongsTo(RutaMensajeria::class);
@@ -39,8 +39,25 @@ class DetalleMensajeria extends Model
         return $this->belongsTo(Odontologo::class);
     }
 
-    public function clinica(): BelongsTo
+   public function clinica(): BelongsTo
     {
         return $this->belongsTo(Clinica::class);
     }
+
+    public function visitaOrigen()
+    {
+        return $this->belongsTo(
+            DetalleMensajeria::class,
+            'reprogramada_desde_id'
+        );
+    }
+
+    public function visitaReprogramada()
+    {
+        return $this->hasOne(
+            DetalleMensajeria::class,
+            'reprogramada_desde_id'
+        );
+    }
+
 }

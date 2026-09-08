@@ -10,7 +10,7 @@
     <div class="flex flex-col lg:flex-row lg:items-center lg:justify-between gap-5 mb-8">
 
         <div>
-
+ 
             <a
                 href="{{ route('mensajeria.index') }}"
                 class="text-sm font-semibold text-blue-700 hover:underline"
@@ -277,31 +277,24 @@
 
                 </thead>
 
+       <tbody class="divide-y divide-slate-100">
 
-                <tbody class="divide-y divide-slate-100">
-
-                    @forelse(
-                        $ruta->detalles->sortBy('orden_visita')
-                        as $detalle
+            @forelse(
+                     $ruta->detalles->sortBy('orden_visita')
+                     as $detalle
                     )
+           <tr class="hover:bg-slate-50">
 
-                        <tr class="hover:bg-slate-50">
-
-                            {{-- ORDEN VISITA --}}
-                            <td class="px-6 py-4 font-bold text-slate-900">
-                                {{ $detalle->orden_visita }}
-                            </td>
-                            {{-- TIPO --}}
-                            <td class="px-6 py-4">
-
-                                @if($detalle->tipo_movimiento === 'Entrega')
-
-                                    <span class="bg-emerald-100 text-emerald-700
-                                                 px-3 py-1 rounded-full
-                                                 text-xs font-semibold">
+                {{-- ORDEN VISITA --}}
+                  <td class="px-6 py-4 font-bold text-slate-900">
+                     {{ $detalle->orden_visita }}
+                         </td>
+               {{-- TIPO --}}
+                    <td class="px-6 py-4">
+                          @if($detalle->tipo_movimiento === 'Entrega')
+                                <span class="bg-emerald-100 text-emerald-700 px-3 py-1 rounded-full text-xs font-semibold">
                                         Entrega
                                     </span>
-
                                 @else
 
                                     <span class="bg-blue-100 text-blue-700
@@ -649,67 +642,60 @@
 
                                                 @if($detalle->firma_recibido)
 
-                                                    <div class="mt-4">
+                                     <div class="mt-4">
 
-                                                        <p class="text-xs uppercase
-                                                                font-semibold text-slate-400
-                                                                mb-2">
-                                                            Firma de recibido
-                                                        </p>
+                                 <p class="text-xs uppercase font-semibold text-slate-400  mb-2">
+                                      Firma de recibido
+                                  </p>
 
-                                                        <img
-                                                            src="{{ asset(
-                                                                'storage/' .
-                                                                $detalle->firma_recibido
-                                                            ) }}"
-                                                            alt="Firma de recibido"
-                                                            class="w-full h-28
-                                                                object-contain
-                                                                border border-slate-200
-                                                                rounded-lg bg-white p-2"
-                                                        >
-
-                                                    </div>
-
-                                                @endif
-
-                                            </div>
-
-                                        </details>
-
-                                    @endif
+         <img src="{{ asset('storage/' . $detalle->firma_recibido) }} "alt="Firma de recibido" class="w-full h-28 object-contain border border-slate-200 rounded-lg bg-white p-2">
 
                                 </div>
 
-                                @elseif($detalle->estado === 'No realizada')
+                            @endif
 
-                                    <span class="text-red-700 font-semibold text-xs">
-                                        No realizada
-                                    </span>
+                        </div>
+
+                    </details>
+
+                @endif
+
+            </div>
+
+         @elseif($detalle->estado === 'No realizada')
+
+       <span class="text-red-700 font-semibold text-xs">
+           No realizada
+       </span>
 
 
-                                @elseif($detalle->estado === 'Reprogramada')
+            @elseif($detalle->estado === 'Reprogramada')
 
-                                <div class="flex flex-col items-end gap-2">
+    <div class="flex flex-col items-end gap-2">
 
-                                    <span class="text-purple-700 font-semibold text-xs">
-                                        Reprogramada
-                                    </span>
+        @if($detalle->visitaReprogramada)
 
-                                    <a
-                                        href="{{ route(
-                                            'mensajeria.detalles.reprogramar.form',
-                                            $detalle
-                                        ) }}"
-                                        class="text-blue-700
-                                            font-semibold text-xs
-                                            hover:underline"
-                                    >
-                                        Reprogramar
-                                    </a>
+            <span class="text-emerald-700 font-semibold text-xs">
+                Asignada a nueva ruta
+            </span>
 
-                                </div>
+        @else
 
+            <a
+                href="{{ route(
+                    'mensajeria.detalles.reprogramar.form',
+                    $detalle
+                ) }}"
+                class="text-blue-700
+                    font-semibold text-xs
+                    hover:underline"
+            >
+                Reprogramar
+            </a>
+
+        @endif
+
+    </div>
                                 @else
                                     <span class="text-slate-400">
                                         —
@@ -826,7 +812,6 @@ document.addEventListener('DOMContentLoaded', function () {
     });
 
 });
-
 
     function limpiarFirma(id) {
 

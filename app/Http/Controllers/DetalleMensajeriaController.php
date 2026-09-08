@@ -316,23 +316,42 @@ class DetalleMensajeriaController extends Controller
             // ==========================================
             // ACTUALIZAR VISITA
             // ==========================================
-            $detalle->update([
-                'estado' => $datos['estado'],
+            
+            $esRealizada = $datos['estado'] === 'Realizada';
+                if (
+                    !$esRealizada &&
+                    $detalle->firma_recibido &&
+                    Storage::disk('public')->exists(
+                        $detalle->firma_recibido
+                    )
+                ) {
+                    Storage::disk('public')->delete(
+                        $detalle->firma_recibido
+                    );
+                }
 
-                'hora_realizada' => $horaRealizada,
+                $detalle->update([
+                    'estado' => $datos['estado'],
 
-                'recibido_por' =>
-                    $datos['recibido_por'] ?? null,
+                    'hora_realizada' =>
+                        $esRealizada
+                            ? $horaRealizada
+                            : null,
 
-                'firma_recibido' =>
-                    $rutaFirma,
+                    'recibido_por' =>
+                        $esRealizada
+                            ? ($datos['recibido_por'] ?? null)
+                            : null,
 
+                    'firma_recibido' =>
+                        $esRealizada
+                            ? $rutaFirma
+                            : null,
 
-                'observaciones' =>
-                    $datos['observaciones']
-                    ?? $detalle->observaciones,
-            ]);
-
+                    'observaciones' =>
+                        $datos['observaciones']
+                        ?? $detalle->observaciones,
+                ]);
 
             // ==========================================
             // ENTREGA REALIZADA
@@ -463,9 +482,24 @@ class DetalleMensajeriaController extends Controller
                     );
             }
 
+            $yaFueReprogramada = DetalleMensajeria::where(
+                'reprogramada_desde_id',
+                $detalle->id
+            )->exists();
+
+            if ($yaFueReprogramada) {
+                return redirect()
+                    ->route(
+                        'mensajeria.show',
+                        $detalle->ruta_mensajeria_id
+                    )
+                    ->with(
+                        'error',
+                        'Esta visita ya fue asignada a una nueva ruta.'
+                    );
+            }
             /*
             * Solo rutas PENDIENTES.
-            *
             * No permitimos agregar una visita nueva
             * a una ruta que ya salió.
             */
@@ -487,10 +521,8 @@ class DetalleMensajeriaController extends Controller
             )
         );
     }
-    public function reprogramar(Request $request,
-     DetalleMensajeria $detalle
-        
-     ) {
+    public function reprogramar(Request $request, DetalleMensajeria $detalle ) 
+    {
         if ($detalle->estado !== 'Reprogramada') {
 
             return redirect()
@@ -502,7 +534,7 @@ class DetalleMensajeriaController extends Controller
                     'error',
                     'Esta visita no está disponible para reprogramación.'
                 );
-        }
+            }
             $datos = $request->validate([
                 'ruta_mensajeria_id' => [
                     'required',
@@ -511,9 +543,27 @@ class DetalleMensajeriaController extends Controller
             ]);
 
 
-        $nuevaRuta = RutaMensajeria::findOrFail(
+            $nuevaRuta = RutaMensajeria::findOrFail(
             $datos['ruta_mensajeria_id']
         );
+
+             $yaFueReprogramada = DetalleMensajeria::where(
+                'reprogramada_desde_id',
+                $detalle->id
+            )->exists();
+
+            if ($yaFueReprogramada) {
+                return redirect()
+                    ->route(
+                        'mensajeria.show',
+                        $detalle->ruta_mensajeria_id
+                    )
+                    ->with(
+                        'error',
+                        'Esta visita ya fue asignada a una nueva ruta.'
+                    );
+            }
+
         if (
                 $nuevaRuta->estado !== 'Pendiente' ||
                 $nuevaRuta->id === $detalle->ruta_mensajeria_id
@@ -526,15 +576,6 @@ class DetalleMensajeriaController extends Controller
                             'La ruta seleccionada no está disponible para reprogramación.',
                     ]);
             }
-         {
-            return redirect()
-                ->back()
-                ->withErrors([
-                    'ruta_mensajeria_id' =>
-                        'No se puede mover la visita a una ruta finalizada o cancelada.',
-                ]);
-        }
-
 
         $siguienteOrden = $nuevaRuta
             ->detalles()
@@ -544,10 +585,11 @@ class DetalleMensajeriaController extends Controller
             ? $siguienteOrden + 1
             : 1;
 
-
         DetalleMensajeria::create([
             'ruta_mensajeria_id' =>
                 $nuevaRuta->id,
+
+            'reprogramada_desde_id' => $detalle->id,
 
             'orden_trabajo_id' =>
                 $detalle->orden_trabajo_id,
@@ -582,7 +624,6 @@ class DetalleMensajeriaController extends Controller
                 'Visita reprogramada desde la ruta anterior. '
                 . ($detalle->observaciones ?? ''),
         ]);
-
 
         return redirect()
             ->route(

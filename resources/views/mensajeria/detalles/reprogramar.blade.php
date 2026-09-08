@@ -30,7 +30,6 @@
 
     </div>
 
-
     {{-- MENSAJES DE ERROR --}}
     @if(session('error'))
 
@@ -42,7 +41,6 @@
         </div>
 
     @endif
-
 
     @if($errors->any())
 
@@ -67,7 +65,6 @@
 
     @endif
 
-
     {{-- INFORMACIÓN DE LA VISITA --}}
     <div class="bg-white
                 border border-slate-200
@@ -83,7 +80,6 @@
             </h2>
 
         </div>
-
 
         <div class="p-6 grid
                     grid-cols-1 md:grid-cols-2
@@ -103,7 +99,6 @@
 
             </div>
 
-
             <div>
 
                 <p class="text-xs uppercase
@@ -119,7 +114,6 @@
                 </p>
 
             </div>
-
 
             <div>
 
@@ -137,7 +131,6 @@
 
             </div>
 
-
             <div>
 
                 <p class="text-xs uppercase
@@ -154,7 +147,6 @@
 
             </div>
 
-
             <div class="md:col-span-2">
 
                 <p class="text-xs uppercase
@@ -169,7 +161,6 @@
                 </p>
 
             </div>
-
 
             @if($detalle->observaciones)
 
@@ -193,8 +184,6 @@
         </div>
 
     </div>
-
-
     {{-- FORMULARIO --}}
     <div class="bg-white
                 border border-slate-200
@@ -210,8 +199,6 @@
             </h2>
 
         </div>
-
-
         <form
             method="POST"
             action="{{ route(
@@ -220,10 +207,7 @@
             ) }}"
             class="p-6"
         >
-
             @csrf
-            @method('PUT')
-
 
             <div>
 
@@ -235,7 +219,6 @@
                 >
                     Ruta disponible
                 </label>
-
 
                 <select
                     name="ruta_mensajeria_id"
@@ -251,32 +234,27 @@
                         Seleccione una ruta...
                     </option>
 
-
-                    @foreach($rutas as $rutaDestino)
+                    @foreach($rutasDisponibles as $rutaDestino)
 
                         <option
                             value="{{ $rutaDestino->id }}"
                             @selected(
                                 old('ruta_mensajeria_id')
                                 == $rutaDestino->id
-                            )
+                   
+                                )
                         >
-
                             {{ $rutaDestino->fecha?->format('d/m/Y') }}
-
                             —
-
                             {{ $rutaDestino->mensajero?->name
                                 ?? 'Sin mensajero' }}
-
                         </option>
 
                     @endforeach
 
                 </select>
 
-
-                @if($rutas->isEmpty())
+                @if($rutasDisponibles->isEmpty())
 
                     <p class="text-sm
                               text-amber-700 mt-3">
@@ -288,7 +266,6 @@
                 @endif
 
             </div>
-
 
             <div class="flex flex-col
                         sm:flex-row
@@ -315,7 +292,7 @@
 
                 <button
                     type="submit"
-                    @disabled($rutas->isEmpty())
+                    @disabled($rutasDisponibles->isEmpty())
                     class="inline-flex
                            justify-center
                            px-5 py-2.5

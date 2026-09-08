@@ -95,6 +95,8 @@ class RutaMensajeriaController extends Controller
             'detalles.ordenTrabajo.paciente',
             'detalles.odontologo',
             'detalles.clinica',
+            'detalles.visitaReprogramada',
+
         ]);
 
         return view(

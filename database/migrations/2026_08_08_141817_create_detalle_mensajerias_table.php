@@ -19,6 +19,11 @@ return new class extends Migration
                 ->cascadeOnUpdate()
                 ->cascadeOnDelete();
 
+            $table->foreignId('reprogramada_desde_id')
+                ->nullable()
+                ->constrained('detalles_mensajeria')
+                ->nullOnDelete();
+
             $table->foreignId('orden_trabajo_id')
                 ->nullable()
                 ->constrained('ordenes_trabajo')
