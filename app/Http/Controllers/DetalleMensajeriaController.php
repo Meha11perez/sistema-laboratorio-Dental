@@ -431,7 +431,6 @@ class DetalleMensajeriaController extends Controller
             }
         });
 
-
         return redirect()
             ->route(
                 'mensajeria.show',
@@ -442,4 +441,158 @@ class DetalleMensajeriaController extends Controller
                 'Estado de la visita actualizado correctamente.'
             );
     }
+    public function reprogramarForm(DetalleMensajeria $detalle) 
+        {
+            // Cargar información de la visita
+            $detalle->load([
+                'ordenTrabajo',
+                'odontologo',
+                'clinica',
+            ]);
+
+            if ($detalle->estado !== 'Reprogramada') {
+
+                return redirect()
+                    ->route(
+                        'mensajeria.show',
+                        $detalle->ruta_mensajeria_id
+                    )
+                    ->with(
+                        'error',
+                        'Solo se pueden reprogramar visitas marcadas como Reprogramada.'
+                    );
+            }
+
+            /*
+            * Solo rutas PENDIENTES.
+            *
+            * No permitimos agregar una visita nueva
+            * a una ruta que ya salió.
+            */
+            $rutasDisponibles = RutaMensajeria::with('mensajero')
+                ->where('estado', 'Pendiente')
+                ->where(
+                    'id',
+                    '!=',
+                    $detalle->ruta_mensajeria_id
+                )
+                ->orderBy('fecha')
+                ->get();
+
+            return view(
+                'mensajeria.detalles.reprogramar',
+                compact(
+                    'detalle',
+                    'rutasDisponibles'
+            )
+        );
+    }
+    public function reprogramar(Request $request,
+     DetalleMensajeria $detalle
+        
+     ) {
+        if ($detalle->estado !== 'Reprogramada') {
+
+            return redirect()
+                ->route(
+                    'mensajeria.show',
+                    $detalle->ruta_mensajeria_id
+                )
+                ->with(
+                    'error',
+                    'Esta visita no está disponible para reprogramación.'
+                );
+        }
+            $datos = $request->validate([
+                'ruta_mensajeria_id' => [
+                    'required',
+                    'exists:rutas_mensajeria,id',
+                ],
+            ]);
+
+
+        $nuevaRuta = RutaMensajeria::findOrFail(
+            $datos['ruta_mensajeria_id']
+        );
+        if (
+                $nuevaRuta->estado !== 'Pendiente' ||
+                $nuevaRuta->id === $detalle->ruta_mensajeria_id
+            ) {
+
+                return redirect()
+                    ->back()
+                    ->withErrors([
+                        'ruta_mensajeria_id' =>
+                            'La ruta seleccionada no está disponible para reprogramación.',
+                    ]);
+            }
+         {
+            return redirect()
+                ->back()
+                ->withErrors([
+                    'ruta_mensajeria_id' =>
+                        'No se puede mover la visita a una ruta finalizada o cancelada.',
+                ]);
+        }
+
+
+        $siguienteOrden = $nuevaRuta
+            ->detalles()
+            ->max('orden_visita');
+
+        $siguienteOrden = $siguienteOrden
+            ? $siguienteOrden + 1
+            : 1;
+
+
+        DetalleMensajeria::create([
+            'ruta_mensajeria_id' =>
+                $nuevaRuta->id,
+
+            'orden_trabajo_id' =>
+                $detalle->orden_trabajo_id,
+
+            'odontologo_id' =>
+                $detalle->odontologo_id,
+
+            'clinica_id' =>
+                $detalle->clinica_id,
+
+            'tipo_movimiento' =>
+                $detalle->tipo_movimiento,
+
+            'orden_visita' =>
+                $siguienteOrden,
+
+            'direccion_referencia' =>
+                $detalle->direccion_referencia,
+
+            'estado' =>
+                'Pendiente',
+
+            'hora_realizada' =>
+                null,
+
+            'recibido_por' =>
+                null,
+
+            'firma_recibido' => null,
+
+            'observaciones' =>
+                'Visita reprogramada desde la ruta anterior. '
+                . ($detalle->observaciones ?? ''),
+        ]);
+
+
+        return redirect()
+            ->route(
+                'mensajeria.show',
+                $nuevaRuta
+            )
+            ->with(
+                'success',
+                'Visita reprogramada correctamente.'
+            );
+    }
+
 }
