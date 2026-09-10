@@ -235,17 +235,8 @@
                 </a>
 
                 <a
-                    href="#"
+                    href="{{ route('mensajeria.recolecciones') }}"
                     class="block pl-14 pr-6 py-3 text-sm
-                           text-slate-600 hover:text-blue-900
-                           hover:bg-slate-100"
-                >
-                    Entregas
-                </a>
-
-                <a
-                    href=""
-                class="block pl-14 pr-6 py-3 text-sm
                            text-slate-600 hover:text-blue-900
                            hover:bg-slate-100"
                 >

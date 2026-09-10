@@ -13,6 +13,7 @@ use App\Http\Controllers\CuentaOdontologoController;
 use App\Http\Controllers\RutaMensajeriaController;
 use App\Http\Controllers\DetalleMensajeriaController;
 
+
 use Illuminate\Support\Facades\Route;
 
 Route::get('/', function () {
@@ -82,6 +83,7 @@ Route::middleware('auth')->group(function () {
     Route::get('/mensajeria',[RutaMensajeriaController::class, 'index'])->name('mensajeria.index');
     Route::get('/mensajeria/crear',[RutaMensajeriaController::class, 'create'])->name('mensajeria.create');
     Route::post('/mensajeria',[RutaMensajeriaController::class, 'store'])->name('mensajeria.store');
+    Route::get('/mensajeria/recolecciones',[RutaMensajeriaController::class, 'recolecciones'])->name('mensajeria.recolecciones');
     Route::get('/mensajeria/{ruta}',[RutaMensajeriaController::class, 'show'])->name('mensajeria.show');
     Route::get('/mensajeria/{ruta}/visitas/crear',[DetalleMensajeriaController::class, 'create'])->name('mensajeria.detalles.create');
     Route::post('/mensajeria/{ruta}/visitas',[DetalleMensajeriaController::class, 'store'])->name('mensajeria.detalles.store');
@@ -92,7 +94,7 @@ Route::middleware('auth')->group(function () {
 
     Route::get('/mensajeria/visitas/{detalle}/reprogramar',[DetalleMensajeriaController::class, 'reprogramarForm'])->name('mensajeria.detalles.reprogramar.form');  
     Route::post('/mensajeria/visitas/{detalle}/reprogramar',[DetalleMensajeriaController::class, 'reprogramar'])->name('mensajeria.detalles.reprogramar');
-    
-    });
+        
+});
 
     

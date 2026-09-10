@@ -152,4 +152,21 @@ class RutaMensajeriaController extends Controller
             ->route('mensajeria.show', $ruta)
             ->with('success', 'Ruta finalizada correctamente.');
         }
+    public function recolecciones()
+    {
+        $recolecciones = \App\Models\DetalleMensajeria::with([
+            'rutaMensajeria.mensajero',
+            'ordenTrabajo',
+            'odontologo',
+            'clinica',
+        ])
+            ->where('tipo_movimiento', 'Recolección')
+            ->orderByDesc('id')
+            ->get();
+
+        return view(
+            'mensajeria.recolecciones',
+            compact('recolecciones')
+        );
+    }
 }

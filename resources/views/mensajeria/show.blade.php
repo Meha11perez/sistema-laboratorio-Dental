@@ -477,67 +477,51 @@
                                                     </select>
 
                                                 </div>
+                        {{-- PERSONA QUE ENTREGA / RECIBE --}}
+                            <div>
 
+                                <label
+                                    class="block text-xs font-semibold text-slate-600 mb-1"
+                                >
+                                    @if($detalle->tipo_movimiento === 'Recolección')
+                                        Entregado por
+                                    @else
+                                        Recibido por
+                                    @endif
+                                </label>
 
-                                                {{-- RECIBIDO POR --}}
-                                                <div>
+                                <input
+                                    type="text"
+                                    name="recibido_por"
+                                    placeholder="{{ $detalle->tipo_movimiento === 'Recolección'
+                                        ? 'Nombre de quien entrega'
+                                        : 'Nombre de quien recibió' }}"
+                                    class="w-full border border-slate-300
+                                        rounded-lg px-3 py-2 text-sm"
+                                >
 
-                                                    <label
-                                                        class="block text-xs
-                                                            font-semibold
-                                                            text-slate-600 mb-1"
-                                                    >
-                                                        Recibido por
-                                                    </label>
-
-                                                    <input
-                                                        type="text"
-                                                        name="recibido_por"
-                                                        placeholder="Nombre de quien recibió"
-                                                        class="w-full border
-                                                            border-slate-300
-                                                            rounded-lg
-                                                            px-3 py-2 text-sm"
-                                                    >
-
-                                                </div>
+                            </div>
                                 
-                                                {{-- FIRMA --}} 
-                                                    <div>
+                             {{-- FIRMA --}} 
+                            <div>
 
-                                                        <label
-                                                            class="block text-xs
-                                                                font-semibold
-                                                                text-slate-600 mb-1"
-                                                        >
-                                                            Firma de recibido
-                                                        </label>
+                                <label class="block text-xs font-semibold text-slate-600 mb-1">
+                                    @if($detalle->tipo_movimiento === 'Recolección')
+                                        Firma de quien entrega
+                                    @else
+                                        Firma de recibido
+                                    @endif
+                                </label>
+                                                
+                                <canvas id="firma-{{ $detalle->id }}" width="280" height="120" class="w-full border border-slate-300 rounded-lg bg-white touch-none"></canvas>
 
-                                                        <canvas
-                                                            id="firma-{{ $detalle->id }}"
-                                                            width="280"
-                                                            height="120"
-                                                            class="w-full border border-slate-300
-                                                                rounded-lg bg-white touch-none"
-                                                        ></canvas>
+                                    <input type="hidden" name="firma_recibido" id="firma-input-{{ $detalle->id }}">
 
-                                                        <input
-                                                            type="hidden"
-                                                            name="firma_recibido"
-                                                            id="firma-input-{{ $detalle->id }}"
-                                                        >
-
-                                                        <button
-                                                            type="button"
-                                                            onclick="limpiarFirma({{ $detalle->id }})"
-                                                            class="mt-2 text-xs
-                                                                text-red-600
-                                                                font-semibold hover:underline"
-                                                        >
+                                        <button type="button" onclick="limpiarFirma({{ $detalle->id }})" class="mt-2 text-xs text-red-600 font-semibold hover:underline">
                                                             Limpiar firma
-                                                        </button>
+                                        </button>
 
-                                                    </div>
+                            </div>
 
                                                 {{-- OBSERVACIONES --}}
                                                 <div>
@@ -595,12 +579,9 @@
                                     </span>
 
                                     @if(
-                                        $detalle->tipo_movimiento === 'Entrega' &&
-                                        (
                                             $detalle->recibido_por ||
                                             $detalle->firma_recibido
                                         )
-                                    )
 
                                         <details class="text-left">
 
@@ -618,10 +599,11 @@
                                                     rounded-xl shadow-lg p-4"
                                             >
 
-                                                <p class="text-xs uppercase
-                                                        font-semibold text-slate-400">
-                                                    Recibido por
-                                                </p>
+                        <p class="text-xs uppercase font-semibold text-slate-400">
+                             {{ $detalle->tipo_movimiento === 'Recolección'
+                                ? 'Entregado por'
+                                : 'Recibido por' }}
+                        </p>
 
                                                 <p class="text-sm font-semibold
                                                         text-slate-800 mt-1">
@@ -629,11 +611,11 @@
                                                 </p>
 
 
-                                                <p class="text-xs uppercase
-                                                        font-semibold text-slate-400
-                                                        mt-4">
-                                                    Hora de entrega
-                                                </p>
+                        <p class="text-xs uppercase font-semibold text-slate-400 mt-4">
+                            {{ $detalle->tipo_movimiento === 'Recolección'
+                                ? 'Hora de recolección'
+                                : 'Hora de entrega' }}
+                        </p>
 
                                                 <p class="text-sm font-semibold
                                                         text-slate-800 mt-1">
