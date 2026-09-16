@@ -376,6 +376,7 @@
                             'fecha_ingreso',
                             $orden->fecha_ingreso?->format('Y-m-d')
                         ) }}"
+                        min="{{ now()->format('Y-m-d') }}"
                         class="w-full border border-slate-300 rounded-lg px-4 py-3"
                     >
 
@@ -391,10 +392,8 @@
                     <input
                         type="date"
                         name="fecha_entrega_estimada"
-                        value="{{ old(
-                            'fecha_entrega_estimada',
-                            $orden->fecha_entrega_estimada?->format('Y-m-d')
-                        ) }}"
+                        value="{{ old('fecha_entrega_estimada', $orden->fecha_entrega_estimada?->format('Y-m-d')) }}"
+                        min="{{ now()->format('Y-m-d') }}"
                         class="w-full border border-slate-300 rounded-lg px-4 py-3"
                     >
 

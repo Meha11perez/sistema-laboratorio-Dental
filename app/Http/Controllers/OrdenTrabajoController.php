@@ -86,11 +86,16 @@ class OrdenTrabajoController extends Controller
         'etapa_actual_id' => 'nullable|exists:etapas_produccion,id',
         'tecnico_actual_id' => 'nullable|exists:tecnicos,id',
 
-        'fecha_ingreso' => 'required|date',
+        'fecha_ingreso' => [
+            'required',
+            'date',
+            'after_or_equal:today',
+        ],
 
         'fecha_entrega_estimada' => [
             'nullable',
             'date',
+            'after_or_equal:today',
             'after_or_equal:fecha_ingreso',
         ],
 
@@ -255,7 +260,7 @@ class OrdenTrabajoController extends Controller
             );
 
         }
-        public function show(OrdenTrabajo $orden)
+    public function show(OrdenTrabajo $orden)
         {
             $orden->load([
                 'paciente',
@@ -286,7 +291,7 @@ class OrdenTrabajoController extends Controller
 
         return view('ordenes.show', compact('orden'));
         }
-        public function edit(OrdenTrabajo $orden)
+    public function edit(OrdenTrabajo $orden)
         {
             if ($orden->estadoOrden?->nombre === 'Cancelado') {
                 return redirect()
@@ -350,10 +355,10 @@ class OrdenTrabajoController extends Controller
                 'etapa_actual_id' => 'nullable|exists:etapas_produccion,id',
                 'tecnico_actual_id' => 'nullable|exists:tecnicos,id',
 
-                'fecha_ingreso' => 'required|date',
+                'fecha_ingreso' => 'required|date|after_or_equal:today',
 
                 'fecha_entrega_estimada' =>
-                    'nullable|date|after_or_equal:fecha_ingreso',
+                    'nullable|date|after_or_equal:today|after_or_equal:fecha_ingreso',
 
                 'fecha_entrega_real' =>
                     'nullable|date|after_or_equal:fecha_ingreso',

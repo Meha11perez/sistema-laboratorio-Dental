@@ -9,11 +9,10 @@
         {{-- ENCABEZADO --}}
         @if(isset($orden))
 
-        <div class="mb-6 bg-amber-50 border border-amber-200
-                    rounded-xl px-5 py-4">
+        <div class="mb-6 bg-amber-50 border border-amber-200 rounded-xl px-5 py-4">
 
             <p class="text-sm font-bold text-amber-700 uppercase">
-                ↻ Creando repetición
+                Creando repetición
             </p>
 
             <p class="text-slate-700 mt-2">
@@ -149,14 +148,11 @@
                     <input
                         type="date"
                         name="fecha_ingreso"
-                        value="{{ old('fecha_ingreso', date('Y-m-d')) }}"
-                        required
-                        class="w-full border border-slate-300 rounded-lg px-4 py-3
-                               focus:ring-2 focus:ring-blue-100
-                               focus:border-blue-800 outline-none"
+                        value="{{ old('fecha_ingreso', now()->format('Y-m-d')) }}"
+                        min="{{ now()->format('Y-m-d') }}"
+                        class="w-full border border-slate-300 rounded-lg px-4 py-2.5"
                     >
                 </div>
-
 
                 {{-- FECHA ENTREGA --}}
                 <div>
@@ -168,12 +164,10 @@
                         type="date"
                         name="fecha_entrega_estimada"
                         value="{{ old('fecha_entrega_estimada') }}"
-                        class="w-full border border-slate-300 rounded-lg px-4 py-3
-                               focus:ring-2 focus:ring-blue-100
-                               focus:border-blue-800 outline-none"
-                    >
+                        min="{{ now()->format('Y-m-d') }}"
+                        class="w-full border border-slate-300 rounded-lg px-4 py-3 focus:ring-2 focus:ring-blue-100
+                               focus:border-blue-800 outline-none">
                 </div>
-
 
                 {{-- ODONTÓLOGO --}}
                 <div>
