@@ -11,11 +11,13 @@
 
         <div>
  
-            <a
-                href="{{ route('mensajeria.index') }}"
-                class="text-sm font-semibold text-blue-700 hover:underline"
+            <a href="{{ request('origen') === 'entregas'
+                    ? route('mensajeria.entregas')
+                    : (request('origen') === 'recolecciones'
+                        ? route('mensajeria.recolecciones')
+                        : route('mensajeria.index')) }}"
             >
-                ← Volver a Mensajería
+                Volver
             </a>
 
             <h1 class="text-3xl font-bold text-slate-900 mt-3">
@@ -283,12 +285,13 @@
                      $ruta->detalles->sortBy('orden_visita')
                      as $detalle
                     )
-           <tr class="hover:bg-slate-50">
+                 <tr class="hover:bg-slate-50">
 
                 {{-- ORDEN VISITA --}}
                   <td class="px-6 py-4 font-bold text-slate-900">
                      {{ $detalle->orden_visita }}
                          </td>
+                         
                {{-- TIPO --}}
                     <td class="px-6 py-4">
                           @if($detalle->tipo_movimiento === 'Entrega')
@@ -585,19 +588,13 @@
 
                                         <details class="text-left">
 
-                                            <summary
-                                                class="text-blue-700 font-semibold
-                                                    text-xs hover:underline
-                                                    cursor-pointer"
-                                            >
-                                                Ver comprobante
-                                            </summary>
+                        <summary class="cursor-pointer text-blue-700 font-semibold text-xs">
+                            {{ $detalle->tipo_movimiento === 'Recolección'
+                            ? 'Ver comprobante de recolección'
+                            : 'Ver comprobante de entrega' }}
+                        </summary>
 
-                                            <div
-                                                class="mt-2 w-72 bg-white
-                                                    border border-slate-200
-                                                    rounded-xl shadow-lg p-4"
-                                            >
+                        <div class="mt-2 w-72 bg-white border border-slate-200 rounded-xl shadow-lg p-4">
 
                         <p class="text-xs uppercase font-semibold text-slate-400">
                              {{ $detalle->tipo_movimiento === 'Recolección'
@@ -605,11 +602,9 @@
                                 : 'Recibido por' }}
                         </p>
 
-                                                <p class="text-sm font-semibold
-                                                        text-slate-800 mt-1">
-                                                    {{ $detalle->recibido_por ?? '—' }}
-                                                </p>
-
+                        <p class="text-sm font-semibold text-slate-800 mt-1">
+                            {{ $detalle->recibido_por ?? '—' }}
+                        </p>
 
                         <p class="text-xs uppercase font-semibold text-slate-400 mt-4">
                             {{ $detalle->tipo_movimiento === 'Recolección'
@@ -617,32 +612,33 @@
                                 : 'Hora de entrega' }}
                         </p>
 
-                                                <p class="text-sm font-semibold
-                                                        text-slate-800 mt-1">
-                                                    {{ $detalle->hora_realizada ?? '—' }}
-                                                </p>
+                        <p class="text-sm font-semibold text-slate-800 mt-1">
+                            {{ $detalle->hora_realizada ?? '—' }}
+                        </p>
 
-                                                @if($detalle->firma_recibido)
+                            @if($detalle->firma_recibido)
 
-                                     <div class="mt-4">
+                        <div class="mt-4">
 
-                                 <p class="text-xs uppercase font-semibold text-slate-400  mb-2">
-                                      Firma de recibido
-                                  </p>
+                            <p class="text-xs uppercase font-semibold text-slate-400 mt-4">
+                                 {{ $detalle->tipo_movimiento === 'Recolección'
+                                    ? 'Firma de quien entrega'
+                                    : 'Firma de recibido' }}
+                            </p>
 
-         <img src="{{ asset('storage/' . $detalle->firma_recibido) }} "alt="Firma de recibido" class="w-full h-28 object-contain border border-slate-200 rounded-lg bg-white p-2">
-
-                                </div>
-
-                            @endif
+                             <img src="{{ asset('storage/' . $detalle->firma_recibido) }} "alt="Firma de recibido" class="w-full h-28 object-contain border border-slate-200 rounded-lg bg-white p-2">
 
                         </div>
 
-                    </details>
+                         @endif
 
-                @endif
+                    </div>
 
-            </div>
+                </details>
+
+            @endif
+
+        </div>
 
          @elseif($detalle->estado === 'No realizada')
 

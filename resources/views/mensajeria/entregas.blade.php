@@ -1,34 +1,30 @@
 @extends('layouts.app')
 
-@section('title', 'Recolecciones')
+@section('title', 'Entregas')
 
 @section('content')
 
 <div class="max-w-7xl mx-auto space-y-6">
 
-    {{-- ENCABEZADO --}}
     <div>
         <h1 class="text-3xl font-bold text-slate-900">
-            Recolecciones
+            Entregas
         </h1>
 
         <p class="text-slate-500 mt-1">
-            Control y seguimiento de trabajos recolectados
-            en clínicas y con odontólogos.
+            Seguimiento de trabajos entregados a odontólogos y clínicas.
         </p>
     </div>
-
 
     {{-- FILTROS --}}
     <div class="bg-white border border-slate-200 rounded-xl shadow-sm p-5">
 
         <form
             method="GET"
-            action="{{ route('mensajeria.recolecciones') }}"
+            action="{{ route('mensajeria.entregas') }}"
             class="grid grid-cols-1 md:grid-cols-5 gap-4 items-end"
         >
 
-            {{-- FECHA --}}
             <div>
                 <label class="block text-xs font-semibold text-slate-600 mb-1">
                     Fecha
@@ -42,8 +38,6 @@
                 >
             </div>
 
-
-            {{-- ESTADO --}}
             <div>
                 <label class="block text-xs font-semibold text-slate-600 mb-1">
                     Estado
@@ -53,10 +47,7 @@
                     name="estado"
                     class="w-full border border-slate-300 rounded-lg px-3 py-2 text-sm"
                 >
-
-                    <option value="">
-                        Todos
-                    </option>
+                    <option value="">Todos</option>
 
                     @foreach([
                         'Pendiente',
@@ -73,12 +64,9 @@
                         </option>
 
                     @endforeach
-
                 </select>
             </div>
 
-
-            {{-- ODONTÓLOGO --}}
             <div>
                 <label class="block text-xs font-semibold text-slate-600 mb-1">
                     Odontólogo
@@ -88,13 +76,9 @@
                     name="odontologo_id"
                     class="w-full border border-slate-300 rounded-lg px-3 py-2 text-sm"
                 >
-
-                    <option value="">
-                        Todos
-                    </option>
+                    <option value="">Todos</option>
 
                     @foreach($odontologos as $odontologo)
-
                         <option
                             value="{{ $odontologo->id }}"
                             @selected(
@@ -103,14 +87,10 @@
                         >
                             {{ $odontologo->nombre }}
                         </option>
-
                     @endforeach
-
                 </select>
             </div>
 
-
-            {{-- CLÍNICA --}}
             <div>
                 <label class="block text-xs font-semibold text-slate-600 mb-1">
                     Clínica
@@ -120,13 +100,9 @@
                     name="clinica_id"
                     class="w-full border border-slate-300 rounded-lg px-3 py-2 text-sm"
                 >
-
-                    <option value="">
-                        Todas
-                    </option>
+                    <option value="">Todas</option>
 
                     @foreach($clinicas as $clinica)
-
                         <option
                             value="{{ $clinica->id }}"
                             @selected(
@@ -135,16 +111,11 @@
                         >
                             {{ $clinica->nombre }}
                         </option>
-
                     @endforeach
-
                 </select>
             </div>
 
-
-            {{-- BOTONES --}}
             <div class="flex gap-2">
-
                 <button
                     type="submit"
                     class="px-4 py-2 bg-blue-700 text-white
@@ -155,40 +126,32 @@
                 </button>
 
                 <a
-                    href="{{ route('mensajeria.recolecciones') }}"
+                    href="{{ route('mensajeria.entregas') }}"
                     class="px-4 py-2 border border-slate-300
                            rounded-lg text-sm font-semibold
                            text-slate-600 hover:bg-slate-50"
                 >
                     Limpiar
                 </a>
-
             </div>
 
         </form>
 
     </div>
 
-
     {{-- TABLA --}}
     <div class="bg-white border border-slate-200 rounded-xl shadow-sm overflow-hidden">
 
         <div class="px-6 py-5 border-b border-slate-200">
 
-            <div class="flex justify-between items-center">
+            <h2 class="text-lg font-bold text-slate-900">
+                Historial de Entregas
+            </h2>
 
-                <div>
-                    <h2 class="text-lg font-bold text-slate-900">
-                        Historial de Recolecciones
-                    </h2>
-
-                    <p class="text-sm text-slate-500 mt-1">
-                        {{ $recolecciones->total() }}
-                        recolección(es) encontrada(s)
-                    </p>
-                </div>
-
-            </div>
+            <p class="text-sm text-slate-500 mt-1">
+                {{ $entregas->total() }}
+                entrega(s) encontrada(s)
+            </p>
 
         </div>
 
@@ -197,96 +160,53 @@
             <table class="w-full text-sm">
 
                 <thead class="bg-slate-50 text-slate-500 uppercase text-xs">
-
                     <tr>
-                        <th class="text-left px-6 py-4">
-                            Fecha
-                        </th>
-
-                        <th class="text-left px-6 py-4">
-                            Ruta
-                        </th>
-
-                        <th class="text-left px-6 py-4">
-                            Odontólogo
-                        </th>
-
-                        <th class="text-left px-6 py-4">
-                            Clínica
-                        </th>
-
-                        <th class="text-left px-6 py-4">
-                            Dirección
-                        </th>
-
-                        <th class="text-left px-6 py-4">
-                            Estado
-                        </th>
-
-                        <th class="text-left px-6 py-4">
-                            Hora
-                        </th>
-
-                        <th class="text-right px-6 py-4">
-                            Acción
-                        </th>
+                        <th class="text-left px-6 py-4">Fecha</th>
+                        <th class="text-left px-6 py-4">Ruta</th>
+                        <th class="text-left px-6 py-4">Orden</th>
+                        <th class="text-left px-6 py-4">Paciente</th>
+                        <th class="text-left px-6 py-4">Odontólogo</th>
+                        <th class="text-left px-6 py-4">Clínica</th>
+                        <th class="text-left px-6 py-4">Estado</th>
+                        <th class="text-left px-6 py-4">Hora</th>
+                        <th class="text-right px-6 py-4">Acción</th>
                     </tr>
-
                 </thead>
-
 
                 <tbody class="divide-y divide-slate-100">
 
-                    @forelse($recolecciones as $detalle)
+                    @forelse($entregas as $detalle)
 
                         <tr class="hover:bg-slate-50">
 
-                            {{-- FECHA --}}
                             <td class="px-6 py-4">
-
-                                {{ $detalle->rutaMensajeria?->fecha
-                                    ?->format('d/m/Y') ?? '—' }}
-
+                                {{ $detalle->rutaMensajeria?->fecha?->format('d/m/Y') ?? '—' }}
                             </td>
 
-
-                            {{-- RUTA --}}
-                            <td class="px-6 py-4 font-semibold text-slate-700">
-
+                            <td class="px-6 py-4 font-semibold">
                                 Ruta #{{ $detalle->ruta_mensajeria_id }}
-
                             </td>
 
-
-                            {{-- ODONTÓLOGO --}}
                             <td class="px-6 py-4">
+                                {{ $detalle->ordenTrabajo?->codigo ?? '—' }}
+                            </td>
 
+                            <td class="px-6 py-4">
+                                {{ $detalle->ordenTrabajo?->paciente?->nombre ?? '—' }}
+                            </td>
+
+                            <td class="px-6 py-4">
                                 {{ $detalle->odontologo?->nombre ?? '—' }}
-
                             </td>
 
-
-                            {{-- CLÍNICA --}}
                             <td class="px-6 py-4">
-
                                 {{ $detalle->clinica?->nombre ?? '—' }}
-
                             </td>
 
-
-                            {{-- DIRECCIÓN --}}
-                            <td class="px-6 py-4 max-w-xs">
-
-                                {{ $detalle->direccion_referencia ?? '—' }}
-
-                            </td>
-
-
-                            {{-- ESTADO --}}
                             <td class="px-6 py-4">
 
                                 @php
-                                    $clasesEstado = match($detalle->estado) {
+                                    $estadoClase = match($detalle->estado) {
                                         'Realizada' =>
                                             'bg-emerald-100 text-emerald-700',
 
@@ -303,50 +223,38 @@
 
                                 <span
                                     class="inline-flex px-3 py-1 rounded-full
-                                           text-xs font-semibold {{ $clasesEstado }}"
+                                           text-xs font-semibold {{ $estadoClase }}"
                                 >
                                     {{ $detalle->estado }}
                                 </span>
 
                             </td>
 
-
-                            {{-- HORA --}}
                             <td class="px-6 py-4">
-
                                 {{ $detalle->hora_realizada ?? '—' }}
-
                             </td>
 
+                    <td class="px-6 py-4 text-right">
 
-                            {{-- ACCIÓN --}}
-                            <td class="px-6 py-4 text-right">
+                    <a
+                        href="{{ route('mensajeria.entregas.show', $detalle->id) }}"
+                        class="text-blue-700 font-semibold hover:underline"
+                    >
+                        Ver detalle
+                    </a>
 
-                                <a
-                                    href="{{ route(
-                                        'mensajeria.recolecciones.show',
-                                        $detalle
-                                    ) }}"
-                                    class="text-blue-700 font-semibold hover:underline"
-                                >
-                                    Ver detalle
-                                </a>
-
-                            </td>
-
-                        </tr>
+                    </td>
+               </tr>
 
                     @empty
 
                         <tr>
-
                             <td
-                                colspan="8"
+                                colspan="9"
                                 class="px-6 py-12 text-center text-slate-400"
                             >
-                                No se encontraron recolecciones.
+                                No se encontraron entregas.
                             </td>
-
                         </tr>
 
                     @endforelse
@@ -356,16 +264,11 @@
             </table>
 
         </div>
-        
-        {{-- PAGINACIÓN --}}
-        @if($recolecciones->hasPages())
 
+        @if($entregas->hasPages())
             <div class="px-6 py-4 border-t border-slate-200">
-
-                {{ $recolecciones->links() }}
-
+                {{ $entregas->links() }}
             </div>
-
         @endif
 
     </div>

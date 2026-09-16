@@ -225,9 +225,34 @@ class DetalleMensajeriaController extends Controller
                 'nullable',
                 'string',
                 'max:1000',
-            ],
+            ], 
         ]);
 
+        if (
+            $datos['estado'] === 'Realizada' &&
+            $detalle->tipo_movimiento === 'Recolección'
+        ) {
+
+            if (empty($datos['recibido_por'])) {
+
+                return back()
+                    ->withErrors([
+                        'recibido_por' =>
+                            'Debe ingresar el nombre de quien entrega.',
+                    ])
+                    ->withInput();
+            }
+
+            if (empty($datos['firma_recibido'])) {
+
+                return back()
+                    ->withErrors([
+                        'firma_recibido' =>
+                            'Debe capturar la firma de quien entrega.',
+                    ])
+                    ->withInput();
+            }
+        }
 
         DB::transaction(function () use ($datos, $detalle) {
 

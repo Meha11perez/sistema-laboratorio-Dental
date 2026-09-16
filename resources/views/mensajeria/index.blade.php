@@ -258,7 +258,7 @@
 
                             {{-- VISITAS --}}
                             <td class="px-6 py-4 text-center font-semibold">
-                                {{ $ruta->detalles->count() }}
+                                {{ $ruta->detalles_count }}
                             </td>
                             {{-- SALIDA --}}
                             <td class="px-6 py-4">
