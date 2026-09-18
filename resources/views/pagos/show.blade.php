@@ -11,12 +11,16 @@
 
         <div>
 
-            <a
-                href="{{ route('pagos.index', $orden) }}"
-                class="text-sm font-semibold text-blue-700 hover:underline"
-            >
-                ← Volver a Pagos
-            </a>
+        <a
+            href="{{ request('origen') === 'pagos'
+                ? route('pagos.index')
+                : route('ordenes.show', $orden) }}"
+            class="text-sm font-semibold text-blue-700 hover:underline"
+        >
+            ← {{ request('origen') === 'pagos'
+                ? 'Volver a Pagos y Créditos'
+                : 'Volver a la orden' }}
+        </a>
 
             <h1 class="text-3xl font-bold text-slate-900 mt-3">
                 Pago de la Orden

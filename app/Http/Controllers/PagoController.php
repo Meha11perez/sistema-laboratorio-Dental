@@ -50,7 +50,7 @@ class PagoController extends Controller
 
                 'estado_pago' =>
                     ($orden->total ?? 0) > 0
-                        ? 'Pendiente'
+                        ? 'Pendiente' 
                         : 'Pagado',
 
                     'fecha_registro' =>

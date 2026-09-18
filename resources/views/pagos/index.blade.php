@@ -311,17 +311,16 @@
                                 @if($pago->ordenTrabajo)
 
                                 <a
-                                    href="{{ route(
-                                        'pagos.show',
-                                        $pago->ordenTrabajo
-                                    ) }}"
+                                    href="{{ route('pagos.show', [
+                                    'orden' => $pago->ordenTrabajo,
+                                    'origen' => 'pagos',    
+                                    ]) }}"
                                     class="text-blue-700 font-semibold hover:underline"
                                 >
                                     Ver pago
                                 </a>
 
-                            @endif
-
+                            @endif 
 
                             @if($pago->odontologo)
 
