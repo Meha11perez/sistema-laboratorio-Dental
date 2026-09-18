@@ -205,11 +205,35 @@ class DetalleMensajeriaController extends Controller
     public function updateEstado(
         Request $request,
         DetalleMensajeria $detalle
-    ) {
+    )
+    {
+        // =====================================================
+        // SEGURIDAD: EL MENSAJERO SOLO PUEDE TRABAJAR
+        // VISITAS DE UNA RUTA ASIGNADA A ÉL
+        // =====================================================
+
+        $detalle->loadMissing('rutaMensajeria');
+
+        if (!$detalle->rutaMensajeria) {
+            abort(404, 'La visita no tiene una ruta asociada.');
+        }
+
+        if ($detalle->rutaMensajeria->mensajero_id !== auth()->id()) {
+            abort(403, 'No tiene permiso para modificar esta visita.');
+        }
+
+        // La visita solo puede ejecutarse cuando la ruta está en curso
+        if ($detalle->rutaMensajeria->estado !== 'En ruta') {
+            return back()->with(
+                'error',
+                'Solo puede registrar una visita cuando la ruta está en curso.'
+            );
+        }
+
         $datos = $request->validate([
             'estado' => [
                 'required',
-                'in:Realizada,No realizada,Reprogramada',
+                'in:Realizada,No realizada',
             ],
 
             'recibido_por' => [

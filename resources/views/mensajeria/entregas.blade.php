@@ -203,31 +203,44 @@
                                 {{ $detalle->clinica?->nombre ?? '—' }}
                             </td>
 
-                            <td class="px-6 py-4">
+                        <td class="px-6 py-4">
 
-                                @php
-                                    $estadoClase = match($detalle->estado) {
-                                        'Realizada' =>
-                                            'bg-emerald-100 text-emerald-700',
+                        @php
+                            $atrasada =
+                                $detalle->estado === 'Pendiente'
+                                && $detalle->rutaMensajeria?->fecha
+                                && $detalle->rutaMensajeria->fecha->isBefore(
+                                    \Carbon\Carbon::today('America/Guatemala')
+                                );
 
-                                        'No realizada' =>
-                                            'bg-red-100 text-red-700',
+                            if ($atrasada) {
+                                $estadoTexto = 'Atrasada';
+                                $estadoClase = 'bg-red-100 text-red-700';
+                            } else {
+                                $estadoTexto = $detalle->estado;
 
-                                        'Reprogramada' =>
-                                            'bg-amber-100 text-amber-700',
+                                $estadoClase = match($detalle->estado) {
+                                    'Realizada' =>
+                                        'bg-emerald-100 text-emerald-700',
 
-                                        default =>
-                                            'bg-slate-100 text-slate-700',
-                                    };
-                                @endphp
+                                    'No realizada' =>
+                                        'bg-red-100 text-red-700',
 
-                                <span
-                                    class="inline-flex px-3 py-1 rounded-full
-                                           text-xs font-semibold {{ $estadoClase }}"
-                                >
-                                    {{ $detalle->estado }}
-                                </span>
+                                    'Reprogramada' =>
+                                        'bg-amber-100 text-amber-700',
 
+                                    default =>
+                                        'bg-slate-100 text-slate-700',
+                                };
+                            }
+                        @endphp
+
+                        <span
+                            class="inline-flex px-3 py-1 rounded-full
+                                text-xs font-semibold {{ $estadoClase }}"
+                        >
+                            {{ $estadoTexto }}
+                        </span>
                             </td>
 
                             <td class="px-6 py-4">
@@ -235,14 +248,31 @@
                             </td>
 
                     <td class="px-6 py-4 text-right">
+                        <div class="flex items-center justify-end gap-3">
 
-                    <a
-                        href="{{ route('mensajeria.entregas.show', $detalle->id) }}"
-                        class="text-blue-700 font-semibold hover:underline"
-                    >
-                        Ver detalle
-                    </a>
+                            @if($atrasada)
+                                <a
+                                    href="{{ route(
+                                        'mensajeria.detalles.reprogramar.form',
+                                        $detalle
+                                    ) }}"
+                                    class="text-amber-700 font-semibold hover:underline"
+                                >
+                                    Reprogramar
+                                </a>
+                            @endif
 
+                            <a
+                                href="{{ route(
+                                    'mensajeria.entregas.show',
+                                    $detalle->id
+                                ) }}"
+                                class="text-blue-700 font-semibold hover:underline"
+                            >
+                                Ver detalle
+                            </a>
+
+                        </div>
                     </td>
                </tr>
 

@@ -79,26 +79,100 @@ Route::middleware('auth')->group(function () {
     Route::get('/odontologos/{odontologo}/cuenta',[CuentaOdontologoController::class, 'edit'])->name('cuentas-odontologos.edit');
     Route::put('/odontologos/{odontologo}/cuenta',[CuentaOdontologoController::class, 'update'])->name('cuentas-odontologos.update');
    
-    Route::view('/mensajeria', 'mensajeria.index')->name('mensajeria.index');
-    Route::get('/mensajeria',[RutaMensajeriaController::class, 'index'])->name('mensajeria.index');
-    Route::get('/mensajeria/crear',[RutaMensajeriaController::class, 'create'])->name('mensajeria.create');
-    Route::post('/mensajeria',[RutaMensajeriaController::class, 'store'])->name('mensajeria.store');
-    Route::get('/mensajeria/recolecciones',[RutaMensajeriaController::class, 'recolecciones'])->name('mensajeria.recolecciones');
-    Route::get('/mensajeria/entregas',[RutaMensajeriaController::class, 'entregas'])->name('mensajeria.entregas');   
+   // =====================================================
+    // MENSAJERÍA
+    // =====================================================
 
-    Route::get('/mensajeria/entregas/{detalle}',[RutaMensajeriaController::class, 'showEntrega'])->name('mensajeria.entregas.show');    
-    Route::get('/mensajeria/{ruta}',[RutaMensajeriaController::class, 'show'])->name('mensajeria.show');
-    Route::get('/mensajeria/{ruta}/visitas/crear',[DetalleMensajeriaController::class, 'create'])->name('mensajeria.detalles.create');
-    Route::post('/mensajeria/{ruta}/visitas',[DetalleMensajeriaController::class, 'store'])->name('mensajeria.detalles.store');
-    Route::put('/mensajeria/visitas/{detalle}/estado',[DetalleMensajeriaController::class, 'updateEstado'])->name('mensajeria.detalles.estado');
-    Route::put('/mensajeria/{ruta}/iniciar',[RutaMensajeriaController::class, 'iniciar'])->name('mensajeria.iniciar');
-    Route::put('/mensajeria/{ruta}/finalizar',[RutaMensajeriaController::class, 'finalizar'])->name('mensajeria.finalizar');
 
-    Route::get('/mensajeria/visitas/{detalle}/reprogramar',[DetalleMensajeriaController::class, 'reprogramarForm'])->name('mensajeria.detalles.reprogramar.form');  
-    Route::post('/mensajeria/visitas/{detalle}/reprogramar',[DetalleMensajeriaController::class, 'reprogramar'])->name('mensajeria.detalles.reprogramar');
-    
-    Route::get('/mensajeria/recolecciones/{detalle}',[RutaMensajeriaController::class, 'showRecoleccion'])->name('mensajeria.recolecciones.show');
-    
+    // -----------------------------------------------------
+    // PLANIFICACIÓN
+    // Solo Administrador y Recepción
+    // -----------------------------------------------------
+    Route::middleware('role:Administrador,Recepcion')->group(function () {
+
+        Route::get('/mensajeria/crear', [RutaMensajeriaController::class, 'create'])
+            ->name('mensajeria.create');
+
+        Route::post('/mensajeria', [RutaMensajeriaController::class, 'store'])
+            ->name('mensajeria.store');
+
+        Route::get('/mensajeria/{ruta}/visitas/crear', [DetalleMensajeriaController::class, 'create'])
+            ->name('mensajeria.detalles.create');
+
+        Route::post('/mensajeria/{ruta}/visitas', [DetalleMensajeriaController::class, 'store'])
+            ->name('mensajeria.detalles.store');
+
+        Route::get(
+            '/mensajeria/visitas/{detalle}/reprogramar',
+            [DetalleMensajeriaController::class, 'reprogramarForm']
+        )->name('mensajeria.detalles.reprogramar.form');
+
+        Route::post(
+            '/mensajeria/visitas/{detalle}/reprogramar',
+            [DetalleMensajeriaController::class, 'reprogramar']
+        )->name('mensajeria.detalles.reprogramar');
+    });
+
+
+    // -----------------------------------------------------
+    // CONSULTA DE MENSAJERÍA
+    // Administrador, Recepción y Mensajero
+    // -----------------------------------------------------
+    Route::middleware('role:Administrador,Recepcion,Mensajero')->group(function () {
+
+        Route::get('/mensajeria', [RutaMensajeriaController::class, 'index'])
+            ->name('mensajeria.index');
+
+        Route::get('/mensajeria/entregas', [RutaMensajeriaController::class, 'entregas'])
+            ->name('mensajeria.entregas');
+
+        Route::get('/mensajeria/recolecciones', [RutaMensajeriaController::class, 'recolecciones'])
+            ->name('mensajeria.recolecciones');
+
+        Route::get(
+            '/mensajeria/entregas/{detalle}',
+            [RutaMensajeriaController::class, 'showEntrega']
+        )->name('mensajeria.entregas.show');
+
+        Route::get(
+            '/mensajeria/recolecciones/{detalle}',
+            [RutaMensajeriaController::class, 'showRecoleccion']
+        )->name('mensajeria.recolecciones.show');
+    });
+
+
+    // -----------------------------------------------------
+    // EJECUCIÓN DE RUTA
+    // Solo Mensajero
+    // -----------------------------------------------------
+    Route::middleware('role:Mensajero')->group(function () {
+
+        Route::put(
+            '/mensajeria/{ruta}/iniciar',
+            [RutaMensajeriaController::class, 'iniciar']
+        )->name('mensajeria.iniciar');
+
+        Route::put(
+            '/mensajeria/visitas/{detalle}/estado',
+            [DetalleMensajeriaController::class, 'updateEstado']
+        )->name('mensajeria.detalles.estado');
+
+        Route::put(
+            '/mensajeria/{ruta}/finalizar',
+            [RutaMensajeriaController::class, 'finalizar']
+        )->name('mensajeria.finalizar');
+    });
+
+
+    // -----------------------------------------------------
+    // DETALLE DE RUTA
+    // IMPORTANTE: ESTA DEBE IR AL FINAL
+    // -----------------------------------------------------
+    Route::middleware('role:Administrador,Recepcion,Mensajero')->group(function () {
+
+        Route::get('/mensajeria/{ruta}', [RutaMensajeriaController::class, 'show'])
+            ->name('mensajeria.show');
+    });            
 });
 
     

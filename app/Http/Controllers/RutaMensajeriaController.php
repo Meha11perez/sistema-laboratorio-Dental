@@ -7,14 +7,43 @@ use App\Models\DetalleMensajeria;
 use App\Models\Odontologo;
 use App\Models\Clinica;
 use App\Models\User;
+use Carbon\Carbon;
+use Illuminate\Validation\Rule;
 use Illuminate\Http\Request;
 
-class RutaMensajeriaController extends Controller
-{
+class RutaMensajeriaController extends Controller{
+    private function esMensajero(): bool
+    {
+        return auth()->user()?->role?->nombre === 'Mensajero';
+    }
+
+    private function verificarRutaMensajero(RutaMensajeria $ruta): void
+    {
+        if (
+            $this->esMensajero() &&
+            $ruta->mensajero_id !== auth()->id()
+        ) {
+            abort(403, 'No tiene permiso para acceder a esta ruta.');
+        }
+    }
     public function index(Request $request)
     {
         $query = RutaMensajeria::with('mensajero')
             ->withCount('detalles');
+
+       if ($this->esMensajero()) {
+            $query->where('mensajero_id', auth()->id())
+                ->whereDate(
+                    'fecha',
+                    '>=',
+                    Carbon::today('America/Guatemala')->subMonths(3)
+                )
+                ->whereDate(
+                    'fecha',
+                    '<=',
+                    Carbon::today('America/Guatemala')
+                );
+        }
 
         if ($request->filled('fecha')) {
             $query->whereDate('fecha', $request->fecha);
@@ -35,15 +64,14 @@ class RutaMensajeriaController extends Controller
             compact('rutas')
         );
     }
-    public function create()
+   public function create()
     {
-        /*
-         * Por ahora cargamos usuarios activos.
-         * Después podemos filtrar exclusivamente
-         * por rol Mensajero si tu estructura de roles
-         * ya lo permite.
-         */
-        $mensajeros = User::orderBy('name')->get();
+        $mensajeros = User::whereHas('role', function ($query) {
+            $query->where('nombre', 'Mensajero')
+                ->where('estado', true);
+        })
+        ->orderBy('name')
+        ->get();
 
         return view(
             'mensajeria.create',
@@ -54,14 +82,22 @@ class RutaMensajeriaController extends Controller
     public function store(Request $request)
     {
         $datos = $request->validate([
-            'mensajero_id' => [
+             'mensajero_id' => [
                 'required',
-                'exists:users,id',
-            ],
+                    Rule::exists('users', 'id')->where(function ($query) {
+                        $query->whereIn('role_id', function ($subquery) {
+                        $subquery->select('id')
+                            ->from('roles')
+                            ->where('nombre', 'Mensajero')
+                            ->where('estado', true);
+                        });
+                    }),
+                 ],
 
             'fecha' => [
                 'required',
                 'date',
+                'after_or_equal:today',
             ],
 
             'observaciones' => [
@@ -93,9 +129,10 @@ class RutaMensajeriaController extends Controller
     }
     public function show(RutaMensajeria $ruta)
     {
+        $this->verificarRutaMensajero($ruta);
+
         $ruta->load([
             'mensajero',
-
             'detalles.ordenTrabajo.paciente',
             'detalles.odontologo',
             'detalles.clinica',
@@ -110,30 +147,58 @@ class RutaMensajeriaController extends Controller
     }
     public function iniciar(RutaMensajeria $ruta)
     {
+        $this->verificarRutaMensajero($ruta);
+
         if ($ruta->estado !== 'Pendiente') {
             return redirect()
                 ->route('mensajeria.show', $ruta)
-                ->with('error', 'Solo se pueden iniciar rutas pendientes.');
+                ->with(
+                    'error',
+                    'Solo se pueden iniciar rutas pendientes.'
+                );
+        }
+
+        $hoy = Carbon::today('America/Guatemala');
+
+        // No permitir iniciar rutas futuras
+        if (!$ruta->fecha->isSameDay($hoy)) {
+           return redirect()
+                ->route('mensajeria.show', $ruta)
+                ->with(
+                    'error',
+                    'Esta ruta solo puede iniciarse en la fecha programada: '
+                    . $ruta->fecha->format('d/m/Y') . '.'
+            );
         }
 
         $ruta->update([
             'estado' => 'En ruta',
-            'hora_salida' => now()->format('H:i:s'),
+            'hora_salida' => now('America/Guatemala')->format('H:i:s'),
             'hora_regreso' => null,
         ]);
 
         return redirect()
             ->route('mensajeria.show', $ruta)
-            ->with('success', 'Ruta iniciada correctamente.');
+            ->with(
+                'success',
+                'Ruta iniciada correctamente.'
+            );
     }
     public function finalizar(RutaMensajeria $ruta)
     {
+        $this->verificarRutaMensajero($ruta);
+
+        // Solo una ruta en curso puede finalizarse
         if ($ruta->estado !== 'En ruta') {
             return redirect()
                 ->route('mensajeria.show', $ruta)
-                ->with('error', 'Solo se pueden finalizar rutas que estén en curso.');
+                ->with(
+                    'error',
+                    'Solo se pueden finalizar rutas que estén en curso.'
+                );
         }
 
+        // No puede finalizar mientras tenga visitas pendientes
         $pendientes = $ruta->detalles()
             ->where('estado', 'Pendiente')
             ->exists();
@@ -147,15 +212,19 @@ class RutaMensajeriaController extends Controller
                 );
         }
 
+        // Finalizar ruta
         $ruta->update([
             'estado' => 'Finalizada',
-            'hora_regreso' => now()->format('H:i:s'),
+            'hora_regreso' => now('America/Guatemala')->format('H:i:s'),
         ]);
 
         return redirect()
             ->route('mensajeria.show', $ruta)
-            ->with('success', 'Ruta finalizada correctamente.');
-        }
+            ->with(
+                'success',
+                'Ruta finalizada correctamente.'
+            );
+    }
     public function recolecciones(Request $request)
     {
         $query = DetalleMensajeria::with([
@@ -164,8 +233,24 @@ class RutaMensajeriaController extends Controller
             'odontologo',
             'clinica',
         ])
-            ->where('tipo_movimiento', 'Recolección');
-
+        
+        ->where('tipo_movimiento', 'Recolección');
+       
+        if ($this->esMensajero()) {
+            $query->whereHas('rutaMensajeria', function ($q) {
+                $q->where('mensajero_id', auth()->id())
+                    ->whereDate(
+                        'fecha',
+                        '>=',
+                        Carbon::today('America/Guatemala')->subMonths(3)
+                    )
+                    ->whereDate(
+                        'fecha',
+                        '<=',
+                        Carbon::today('America/Guatemala')
+                    );
+            });
+        }
         // FILTRO POR FECHA
         if ($request->filled('fecha')) {
             $query->whereHas(
@@ -237,6 +322,8 @@ class RutaMensajeriaController extends Controller
             abort(404);
         }
 
+        $this->verificarRutaMensajero($detalle->rutaMensajeria);
+
         $detalle->load([
             'rutaMensajeria.mensajero',
             'ordenTrabajo.paciente',
@@ -259,7 +346,24 @@ class RutaMensajeriaController extends Controller
             'odontologo',
             'clinica',
         ])
-            ->where('tipo_movimiento', 'Entrega');
+
+        ->where('tipo_movimiento', 'Entrega');
+            
+       if ($this->esMensajero()) {
+            $query->whereHas('rutaMensajeria', function ($q) {
+                $q->where('mensajero_id', auth()->id())
+                    ->whereDate(
+                        'fecha',
+                        '>=',
+                        Carbon::today('America/Guatemala')->subMonths(3)
+                    )
+                    ->whereDate(
+                        'fecha',
+                        '<=',
+                        Carbon::today('America/Guatemala')
+                    );
+            });
+        }
 
         // FILTRO POR FECHA
         if ($request->filled('fecha')) {
@@ -331,6 +435,8 @@ class RutaMensajeriaController extends Controller
         if ($detalle->tipo_movimiento !== 'Entrega') {
             abort(404);
         }
+
+        $this->verificarRutaMensajero($detalle->rutaMensajeria);
 
         $detalle->load([
             'rutaMensajeria.mensajero',

@@ -8,6 +8,16 @@ class DashboardController extends Controller
 {
     public function index()
     {
+        $rol = auth()->user()?->role?->nombre;
+
+        if ($rol === 'Mensajero') {
+            return redirect()->route('mensajeria.index');
+        }
+
+        if ($rol === 'Técnico') {
+            return redirect()->route('agenda.index');
+        }
+        
         $ordenesPendientes = OrdenTrabajo::whereHas('estadoOrden', function ($query) {
             $query->where('nombre', 'Pendiente');
         })->count();
