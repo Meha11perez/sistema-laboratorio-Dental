@@ -5,6 +5,7 @@ namespace App\Models;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\HasMany;
+use Illuminate\Database\Eloquent\Relations\BelongsToMany;
 
 class Tecnico extends Model
 {
@@ -25,6 +26,16 @@ class Tecnico extends Model
     {
         return $this->belongsTo(User::class);
     }
+    public function etapasProduccion(): BelongsToMany
+    {
+        return $this->belongsToMany(
+            EtapaProduccion::class,
+            'etapa_tecnico',
+            'tecnico_id',
+            'etapa_produccion_id'
+        )->withTimestamps();
+    }
+
 
     public function ordenesActuales(): HasMany
     {
@@ -50,11 +61,11 @@ class Tecnico extends Model
         return $this->hasMany(MovimientoInventario::class, 'tecnico_id');
     }
     public function devolucionesResponsables(): HasMany
-        {
-            return $this->hasMany(
-                Devolucion::class,
+    {
+        return $this->hasMany(
+            Devolucion::class,
                 'tecnico_responsable_id'
-            );
-        }
+        );
+    }
 
 }

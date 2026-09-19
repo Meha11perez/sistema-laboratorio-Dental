@@ -145,4 +145,11 @@ class OrdenTrabajo extends Model
                 'devolucion_id'
             );
         }
+    public function materialesUtilizados(): HasMany
+    {
+        return $this->hasMany(
+            OrdenMaterial::class,
+            'orden_trabajo_id'
+        );
+    }
 }

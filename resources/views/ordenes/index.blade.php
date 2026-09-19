@@ -16,12 +16,17 @@
         </p>
     </div>
 
-    <a
-        href="{{ route('ordenes.create') }}"
-        class="bg-blue-800 hover:bg-blue-900 text-white px-5 py-3 rounded-lg font-semibold"
-    >
-        + Nueva Orden
-    </a>
+        @if(in_array(
+        auth()->user()->role?->nombre,
+        ['Administrador', 'Recepcion']
+    ))
+        <a
+            href="{{ route('ordenes.create') }}"
+            ...
+        >
+            + Nueva Orden
+        </a>
+    @endif
 
 </div>
 
@@ -35,19 +40,19 @@
             <thead class="bg-slate-50 text-slate-500 uppercase text-xs">
 
                 <tr>
-                    <th class="text-left px-6 py-4">Código</th>
-                    <th class="text-left px-6 py-4">Caja</th>
-                    <th class="text-left px-6 py-4">Paciente</th>
-                    <th class="text-left px-6 py-4">Odontólogo</th>
-                    <th class="text-left px-6 py-4">Prótesis</th>
-
-                    <th class="text-left px-6 py-4">Tipo</th>
-                    
-                    <th class="text-left px-6 py-4">Estado</th>
-                    <th class="text-left px-6 py-4">Entrega</th>
-                    <th class="text-left px-6 py-4">Acciones</th>
-                </tr>
-
+                <th class="text-left px-6 py-4">Código</th>
+                <th class="text-left px-6 py-4">Caja</th>
+                <th class="text-left px-6 py-4">Paciente</th>
+                <th class="text-left px-6 py-4">Odontólogo</th>
+                <th class="text-left px-6 py-4">Prótesis</th>
+                <th class="text-left px-6 py-4">Etapa actual</th>
+                <th class="text-left px-6 py-4">Técnico actual</th>
+                <th class="text-left px-6 py-4">Tipo</th>
+                <th class="text-left px-6 py-4">Estado</th>
+                <th class="text-left px-6 py-4">Entrega</th>
+                <th class="text-left px-6 py-4">Acciones</th>
+            </tr>
+                
             </thead>
 
             <tbody class="divide-y divide-slate-100">
@@ -81,6 +86,16 @@
                     {{ $orden->tipoProtesis?->nombre }}
                 </td>
 
+                {{-- ETAPA ACTUAL --}}
+                <td class="px-6 py-4">
+                    {{ $orden->etapaActual?->nombre ?? 'Sin asignar' }}
+                </td>
+
+                {{-- TÉCNICO ACTUAL --}}
+                <td class="px-6 py-4">
+                    {{ $orden->tecnicoActual?->user?->name ?? 'Sin asignar' }}
+                </td>
+
                 {{-- TIPO DE ORDEN --}}
                 <td class="px-6 py-4">
 
@@ -89,7 +104,7 @@
                         <span class="inline-flex items-center px-3 py-1
                                     rounded-full text-xs font-bold
                                     bg-amber-100 text-amber-700">
-                            ↻ Repetición
+                            Repetición
                         </span>
 
                     @else
@@ -128,22 +143,26 @@
                         Ver
                     </a>
 
-                    <a
-                        href="{{ route('ordenes.edit', $orden) }}"
-                        class="ml-3 text-amber-700 font-semibold hover:underline"
-                    >
-                        Editar
-                    </a>
+                    @if(in_array(
+                        auth()->user()->role?->nombre,
+                        ['Administrador', 'Recepcion']
+                    ))
+                        <a
+                            href="{{ route('ordenes.edit', $orden) }}"
+                            class="ml-3 text-amber-600 font-semibold hover:underline"
+                        >
+                            Editar
+                        </a>
+                    @endif
 
                 </td>
-
             </tr>
 
         @empty
 
             <tr>
                 <td
-                    colspan="9"
+                    colspan=11"
                     class="px-6 py-12 text-center text-slate-400"
                 >
                     No hay órdenes registradas.

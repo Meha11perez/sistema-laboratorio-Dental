@@ -172,35 +172,60 @@
     <div class="bg-white border border-slate-200
                 rounded-xl shadow-sm overflow-hidden">
 
-        {{-- CABECERA DE MOVIMIENTOS --}}
+       {{-- CABECERA DE MOVIMIENTOS --}}
         <div class="flex flex-col sm:flex-row sm:items-center
                     sm:justify-between gap-4
                     px-6 py-4 border-b border-slate-200">
 
             <div>
+
                 <h2 class="font-bold text-slate-900">
                     Movimientos de Inventario
                 </h2>
 
                 <p class="text-sm text-slate-500 mt-1">
-                    Entradas y salidas registradas para este material.
+                    Entradas, salidas y asignaciones registradas
+                    para este material.
                 </p>
+
             </div>
 
 
-            {{-- BOTÓN REGISTRAR MOVIMIENTO --}}
-            <a
-                href="{{ route('inventario.movimiento.create', $material) }}"
-                class="inline-flex items-center justify-center
-                    bg-blue-800 hover:bg-blue-900
-                    text-white px-5 py-3 rounded-lg
-                    font-semibold text-sm transition"
-            >
-                + Registrar Movimiento
-            </a>
+            {{-- BOTONES --}}
+            <div class="flex flex-wrap gap-3">
+
+                {{-- ASIGNAR A TÉCNICO --}}
+                <a
+                    href="{{ route(
+                        'inventario.asignar',
+                        $material
+                    ) }}"
+                    class="inline-flex items-center justify-center
+                        bg-emerald-600 hover:bg-emerald-700
+                        text-white px-5 py-3 rounded-lg
+                        font-semibold text-sm transition"
+                >
+                    Asignar a técnico
+                </a>
+
+
+                {{-- REGISTRAR MOVIMIENTO --}}
+                <a
+                    href="{{ route(
+                        'inventario.movimiento.create',
+                        $material
+                    ) }}"
+                    class="inline-flex items-center justify-center
+                        bg-blue-800 hover:bg-blue-900
+                        text-white px-5 py-3 rounded-lg
+                        font-semibold text-sm transition"
+                >
+                    + Registrar Movimiento
+                </a>
+
+            </div>
 
         </div>
-
 
         {{-- HISTORIAL --}}
         <div class="overflow-x-auto">
@@ -238,47 +263,56 @@
 
                         </td>
 
+                {{-- TIPO --}}
+                <td class="px-6 py-4">
 
-                        {{-- TIPO --}}
-                        <td class="px-6 py-4">
+                    @if($movimiento->tipo_movimiento === 'Entrada')
 
-                            @if($movimiento->tipo_movimiento === 'Entrada')
-
-                                <span class="inline-flex px-3 py-1 rounded-full
-                                            bg-emerald-50 text-emerald-700
-                                            text-xs font-semibold">
-                                    Entrada
-                                </span>
-
-                            @elseif($movimiento->tipo_movimiento === 'Salida')
-
-                                <span class="inline-flex px-3 py-1 rounded-full
-                                            bg-red-50 text-red-700
-                                            text-xs font-semibold">
-                                    Salida
-                                </span>
-
-                            @elseif($movimiento->tipo_movimiento === 'Devolución')
-
-                                <span class="inline-flex px-3 py-1 rounded-full
-                                            bg-blue-50 text-blue-700
-                                            text-xs font-semibold">
-                                    Devolución
-                                </span>
-
-                            @else
-
-                                <span class="inline-flex px-3 py-1 rounded-full
-                                            bg-amber-50 text-amber-700
-                                            text-xs font-semibold">
-                                    Ajuste
-                                </span>
-
-                            @endif
-
-                        </td>
+                        <span class="inline-flex px-3 py-1 rounded-full
+                                    bg-emerald-50 text-emerald-700
+                                    text-xs font-semibold">
+                            Entrada
+                        </span>
 
 
+                    @elseif($movimiento->tipo_movimiento === 'Salida')
+
+                        <span class="inline-flex px-3 py-1 rounded-full
+                                    bg-red-50 text-red-700
+                                    text-xs font-semibold">
+                            Salida
+                        </span>
+
+
+                    @elseif($movimiento->tipo_movimiento === 'Consumo')
+
+                        <span class="inline-flex px-3 py-1 rounded-full
+                                    bg-purple-50 text-purple-700
+                                    text-xs font-semibold">
+                            Consumo
+                        </span>
+
+
+                    @elseif($movimiento->tipo_movimiento === 'Devolución')
+
+                        <span class="inline-flex px-3 py-1 rounded-full
+                                    bg-blue-50 text-blue-700
+                                    text-xs font-semibold">
+                            Devolución
+                        </span>
+
+
+                    @else
+
+                        <span class="inline-flex px-3 py-1 rounded-full
+                                    bg-amber-50 text-amber-700
+                                    text-xs font-semibold">
+                            Ajuste
+                        </span>
+
+                    @endif
+
+                </td>
                         {{-- CANTIDAD --}}
                         <td class="px-6 py-4 font-semibold">
 

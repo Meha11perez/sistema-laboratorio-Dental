@@ -13,30 +13,110 @@ use App\Models\EtapaProduccion;
 use App\Models\Tecnico;
 use App\Models\Garantia;
 use App\Models\Pago;
-
+use App\Models\Material;
+use App\Models\InventarioTecnico;
+use App\Models\OrdenMaterial;
+use App\Models\MovimientoInventario;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Http\Request;
 
-
-
 class OrdenTrabajoController extends Controller
-{
-    public function index()
+{ 
+public function index()
     {
-        $ordenes = OrdenTrabajo::with([
+        $query = OrdenTrabajo::with([
             'paciente',
             'odontologo',
             'tipoProtesis',
             'estadoOrden',
-            'tecnicoActual.user', 
-        ])
-        ->latest()
-        ->paginate(10);
+            'etapaActual',
+            'tecnicoActual.user',
+        ]);
 
-        return view('ordenes.index', compact('ordenes'));
+        /*
+        |--------------------------------------------------------------------------
+        | TÉCNICO
+        |--------------------------------------------------------------------------
+        | Solo puede ver órdenes actualmente asignadas a él.
+        */
+
+       if ($this->esTecnico()) {
+
+        $tecnico =
+            $this->obtenerTecnicoAutenticado();
+
+        $query->where(
+            'tecnico_actual_id',
+            $tecnico->id
+        );
+
+        $query->whereHas(
+            'estadoOrden',
+            function ($q) {
+
+                $q->whereNotIn(
+                    'nombre',
+                    [
+                        'Terminado',
+                        'Entregado',
+                        'Cancelado',
+                    ]
+                ); 
+            }
+        );
     }
 
-    public function create()
+        $ordenes = $query
+            ->latest()
+            ->paginate(10);
+
+        return view(
+            'ordenes.index',
+            compact('ordenes')
+        );
+    }
+private function esTecnico(): bool
+    {
+        return auth()->user()?->role?->nombre === 'Técnico';
+    }
+
+private function obtenerTecnicoAutenticado(): Tecnico
+    {
+        $tecnico = Tecnico::where(
+            'user_id',
+            auth()->id()
+        )->first();
+
+        if (!$tecnico) {
+            abort(
+                403,
+                'El usuario no tiene un técnico asociado.'
+            );
+        }
+
+        return $tecnico;
+    }
+
+private function verificarOrdenTecnico(
+        OrdenTrabajo $orden
+    ): void
+    {
+        if (!$this->esTecnico()) {
+            return;
+        }
+
+        $tecnico = $this->obtenerTecnicoAutenticado();
+
+        if (
+            $orden->tecnico_actual_id !== $tecnico->id
+        ) {
+            abort(
+                403,
+                'No tiene permiso para consultar esta orden.'
+            );
+        }
+    }
+public function create()
     {
         $odontologos = Odontologo::where('estado', true)
             ->orderBy('nombre')
@@ -74,7 +154,8 @@ class OrdenTrabajoController extends Controller
         
         ));
     }
-    public function store(Request $request)
+    
+public function store(Request $request)
      {
         $datos = $request->validate([
         'codigo_caja' => 'nullable|string|max:20',
@@ -249,7 +330,6 @@ class OrdenTrabajoController extends Controller
         ]);
     });
 
-
         return redirect()
             ->route('ordenes.index')
             ->with(
@@ -261,36 +341,101 @@ class OrdenTrabajoController extends Controller
 
         }
     public function show(OrdenTrabajo $orden)
-        {
-            $orden->load([
-                'paciente',
-                'odontologo.clinica',
-                'tipoProtesis',
-                'estadoOrden',
-                'etapaActual',
-                'tecnicoActual.user',
-                'usuarioRegistro',
+    {
+        // Si es Técnico, verifica que la orden sea realmente suya.
+        $this->verificarOrdenTecnico($orden);
 
-                'historialProduccion.etapaProduccion',
-                'historialProduccion.tecnico.user',
 
-                'historialEstados.estadoOrden',
-                'historialEstados.usuarioRegistro',
+        // =====================================================
+        // CARGAR INFORMACIÓN COMPLETA DE LA ORDEN
+        // =====================================================
+        $orden->load([
+            'paciente',
+            'odontologo.clinica',
+            'tipoProtesis',
+            'estadoOrden',
+            'etapaActual',
+            'tecnicoActual.user',
+            'usuarioRegistro',
 
-                'ordenOrigen',
-                'repeticiones',
+            'historialProduccion.etapaProduccion',
+            'historialProduccion.tecnico.user',
 
-                'garantia',
+            'historialEstados.estadoOrden',
+            'historialEstados.usuarioRegistro',
 
-                'devoluciones.garantia',
-                'devoluciones.tecnicoResponsable.user',
-                'devoluciones.usuarioRegistro',
-                'devoluciones.repeticion',
+            'ordenOrigen',
+            'repeticiones',
 
-            ]);
+            'garantia',
 
-        return view('ordenes.show', compact('orden'));
+            'devoluciones.garantia',
+            'devoluciones.tecnicoResponsable.user',
+            'devoluciones.usuarioRegistro',
+            'devoluciones.repeticion',
+
+            // Materiales ya consumidos en esta orden
+            'materialesUtilizados.material',
+        ]);
+
+
+        // =====================================================
+        // VARIABLES PARA INVENTARIO DEL TÉCNICO
+        // =====================================================
+        $inventarioTecnico = collect();
+
+        $puedeRegistrarMaterial = false;
+
+
+        // =====================================================
+        // SOLO SI EL USUARIO ES TÉCNICO
+        // =====================================================
+        if ($this->esTecnico()) {
+
+            $tecnico = $this->obtenerTecnicoAutenticado();
+
+
+            // Solamente puede consumir materiales si:
+            // 1. La orden sigue asignada a él.
+            // 2. La orden está En proceso.
+            // 3. Tiene una etapa activa.
+            if (
+                $orden->tecnico_actual_id === $tecnico->id
+                &&
+                $orden->estadoOrden?->nombre === 'En proceso'
+                &&
+                $orden->etapa_actual_id !== null
+            ) {
+
+                $puedeRegistrarMaterial = true;
+
+
+                // Materiales que todavía tiene disponibles
+                $inventarioTecnico = InventarioTecnico::with('material')
+                    ->where(
+                        'tecnico_id',
+                        $tecnico->id
+                    )
+                    ->where(
+                        'cantidad',
+                        '>',
+                        0
+                    )
+                    ->orderByDesc('cantidad')
+                    ->get();
+            }
         }
+
+
+        return view(
+            'ordenes.show',
+            compact(
+                'orden',
+                'inventarioTecnico',
+                'puedeRegistrarMaterial'
+            )
+        );
+    }
     public function edit(OrdenTrabajo $orden)
         {
             if ($orden->estadoOrden?->nombre === 'Cancelado') {
@@ -654,4 +799,402 @@ class OrdenTrabajoController extends Controller
                 'devolucionId'
             ));
         }
+    public function iniciarEtapa(OrdenTrabajo $orden)
+{
+    if (!$this->esTecnico()) {
+        abort(403);
+    }
+
+    $tecnico = $this->obtenerTecnicoAutenticado();
+
+    if ($orden->tecnico_actual_id !== $tecnico->id) {
+        abort(
+            403,
+            'Esta orden no está asignada a usted.'
+        );
+    }
+
+    if (!$orden->etapa_actual_id) {
+        return back()->with(
+            'error',
+            'La orden no tiene una etapa asignada.'
+        );
+    }
+
+    $orden->loadMissing('estadoOrden');
+
+    if (
+        in_array(
+            $orden->estadoOrden?->nombre,
+            [
+                'Terminado',
+                'Entregado',
+                'Cancelado',
+            ],
+            true
+        )
+    ) {
+        return back()->with(
+            'error',
+            'Esta orden ya no puede iniciar producción.'
+        );
+    }
+
+    $estadoEnProceso = EstadoOrden::where(
+        'nombre',
+        'En proceso'
+    )->firstOrFail();
+
+
+    DB::transaction(function () use (
+        $orden,
+        $tecnico,
+        $estadoEnProceso
+    ) {
+
+        if (
+            $orden->estado_orden_id !==
+            $estadoEnProceso->id
+        ) {
+
+            $orden->update([
+                'estado_orden_id' =>
+                    $estadoEnProceso->id,
+            ]);
+
+            HistorialEstadoOrden::create([
+                'orden_trabajo_id' =>
+                    $orden->id,
+
+                'estado_orden_id' =>
+                    $estadoEnProceso->id,
+
+                'registrado_por' =>
+                    auth()->id(),
+
+                'motivo' =>
+                    null,
+
+                'observaciones' =>
+                    'El técnico inició el trabajo de la etapa.',
+
+                'fecha' =>
+                    now(),
+            ]);
+        }
+
+
+        $historial =
+            HistorialProduccion::where(
+                'orden_trabajo_id',
+                $orden->id
+            )
+            ->whereNull('fecha_fin')
+            ->latest('id')
+            ->first();
+
+
+        if (!$historial) {
+
+            HistorialProduccion::create([
+                'orden_trabajo_id' =>
+                    $orden->id,
+
+                'etapa_produccion_id' =>
+                    $orden->etapa_actual_id,
+
+                'tecnico_id' =>
+                    $tecnico->id,
+
+                'registrado_por' =>
+                    auth()->id(),
+
+                'fecha_inicio' =>
+                    now(),
+
+                'fecha_fin' =>
+                    null,
+
+                'estado' =>
+                    'En proceso',
+
+                'observaciones' =>
+                    'Etapa iniciada por el técnico.',
+            ]);
+
+        } else {
+
+            $historial->update([
+                'estado' => 'En proceso',
+            ]);
+        }
+    });
+
+
+    return back()->with(
+        'success',
+        'Etapa iniciada correctamente.'
+    );
+}
+public function registrarMaterial(
+    Request $request,
+    OrdenTrabajo $orden
+) {
+    // SOLO TÉCNICO
+
+    if (!$this->esTecnico()) {
+        abort(403);
+    }
+
+    $tecnico =
+        $this->obtenerTecnicoAutenticado();
+    
+    // LA ORDEN DEBE SER DEL TÉCNICO
+    
+    if (
+        $orden->tecnico_actual_id !== $tecnico->id
+    ) {
+        abort(
+            403,
+            'Esta orden no está asignada a usted.'
+        );
+    }
+
+    // NO MODIFICAR ÓRDENES FINALIZADAS
+
+    $orden->loadMissing('estadoOrden');
+
+    if (
+        in_array(
+            $orden->estadoOrden?->nombre,
+            [
+                'Terminado',
+                'Entregado',
+                'Cancelado',
+            ],
+            true
+        )
+    ) {
+        return back()->with(
+            'error',
+            'No se pueden registrar materiales en una orden finalizada.'
+        );
+    }
+
+    // VALIDACIÓN
+
+    $datos = $request->validate([
+        'material_id' => [
+            'required',
+            'exists:materiales,id',
+        ],
+
+        'cantidad' => [
+            'required',
+            'numeric',
+            'min:0.01',
+        ],
+    ]);
+
+
+    DB::transaction(function () use (
+        $datos,
+        $orden,
+        $tecnico
+    ) {
+
+        // INVENTARIO ACTUAL DEL TÉCNICO
+        
+        $inventario = InventarioTecnico::where(
+            'tecnico_id',
+            $tecnico->id
+        )
+        ->where(
+            'material_id',
+            $datos['material_id']
+        )
+        ->lockForUpdate()
+        ->first();
+
+
+        if (!$inventario) {
+
+            throw \Illuminate\Validation\ValidationException::withMessages([
+                'material_id' =>
+                    'Este material no está asignado a su inventario.',
+            ]);
+        }
+
+
+        $cantidadSolicitada =
+            (float) $datos['cantidad'];
+
+        $stockAnterior =
+            (float) $inventario->cantidad;
+
+
+        if (
+            $cantidadSolicitada > $stockAnterior
+        ) {
+
+            throw \Illuminate\Validation\ValidationException::withMessages([
+                'cantidad' =>
+                    'No tiene suficiente material disponible. Disponible: '
+                    . number_format(
+                        $stockAnterior,
+                        2
+                    ),
+            ]);
+        }
+
+
+        // DESCONTAR INVENTARIO DEL TÉCNICO
+
+        $stockNuevo =
+            $stockAnterior - $cantidadSolicitada;
+
+
+        $inventario->update([
+            'cantidad' => $stockNuevo,
+        ]);
+
+
+        // =================================================
+        // MATERIAL
+        // =================================================
+        $material = Material::findOrFail(
+            $datos['material_id']
+        );
+
+
+        $costoActual =
+            (float) $material->costo_unitario;
+
+
+        // =================================================
+        // MATERIAL UTILIZADO EN LA ORDEN
+        // =================================================
+        $ordenMaterial = OrdenMaterial::where(
+            'orden_trabajo_id',
+            $orden->id
+        )
+        ->where(
+            'material_id',
+            $material->id
+        )
+        ->lockForUpdate()
+        ->first();
+
+
+        if ($ordenMaterial) {
+
+            $cantidadAnteriorOrden =
+                (float) $ordenMaterial->cantidad;
+
+            $subtotalAnterior =
+                (float) $ordenMaterial->subtotal;
+
+
+            $cantidadNuevaOrden =
+                $cantidadAnteriorOrden
+                + $cantidadSolicitada;
+
+
+            $subtotalNuevo =
+                $subtotalAnterior
+                + (
+                    $cantidadSolicitada
+                    * $costoActual
+                );
+
+
+            $costoPromedio =
+                $cantidadNuevaOrden > 0
+                    ? $subtotalNuevo
+                        / $cantidadNuevaOrden
+                    : $costoActual;
+
+
+            $ordenMaterial->update([
+                'cantidad' =>
+                    $cantidadNuevaOrden,
+
+                'costo_unitario' =>
+                    $costoPromedio,
+
+                'subtotal' =>
+                    $subtotalNuevo,
+            ]);
+
+        } else {
+
+            OrdenMaterial::create([
+                'orden_trabajo_id' =>
+                    $orden->id,
+
+                'material_id' =>
+                    $material->id,
+
+                'cantidad' =>
+                    $cantidadSolicitada,
+
+                'costo_unitario' =>
+                    $costoActual,
+
+                'subtotal' =>
+                    $cantidadSolicitada
+                    * $costoActual,
+            ]);
+        }
+
+
+        // =================================================
+        // HISTORIAL DEL MOVIMIENTO
+        // =================================================
+        MovimientoInventario::create([
+            'material_id' =>
+                $material->id,
+
+            'tecnico_id' =>
+                $tecnico->id,
+
+            'orden_trabajo_id' =>
+                $orden->id,
+
+            'registrado_por' =>
+                auth()->id(),
+
+            'tipo_movimiento' =>
+                'Salida',
+
+            'cantidad' =>
+                $cantidadSolicitada,
+
+            'stock_anterior' =>
+                $stockAnterior,
+
+            'stock_nuevo' =>
+                $stockNuevo,
+
+            'fecha_movimiento' =>
+                now(),
+
+            'observaciones' =>
+                'Material utilizado en la orden '
+                . $orden->codigo,
+        ]);
+
+    });
+
+
+    return redirect()
+        ->route(
+            'ordenes.show',
+            $orden
+        )
+        ->with(
+            'success',
+            'Material registrado correctamente en la orden.'
+        );
+}
 }

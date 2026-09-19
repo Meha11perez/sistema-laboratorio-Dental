@@ -468,35 +468,7 @@
 
                 </div>
 
-
-                {{-- TOTAL --}}
-                <div>
-
-                    <label class="block text-sm font-semibold text-slate-700 mb-2">
-                        Total
-                    </label>
-
-                    <div class="relative">
-
-                        <span class="absolute left-4 top-3 text-slate-500">
-                            Q
-                        </span>
-
-                        <input
-                            type="number"
-                            step="0.01"
-                            min="0"
-                            name="total"
-                            value="{{ old('total', $orden->total) }}"
-                            class="w-full border border-slate-300 rounded-lg pl-9 pr-4 py-3"
-                        >
-
-                    </div>
-
-                </div>
-
             </div>
-
 
             {{-- ESPECIFICACIONES --}}
             <div class="px-6 pb-6">

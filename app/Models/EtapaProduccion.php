@@ -4,7 +4,7 @@ namespace App\Models;
 
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\HasMany;
-
+use Illuminate\Database\Eloquent\Relations\BelongsToMany;
 
 class EtapaProduccion extends Model
 {
@@ -32,5 +32,14 @@ class EtapaProduccion extends Model
             OrdenTrabajo::class,
               'etapa_actual_id'
       );
+    }
+    public function tecnicos(): BelongsToMany
+    {
+        return $this->belongsToMany(
+            Tecnico::class,
+            'etapa_tecnico',
+            'etapa_produccion_id',
+            'tecnico_id'
+        )->withTimestamps();
     }
 }

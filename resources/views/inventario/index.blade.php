@@ -263,12 +263,22 @@
 
                             <td class="px-6 py-4">
 
+                               <div class="flex items-center gap-3">
                                 <a
                                     href="{{ route('inventario.show', $material) }}"
                                     class="text-blue-700 font-semibold hover:underline"
                                 >
                                     Ver
                                 </a>
+
+                                <a
+                                    href="{{ route('inventario.asignar', $material) }}"
+                                    class="text-emerald-700 font-semibold hover:underline"
+                                >
+                                    Asignar
+                                </a>
+
+                            </div>
 
                             </td>
 

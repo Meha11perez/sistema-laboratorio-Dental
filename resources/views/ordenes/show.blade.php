@@ -4,12 +4,37 @@
 
 @section('content')
 
+@php
+    $rolActual = auth()->user()->role?->nombre;
+
+    $puedeAdministrar = in_array(
+        $rolActual,
+        [
+            'Administrador',
+            'Recepcion',
+        ],
+        true
+    );
+
+    $esTecnico = $rolActual === 'Técnico';
+
+    $materialesOrden = $orden->relationLoaded('materialesUtilizados')
+        ? $orden->materialesUtilizados
+        : collect();
+
+    $inventarioDisponible = $inventarioTecnico ?? collect();
+
+    $puedeConsumirMaterial = $puedeRegistrarMaterial ?? false;
+@endphp
+
+
 <div class="max-w-7xl mx-auto">
 
     {{-- =========================================================
          ENCABEZADO
     ========================================================== --}}
-    <div class="flex flex-col lg:flex-row lg:items-center lg:justify-between gap-5 mb-8">
+    <div class="flex flex-col lg:flex-row lg:items-start
+                lg:justify-between gap-5 mb-8">
 
         <div>
 
@@ -20,11 +45,13 @@
                 ← Volver a órdenes
             </a>
 
+
             <div class="flex flex-wrap items-center gap-3 mt-3">
 
                 <h1 class="text-3xl font-bold text-slate-900">
                     {{ $orden->codigo }}
                 </h1>
+
 
                 {{-- TIPO DE ORDEN --}}
                 @if($orden->tipo_orden === 'Repeticion')
@@ -44,6 +71,7 @@
                     </span>
 
                 @endif
+
 
                 {{-- PRIORIDAD --}}
                 @if($orden->prioridad === 'Urgente')
@@ -66,6 +94,7 @@
 
             </div>
 
+
             <p class="text-slate-500 mt-2">
                 Detalle y seguimiento de la orden de trabajo.
             </p>
@@ -73,81 +102,98 @@
         </div>
 
 
-        {{-- BOTONES --}}
-        <div class="flex flex-wrap gap-3">
-            @if($orden->estadoOrden?->nombre !== 'Cancelado')
+        {{-- =====================================================
+             BOTONES ADMINISTRATIVOS
+             SOLO ADMINISTRADOR / RECEPCIÓN
+        ====================================================== --}}
+        @if($puedeAdministrar)
+
+            <div class="flex flex-wrap gap-3">
+
+                @if($orden->estadoOrden?->nombre !== 'Cancelado')
+
+                    <a
+                        href="{{ route('devoluciones.create', $orden) }}"
+                        class="inline-flex items-center justify-center
+                               px-5 py-3
+                               border border-purple-300
+                               text-purple-700
+                               hover:bg-purple-50
+                               rounded-lg
+                               font-semibold text-sm"
+                    >
+                        Registrar Devolución
+                    </a>
+
+
+                    <a
+                        href="{{ route('ordenes.edit', $orden) }}"
+                        class="inline-flex items-center justify-center
+                               px-5 py-3
+                               bg-blue-800
+                               hover:bg-blue-900
+                               text-white
+                               rounded-lg
+                               font-semibold text-sm"
+                    >
+                        Editar Orden
+                    </a>
+
+
+                    <a
+                        href="{{ route('ordenes.repetir', $orden) }}"
+                        class="inline-flex items-center justify-center
+                               px-5 py-3
+                               border border-amber-500
+                               text-amber-700
+                               hover:bg-amber-50
+                               rounded-lg
+                               font-semibold text-sm"
+                    >
+                        ↻ Crear Repetición
+                    </a>
+
+                @endif
+
 
                 <a
-                    href="{{ route('devoluciones.create', $orden) }}"
+                    href="{{ route('ordenes.rotulo', $orden) }}"
+                    target="_blank"
                     class="inline-flex items-center justify-center
-                        px-5 py-3 border border-purple-300
-                        text-purple-700 hover:bg-purple-50
-                        rounded-lg font-semibold text-sm"
-                > 
-                    Registrar Devolución
-                </a>
-
-            @endif
-
-            @if($orden->estadoOrden?->nombre !== 'Cancelado')
-
-                <a
-                    href="{{ route('ordenes.edit', $orden) }}"
-                    class="inline-flex items-center justify-center
-                           px-5 py-3 bg-blue-800 hover:bg-blue-900
-                           text-white rounded-lg font-semibold text-sm"
+                           px-5 py-3
+                           border border-slate-300
+                           text-slate-700
+                           hover:bg-slate-50
+                           rounded-lg
+                           font-semibold text-sm"
                 >
-                    Editar Orden
+                    🖨 Imprimir Rótulo
                 </a>
 
-                <a
-                    href="{{ route('ordenes.repetir', $orden) }}"
-                    class="inline-flex items-center justify-center
-                           px-5 py-3 border border-amber-500
-                           text-amber-700 hover:bg-amber-50
-                           rounded-lg font-semibold text-sm"
-                >
-                    ↻ Crear Repetición
-                </a>
 
-            @endif
+                @if($orden->estadoOrden?->nombre !== 'Cancelado')
 
-            <a
-                href="{{ route('ordenes.rotulo', $orden) }}"
-                target="_blank"
-                class="inline-flex items-center justify-center
-                       px-5 py-3 border border-slate-300
-                       text-slate-700 hover:bg-slate-50
-                       rounded-lg font-semibold text-sm"
-            >
-                🖨 Imprimir Rótulo
-            </a>
+                    <a
+                        href="{{ route(
+                            'ordenes.cancelar.confirmar',
+                            $orden
+                        ) }}"
+                        class="inline-flex items-center justify-center
+                               px-5 py-3
+                               border border-red-300
+                               text-red-700
+                               hover:bg-red-50
+                               rounded-lg
+                               font-semibold text-sm"
+                    >
+                        Cancelar Orden
+                    </a>
 
-            <a
-                href="{{ route('pagos.show', $orden) }}"
-                class="inline-flex items-center justify-center
-                    px-5 py-3 border border-emerald-600
-                    text-emerald-700 hover:bg-emerald-50
-                    rounded-lg font-semibold text-sm"
-            >
-                💰 Ver Pago
-            </a>
+                @endif
 
-            @if($orden->estadoOrden?->nombre !== 'Cancelado')
+            </div>
 
-                <a
-                    href="{{ route('ordenes.cancelar.confirmar', $orden) }}"
-                    class="inline-flex items-center justify-center
-                           px-5 py-3 border border-red-300
-                           text-red-700 hover:bg-red-50
-                           rounded-lg font-semibold text-sm"
-                >
-                    Cancelar Orden
-                </a>
-
-            @endif
-
-        </div>
+        @endif
 
     </div>
 
@@ -155,11 +201,18 @@
     {{-- =========================================================
          MENSAJES
     ========================================================== --}}
+
     @if(session('success'))
 
-        <div class="mb-6 bg-emerald-50 border border-emerald-200
-                    text-emerald-700 rounded-xl px-5 py-4">
+        <div class="mb-6
+                    bg-emerald-50
+                    border border-emerald-200
+                    text-emerald-700
+                    rounded-xl
+                    px-5 py-4">
+
             {{ session('success') }}
+
         </div>
 
     @endif
@@ -167,9 +220,15 @@
 
     @if(session('error'))
 
-        <div class="mb-6 bg-red-50 border border-red-200
-                    text-red-700 rounded-xl px-5 py-4">
+        <div class="mb-6
+                    bg-red-50
+                    border border-red-200
+                    text-red-700
+                    rounded-xl
+                    px-5 py-4">
+
             {{ session('error') }}
+
         </div>
 
     @endif
@@ -178,10 +237,12 @@
     {{-- =========================================================
          ESTADO ACTUAL
     ========================================================== --}}
-    <div class="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-4 gap-5 mb-8">
+    <div class="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-4
+                gap-5 mb-8">
 
         {{-- ESTADO --}}
-        <div class="bg-white border border-slate-200 rounded-xl shadow-sm p-5">
+        <div class="bg-white border border-slate-200
+                    rounded-xl shadow-sm p-5">
 
             <p class="text-xs font-semibold text-slate-400 uppercase">
                 Estado
@@ -195,7 +256,8 @@
 
 
         {{-- ETAPA --}}
-        <div class="bg-white border border-slate-200 rounded-xl shadow-sm p-5">
+        <div class="bg-white border border-slate-200
+                    rounded-xl shadow-sm p-5">
 
             <p class="text-xs font-semibold text-slate-400 uppercase">
                 Etapa actual
@@ -209,7 +271,8 @@
 
 
         {{-- TÉCNICO --}}
-        <div class="bg-white border border-slate-200 rounded-xl shadow-sm p-5">
+        <div class="bg-white border border-slate-200
+                    rounded-xl shadow-sm p-5">
 
             <p class="text-xs font-semibold text-slate-400 uppercase">
                 Técnico actual
@@ -222,8 +285,9 @@
         </div>
 
 
-        {{-- FECHA ENTREGA --}}
-        <div class="bg-white border border-slate-200 rounded-xl shadow-sm p-5">
+        {{-- ENTREGA --}}
+        <div class="bg-white border border-slate-200
+                    rounded-xl shadow-sm p-5">
 
             <p class="text-xs font-semibold text-slate-400 uppercase">
                 Entrega estimada
@@ -239,9 +303,198 @@
 
 
     {{-- =========================================================
+         ACCIONES DE PRODUCCIÓN DEL TÉCNICO
+    ========================================================== --}}
+    @if($esTecnico)
+
+        <section class="bg-white border border-slate-200
+                        rounded-xl shadow-sm overflow-hidden mb-8">
+
+            <div class="px-6 py-5 border-b border-slate-200">
+
+                <h2 class="text-lg font-bold text-slate-900">
+                    Mi trabajo de producción
+                </h2>
+
+                <p class="text-sm text-slate-500 mt-1">
+                    Gestiona la etapa que actualmente tienes asignada.
+                </p>
+
+            </div>
+
+
+            <div class="p-6">
+
+                <div class="grid grid-cols-1 md:grid-cols-3 gap-5 mb-6">
+
+                    <div>
+
+                        <p class="text-xs font-semibold
+                                  text-slate-400 uppercase">
+                            Etapa asignada
+                        </p>
+
+                        <p class="font-bold text-slate-900 mt-2">
+                            {{ $orden->etapaActual?->nombre ?? 'Sin asignar' }}
+                        </p>
+
+                    </div>
+
+
+                    <div>
+
+                        <p class="text-xs font-semibold
+                                  text-slate-400 uppercase">
+                            Responsable
+                        </p>
+
+                        <p class="font-bold text-slate-900 mt-2">
+                            {{ $orden->tecnicoActual?->user?->name ?? 'Sin asignar' }}
+                        </p>
+
+                    </div>
+
+
+                    <div>
+
+                        <p class="text-xs font-semibold
+                                  text-slate-400 uppercase">
+                            Estado
+                        </p>
+
+                        <p class="font-bold text-blue-700 mt-2">
+                            {{ $orden->estadoOrden?->nombre ?? '—' }}
+                        </p>
+
+                    </div>
+
+                </div>
+
+
+                <div class="pt-5 border-t border-slate-100">
+
+                    {{-- PENDIENTE --}}
+                    @if($orden->estadoOrden?->nombre === 'Pendiente')
+
+                        <form
+                            method="POST"
+                            action="{{ route(
+                                'ordenes.produccion.iniciar',
+                                $orden
+                            ) }}"
+                        >
+
+                            @csrf
+                            @method('PUT')
+
+
+                            <button
+                                type="submit"
+                                class="inline-flex items-center justify-center
+                                       px-5 py-2.5
+                                       bg-emerald-600
+                                       hover:bg-emerald-700
+                                       text-white
+                                       rounded-lg
+                                       font-semibold"
+                            >
+                                Iniciar mi etapa
+                            </button>
+
+                        </form>
+
+
+                    {{-- EN PROCESO --}}
+                    @elseif(
+                        $orden->estadoOrden?->nombre === 'En proceso'
+                    )
+
+                        <form
+                            method="POST"
+                            action="{{ route(
+                                'ordenes.produccion.completar',
+                                $orden
+                            ) }}"
+                            onsubmit="
+                                return confirm(
+                                    '¿Confirmas que terminaste esta etapa?'
+                                )
+                            "
+                        >
+
+                            @csrf
+                            @method('PUT')
+
+
+                            <button
+                                type="submit"
+                                class="inline-flex items-center justify-center
+                                       px-5 py-2.5
+                                       bg-blue-700
+                                       hover:bg-blue-800
+                                       text-white
+                                       rounded-lg
+                                       font-semibold"
+                            >
+                                Completar mi etapa
+                            </button>
+
+                        </form>
+
+
+                    @elseif(
+                        in_array(
+                            $orden->estadoOrden?->nombre,
+                            [
+                                'Terminado',
+                                'Entregado',
+                                'Cancelado'
+                            ],
+                            true
+                        )
+                    )
+
+                        <div class="rounded-lg
+                                    bg-slate-50
+                                    border border-slate-200
+                                    px-4 py-3
+                                    text-sm text-slate-600">
+
+                            Esta orden ya no tiene acciones de producción
+                            disponibles.
+
+                        </div>
+
+
+                    @else
+
+                        <div class="rounded-lg
+                                    bg-amber-50
+                                    border border-amber-200
+                                    px-4 py-3
+                                    text-sm text-amber-700">
+
+                            La orden no se encuentra disponible para iniciar
+                            o completar una etapa.
+
+                        </div>
+
+                    @endif
+
+                </div>
+
+            </div>
+
+        </section>
+
+    @endif
+
+
+    {{-- =========================================================
          INFORMACIÓN GENERAL
     ========================================================== --}}
-    <section class="bg-white border border-slate-200 rounded-xl shadow-sm overflow-hidden mb-8">
+    <section class="bg-white border border-slate-200
+                    rounded-xl shadow-sm overflow-hidden mb-8">
 
         <div class="px-6 py-5 border-b border-slate-200">
 
@@ -256,7 +509,8 @@
         </div>
 
 
-        <div class="p-6 grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+        <div class="p-6 grid grid-cols-1 md:grid-cols-2
+                    lg:grid-cols-3 gap-6">
 
             {{-- CÓDIGO --}}
             <div>
@@ -296,10 +550,14 @@
                 <p class="font-semibold mt-1
                     {{ $orden->tipo_orden === 'Repeticion'
                         ? 'text-amber-700'
-                        : 'text-blue-700' }}">
+                        : 'text-blue-700'
+                    }}">
+
                     {{ $orden->tipo_orden === 'Repeticion'
                         ? '↻ Repetición'
-                        : 'Nueva' }}
+                        : 'Nueva'
+                    }}
+
                 </p>
 
             </div>
@@ -434,18 +692,23 @@
             </div>
 
 
-            {{-- TOTAL --}}
-            <div>
+            {{-- PRECIO DEL TRABAJO
+                 SOLO ADMIN / RECEPCIÓN --}}
+            @if($puedeAdministrar)
 
-                <p class="text-xs font-semibold text-slate-400 uppercase">
-                    Monto total
-                </p>
+                <div>
 
-                <p class="font-semibold text-slate-900 mt-1">
-                    Q {{ number_format($orden->total ?? 0, 2) }}
-                </p>
+                    <p class="text-xs font-semibold text-slate-400 uppercase">
+                        Precio del trabajo
+                    </p>
 
-            </div>
+                    <p class="font-semibold text-slate-900 mt-1">
+                        Q {{ number_format($orden->total ?? 0, 2) }}
+                    </p>
+
+                </div>
+
+            @endif
 
 
             {{-- REGISTRADO POR --}}
@@ -471,27 +734,33 @@
     ========================================================== --}}
     <div class="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-8">
 
-        <section class="bg-white border border-slate-200 rounded-xl shadow-sm p-6">
+        <section class="bg-white border border-slate-200
+                        rounded-xl shadow-sm p-6">
 
             <h2 class="font-bold text-slate-900">
                 Especificaciones
             </h2>
 
             <p class="text-slate-600 mt-3 whitespace-pre-line">
-                {{ $orden->especificaciones ?? 'Sin especificaciones registradas.' }}
+                {{ $orden->especificaciones
+                    ?? 'Sin especificaciones registradas.'
+                }}
             </p>
 
         </section>
 
 
-        <section class="bg-white border border-slate-200 rounded-xl shadow-sm p-6">
+        <section class="bg-white border border-slate-200
+                        rounded-xl shadow-sm p-6">
 
             <h2 class="font-bold text-slate-900">
                 Observaciones
             </h2>
 
             <p class="text-slate-600 mt-3 whitespace-pre-line">
-                {{ $orden->observaciones ?? 'Sin observaciones registradas.' }}
+                {{ $orden->observaciones
+                    ?? 'Sin observaciones registradas.'
+                }}
             </p>
 
         </section>
@@ -500,9 +769,347 @@
 
 
     {{-- =========================================================
-         RELACIÓN DE ORDEN / REPETICIONES
+         MATERIALES UTILIZADOS
     ========================================================== --}}
-    <section class="bg-white border border-slate-200 rounded-xl shadow-sm overflow-hidden mb-8">
+    <section class="bg-white border border-slate-200
+                    rounded-xl shadow-sm overflow-hidden mb-8">
+
+        <div class="px-6 py-5 border-b border-slate-200">
+
+            <h2 class="text-lg font-bold text-slate-900">
+                Materiales utilizados
+            </h2>
+
+            <p class="text-sm text-slate-500 mt-1">
+                Materiales consumidos específicamente en esta orden.
+            </p>
+
+        </div>
+
+
+        {{-- FORMULARIO DE CONSUMO
+             SOLO PARA EL TÉCNICO ACTUAL --}}
+        @if($esTecnico && $puedeConsumirMaterial)
+
+            <div class="p-6 bg-blue-50/40
+                        border-b border-slate-200">
+
+                <h3 class="font-semibold text-slate-900">
+                    Registrar material utilizado
+                </h3>
+
+                <p class="text-sm text-slate-500 mt-1 mb-5">
+                    Selecciona un material de tu inventario y registra
+                    únicamente la cantidad utilizada en esta orden.
+                </p>
+
+
+                @if($errors->any())
+
+                    <div class="mb-5
+                                rounded-lg
+                                border border-red-200
+                                bg-red-50
+                                px-4 py-3
+                                text-sm text-red-700">
+
+                        @foreach($errors->all() as $error)
+
+                            <p>
+                                {{ $error }}
+                            </p>
+
+                        @endforeach
+
+                    </div>
+
+                @endif
+
+
+                @if($inventarioDisponible->isNotEmpty())
+
+                    <form
+                        method="POST"
+                        action="{{ route(
+                            'ordenes.materiales.store',
+                            $orden
+                        ) }}"
+                        class="grid grid-cols-1
+                               md:grid-cols-3
+                               gap-4 items-end"
+                    >
+
+                        @csrf
+
+
+                        {{-- MATERIAL --}}
+                        <div class="md:col-span-2">
+
+                            <label
+                                for="material_id"
+                                class="block text-sm
+                                       font-semibold
+                                       text-slate-700 mb-2"
+                            >
+                                Material disponible
+                            </label>
+
+
+                            <select
+                                id="material_id"
+                                name="material_id"
+                                required
+                                class="w-full rounded-lg
+                                       border-slate-300
+                                       focus:border-blue-500
+                                       focus:ring-blue-500"
+                            >
+
+                                <option value="">
+                                    Seleccione...
+                                </option>
+
+
+                                @foreach(
+                                    $inventarioDisponible
+                                    as $inventario
+                                )
+
+                                    <option
+                                        value="{{ $inventario->material_id }}"
+                                        {{ old('material_id')
+                                            == $inventario->material_id
+                                            ? 'selected'
+                                            : ''
+                                        }}
+                                    >
+
+                                        {{ $inventario->material?->nombre }}
+
+                                        —
+                                        Disponible:
+                                        {{ number_format(
+                                            $inventario->cantidad,
+                                            2
+                                        ) }}
+
+                                        {{
+                                            $inventario
+                                                ->material
+                                                ?->unidad_medida
+                                        }}
+
+                                    </option>
+
+                                @endforeach
+
+                            </select>
+
+                        </div>
+
+
+                        {{-- CANTIDAD --}}
+                        <div>
+
+                            <label
+                                for="cantidad"
+                                class="block text-sm
+                                       font-semibold
+                                       text-slate-700 mb-2"
+                            >
+                                Cantidad utilizada
+                            </label>
+
+
+                            <input
+                                id="cantidad"
+                                type="number"
+                                name="cantidad"
+                                min="0.01"
+                                step="0.01"
+                                value="{{ old('cantidad') }}"
+                                required
+                                class="w-full rounded-lg
+                                       border-slate-300
+                                       focus:border-blue-500
+                                       focus:ring-blue-500"
+                            >
+
+                        </div>
+
+
+                        {{-- BOTÓN --}}
+                        <div class="md:col-span-3 flex justify-end">
+
+                            <button
+                                type="submit"
+                                class="inline-flex items-center
+                                       justify-center
+                                       px-5 py-2.5
+                                       bg-blue-700
+                                       hover:bg-blue-800
+                                       text-white
+                                       rounded-lg
+                                       font-semibold"
+                            >
+                                + Registrar material
+                            </button>
+
+                        </div>
+
+                    </form>
+
+
+                @else
+
+                    <div class="rounded-lg
+                                border border-amber-200
+                                bg-amber-50
+                                px-4 py-4
+                                text-amber-800">
+
+                        <p class="font-semibold">
+                            No tienes materiales asignados.
+                        </p>
+
+                        <p class="text-sm mt-1">
+                            Primero deben asignarse materiales a tu
+                            inventario.
+                        </p>
+
+                    </div>
+
+                @endif
+
+            </div>
+
+        @endif
+
+
+        {{-- TABLA DE MATERIALES YA USADOS --}}
+        <div class="overflow-x-auto">
+
+            <table class="w-full text-sm">
+
+                <thead class="bg-slate-50
+                              text-xs text-slate-500 uppercase">
+
+                    <tr>
+
+                        <th class="text-left px-6 py-4">
+                            Código
+                        </th>
+
+                        <th class="text-left px-6 py-4">
+                            Material
+                        </th>
+
+                        <th class="text-left px-6 py-4">
+                            Unidad
+                        </th>
+
+                        <th class="text-right px-6 py-4">
+                            Cantidad utilizada
+                        </th>
+
+                    </tr>
+
+                </thead>
+
+
+                <tbody class="divide-y divide-slate-100">
+
+                    @forelse(
+                        $materialesOrden
+                        as $materialOrden
+                    )
+
+                        <tr>
+
+                            <td class="px-6 py-4 text-blue-700">
+
+                                {{
+                                    $materialOrden
+                                        ->material
+                                        ?->codigo
+                                    ?? '—'
+                                }}
+
+                            </td>
+
+
+                            <td class="px-6 py-4
+                                       font-semibold text-slate-900">
+
+                                {{
+                                    $materialOrden
+                                        ->material
+                                        ?->nombre
+                                    ?? '—'
+                                }}
+
+                            </td>
+
+
+                            <td class="px-6 py-4 text-slate-600">
+
+                                {{
+                                    $materialOrden
+                                        ->material
+                                        ?->unidad_medida
+                                    ?? '—'
+                                }}
+
+                            </td>
+
+
+                            <td class="px-6 py-4
+                                       text-right font-bold">
+
+                                {{
+                                    number_format(
+                                        $materialOrden->cantidad,
+                                        2
+                                    )
+                                }}
+
+                            </td>
+
+                        </tr>
+
+
+                    @empty
+
+                        <tr>
+
+                            <td
+                                colspan="4"
+                                class="px-6 py-10
+                                       text-center
+                                       text-slate-400"
+                            >
+                                Todavía no se han registrado materiales
+                                utilizados en esta orden.
+                            </td>
+
+                        </tr>
+
+                    @endforelse
+
+                </tbody>
+
+            </table>
+
+        </div>
+
+    </section>
+
+
+    {{-- =========================================================
+         RELACIÓN DE LA ORDEN
+    ========================================================== --}}
+    <section class="bg-white border border-slate-200
+                    rounded-xl shadow-sm overflow-hidden mb-8">
 
         <div class="px-6 py-5 border-b border-slate-200">
 
@@ -522,28 +1129,35 @@
             {{-- ESTA ORDEN ES REPETICIÓN --}}
             @if($orden->tipo_orden === 'Repeticion')
 
-                <div class="bg-amber-50 border border-amber-200
+                <div class="bg-amber-50
+                            border border-amber-200
                             rounded-xl p-5">
 
                     <div class="flex flex-col sm:flex-row
-                                sm:items-center sm:justify-between gap-4">
+                                sm:items-center
+                                sm:justify-between gap-4">
 
                         <div>
 
                             <span class="inline-flex items-center
-                                         bg-amber-100 text-amber-700
-                                         px-3 py-1 rounded-full
+                                         bg-amber-100
+                                         text-amber-700
+                                         px-3 py-1
+                                         rounded-full
                                          text-xs font-bold">
                                 ↻ Repetición
                             </span>
+
 
                             <p class="text-sm text-slate-500 mt-3">
                                 Esta orden fue creada como repetición de:
                             </p>
 
+
                             @if($orden->ordenOrigen)
 
-                                <p class="text-xl font-bold text-slate-900 mt-1">
+                                <p class="text-xl font-bold
+                                          text-slate-900 mt-1">
                                     {{ $orden->ordenOrigen->codigo }}
                                 </p>
 
@@ -561,11 +1175,17 @@
                         @if($orden->ordenOrigen)
 
                             <a
-                                href="{{ route('ordenes.show', $orden->ordenOrigen) }}"
-                                class="inline-flex items-center justify-center
-                                       px-4 py-2.5 bg-white
+                                href="{{ route(
+                                    'ordenes.show',
+                                    $orden->ordenOrigen
+                                ) }}"
+                                class="inline-flex items-center
+                                       justify-center
+                                       px-4 py-2.5
+                                       bg-white
                                        border border-amber-300
-                                       text-amber-700 rounded-lg
+                                       text-amber-700
+                                       rounded-lg
                                        font-semibold text-sm
                                        hover:bg-amber-100"
                             >
@@ -584,7 +1204,11 @@
             {{-- REPETICIONES ASOCIADAS --}}
             @if($orden->repeticiones->isNotEmpty())
 
-                <div class="{{ $orden->tipo_orden === 'Repeticion' ? 'mt-6' : '' }}">
+                <div class="{{
+                    $orden->tipo_orden === 'Repeticion'
+                        ? 'mt-6'
+                        : ''
+                }}">
 
                     <div class="mb-4">
 
@@ -602,12 +1226,18 @@
 
                     <div class="space-y-3">
 
-                        @foreach($orden->repeticiones as $repeticion)
+                        @foreach(
+                            $orden->repeticiones
+                            as $repeticion
+                        )
 
                             <div class="flex flex-col sm:flex-row
-                                        sm:items-center sm:justify-between
-                                        gap-4 border border-slate-200
-                                        rounded-xl px-5 py-4">
+                                        sm:items-center
+                                        sm:justify-between
+                                        gap-4
+                                        border border-slate-200
+                                        rounded-xl
+                                        px-5 py-4">
 
                                 <div>
 
@@ -628,16 +1258,25 @@
                                     </div>
 
                                     <p class="text-sm text-slate-500 mt-2">
-                                        {{ $repeticion->created_at?->format('d/m/Y H:i') }}
+                                        {{
+                                            $repeticion
+                                                ->created_at
+                                                ?->format('d/m/Y H:i')
+                                        }}
                                     </p>
 
                                 </div>
 
 
                                 <a
-                                    href="{{ route('ordenes.show', $repeticion) }}"
-                                    class="text-blue-700 font-semibold
-                                           text-sm hover:underline"
+                                    href="{{ route(
+                                        'ordenes.show',
+                                        $repeticion
+                                    ) }}"
+                                    class="text-blue-700
+                                           font-semibold
+                                           text-sm
+                                           hover:underline"
                                 >
                                     Ver repetición →
                                 </a>
@@ -656,7 +1295,8 @@
             {{-- SIN REPETICIONES --}}
             @if(
                 $orden->tipo_orden !== 'Repeticion'
-                && $orden->repeticiones->isEmpty()
+                &&
+                $orden->repeticiones->isEmpty()
             )
 
                 <div class="text-center py-5">
@@ -672,154 +1312,223 @@
         </div>
 
     </section>
-        {{-- =========================================================
-                GARANTÍA
-            ========================================================== --}}
-            <section class="bg-white border border-slate-200
-                            rounded-xl shadow-sm overflow-hidden mb-8">
 
-                <div class="px-6 py-5 border-b border-slate-200">
-
-                    <h2 class="text-lg font-bold text-slate-900">
-                        Garantía
-                    </h2>
-
-                    <p class="text-sm text-slate-500 mt-1">
-                        Información de garantía asociada a esta orden.
-                    </p>
-
-                </div>
-
-
-                <div class="p-6">
-
-                    @if($orden->garantia)
-
-                        @php
-                            $hoy = now()->startOfDay();
-                            $vencimiento = $orden->garantia->fecha_vencimiento?->startOfDay();
-
-                            if (!$vencimiento) {
-                                $estadoGarantia = 'Sin fecha';
-                            } elseif ($vencimiento->lt($hoy)) {
-                                $estadoGarantia = 'Vencida';
-                            } elseif ($vencimiento->diffInDays($hoy) <= 15) {
-                                $estadoGarantia = 'Por vencer';
-                            } else {
-                                $estadoGarantia = 'Vigente';
-                            }
-                        @endphp
-
-                        <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
-
-                            <div>
-                                <p class="text-xs font-semibold text-slate-400 uppercase">
-                                    Inicio
-                                </p>
-
-                                <p class="font-semibold text-slate-900 mt-1">
-                                    {{ $orden->garantia->fecha_inicio?->format('d/m/Y') ?? '—' }}
-                                </p>
-                            </div>
-
-
-                            <div>
-                                <p class="text-xs font-semibold text-slate-400 uppercase">
-                                    Vencimiento
-                                </p>
-
-                                <p class="font-semibold text-slate-900 mt-1">
-                                    {{ $orden->garantia->fecha_vencimiento?->format('d/m/Y') ?? '—' }}
-                                </p>
-                            </div>
-
-
-                            <div>
-                                <p class="text-xs font-semibold text-slate-400 uppercase">
-                                    Estado
-                                </p>
-
-                                <div class="mt-2">
-
-                                    @if($estadoGarantia === 'Vigente')
-
-                                        <span class="bg-emerald-100 text-emerald-700
-                                                    px-3 py-1 rounded-full text-xs font-bold">
-                                            Vigente
-                                        </span>
-
-                                    @elseif($estadoGarantia === 'Por vencer')
-
-                                        <span class="bg-amber-100 text-amber-700
-                                                    px-3 py-1 rounded-full text-xs font-bold">
-                                            Por vencer
-                                        </span>
-
-                                    @elseif($estadoGarantia === 'Vencida')
-
-                                        <span class="bg-red-100 text-red-700
-                                                    px-3 py-1 rounded-full text-xs font-bold">
-                                            Vencida
-                                        </span>
-
-                                    @else
-
-                                        <span class="bg-slate-100 text-slate-600
-                                                    px-3 py-1 rounded-full text-xs font-bold">
-                                            Sin fecha
-                                        </span>
-
-                                    @endif
-
-                                </div>
-                            </div>
-
-                        </div>
-
-
-                        @if($orden->garantia->observaciones)
-
-                            <div class="mt-6 pt-5 border-t border-slate-100">
-
-                                <p class="text-xs font-semibold text-slate-400 uppercase">
-                                    Observaciones
-                                </p>
-
-                                <p class="text-slate-600 mt-2">
-                                    {{ $orden->garantia->observaciones }}
-                                </p>
-
-                            </div>
-
-                        @endif
-
-                    @else
-
-                        <div class="text-center py-6">
-
-                            <p class="text-slate-400">
-                                Esta orden no tiene una garantía registrada.
-                            </p>
-
-                        </div>
-
-                    @endif
-
-                </div>
-
-            </section>
 
     {{-- =========================================================
-     DEVOLUCIONES Y GARANTÍAS
+         GARANTÍA
     ========================================================== --}}
     <section class="bg-white border border-slate-200
                     rounded-xl shadow-sm overflow-hidden mb-8">
 
-        <div class="flex flex-col md:flex-row md:items-center
-                    md:justify-between gap-4
-                    px-6 py-5 border-b border-slate-200">
+        <div class="px-6 py-5 border-b border-slate-200">
+
+            <h2 class="text-lg font-bold text-slate-900">
+                Garantía
+            </h2>
+
+            <p class="text-sm text-slate-500 mt-1">
+                Información de garantía asociada a esta orden.
+            </p>
+
+        </div>
+
+
+        <div class="p-6">
+
+            @if($orden->garantia)
+
+                @php
+                    $hoy = now()->startOfDay();
+
+                    $vencimiento =
+                        $orden
+                            ->garantia
+                            ->fecha_vencimiento
+                            ?->startOfDay();
+
+                    if (!$vencimiento) {
+
+                        $estadoGarantia = 'Sin fecha';
+
+                    } elseif($vencimiento->lt($hoy)) {
+
+                        $estadoGarantia = 'Vencida';
+
+                    } elseif(
+                        $vencimiento->diffInDays($hoy) <= 15
+                    ) {
+
+                        $estadoGarantia = 'Por vencer';
+
+                    } else {
+
+                        $estadoGarantia = 'Vigente';
+                    }
+                @endphp
+
+
+                <div class="grid grid-cols-1
+                            md:grid-cols-3 gap-6">
+
+                    {{-- INICIO --}}
+                    <div>
+
+                        <p class="text-xs font-semibold
+                                  text-slate-400 uppercase">
+                            Inicio
+                        </p>
+
+                        <p class="font-semibold
+                                  text-slate-900 mt-1">
+                            {{
+                                $orden
+                                    ->garantia
+                                    ->fecha_inicio
+                                    ?->format('d/m/Y')
+                                ?? '—'
+                            }}
+                        </p>
+
+                    </div>
+
+
+                    {{-- VENCIMIENTO --}}
+                    <div>
+
+                        <p class="text-xs font-semibold
+                                  text-slate-400 uppercase">
+                            Vencimiento
+                        </p>
+
+                        <p class="font-semibold
+                                  text-slate-900 mt-1">
+                            {{
+                                $orden
+                                    ->garantia
+                                    ->fecha_vencimiento
+                                    ?->format('d/m/Y')
+                                ?? '—'
+                            }}
+                        </p>
+
+                    </div>
+
+
+                    {{-- ESTADO --}}
+                    <div>
+
+                        <p class="text-xs font-semibold
+                                  text-slate-400 uppercase">
+                            Estado
+                        </p>
+
+                        <div class="mt-2">
+
+                            @if($estadoGarantia === 'Vigente')
+
+                                <span class="bg-emerald-100
+                                             text-emerald-700
+                                             px-3 py-1
+                                             rounded-full
+                                             text-xs font-bold">
+                                    Vigente
+                                </span>
+
+
+                            @elseif(
+                                $estadoGarantia === 'Por vencer'
+                            )
+
+                                <span class="bg-amber-100
+                                             text-amber-700
+                                             px-3 py-1
+                                             rounded-full
+                                             text-xs font-bold">
+                                    Por vencer
+                                </span>
+
+
+                            @elseif(
+                                $estadoGarantia === 'Vencida'
+                            )
+
+                                <span class="bg-red-100
+                                             text-red-700
+                                             px-3 py-1
+                                             rounded-full
+                                             text-xs font-bold">
+                                    Vencida
+                                </span>
+
+                            @else
+
+                                <span class="bg-slate-100
+                                             text-slate-600
+                                             px-3 py-1
+                                             rounded-full
+                                             text-xs font-bold">
+                                    Sin fecha
+                                </span>
+
+                            @endif
+
+                        </div>
+
+                    </div>
+
+                </div>
+
+
+                @if($orden->garantia->observaciones)
+
+                    <div class="mt-6 pt-5
+                                border-t border-slate-100">
+
+                        <p class="text-xs font-semibold
+                                  text-slate-400 uppercase">
+                            Observaciones
+                        </p>
+
+                        <p class="text-slate-600 mt-2">
+                            {{ $orden->garantia->observaciones }}
+                        </p>
+
+                    </div>
+
+                @endif
+
+
+            @else
+
+                <div class="text-center py-6">
+
+                    <p class="text-slate-400">
+                        Esta orden no tiene una garantía registrada.
+                    </p>
+
+                </div>
+
+            @endif
+
+        </div>
+
+    </section>
+
+
+    {{-- =========================================================
+         DEVOLUCIONES Y GARANTÍAS
+    ========================================================== --}}
+    <section class="bg-white border border-slate-200
+                    rounded-xl shadow-sm overflow-hidden mb-8">
+
+        <div class="flex flex-col md:flex-row
+                    md:items-center md:justify-between
+                    gap-4
+                    px-6 py-5
+                    border-b border-slate-200">
 
             <div>
+
                 <h2 class="text-lg font-bold text-slate-900">
                     Devoluciones y Garantías
                 </h2>
@@ -827,16 +1536,29 @@
                 <p class="text-sm text-slate-500 mt-1">
                     Historial de incidencias registradas para esta orden.
                 </p>
+
             </div>
 
-            @if($orden->estadoOrden?->nombre !== 'Cancelado')
+
+            {{-- SOLO ADMIN / RECEPCIÓN --}}
+            @if(
+                $puedeAdministrar
+                &&
+                $orden->estadoOrden?->nombre !== 'Cancelado'
+            )
 
                 <a
-                    href="{{ route('devoluciones.create', $orden) }}"
+                    href="{{ route(
+                        'devoluciones.create',
+                        $orden
+                    ) }}"
                     class="inline-flex items-center justify-center
-                        px-4 py-2.5 border border-purple-300
-                        text-purple-700 hover:bg-purple-50
-                        rounded-lg font-semibold text-sm"
+                           px-4 py-2.5
+                           border border-purple-300
+                           text-purple-700
+                           hover:bg-purple-50
+                           rounded-lg
+                           font-semibold text-sm"
                 >
                     + Registrar Devolución
                 </a>
@@ -848,50 +1570,75 @@
 
         <div class="p-6">
 
-            @forelse($orden->devoluciones as $devolucion)
+            @forelse(
+                $orden->devoluciones
+                as $devolucion
+            )
 
-                <div class="border border-slate-200 rounded-xl p-5
-                            {{ !$loop->last ? 'mb-4' : '' }}">
+                <div class="border border-slate-200
+                            rounded-xl p-5
+                            {{ !$loop->last
+                                ? 'mb-4'
+                                : ''
+                            }}">
 
                     <div class="flex flex-col lg:flex-row
-                                lg:items-start lg:justify-between gap-5">
+                                lg:items-start
+                                lg:justify-between
+                                gap-5">
 
                         {{-- INFORMACIÓN --}}
                         <div class="flex-1">
 
-                            <div class="flex flex-wrap items-center gap-2 mb-4">
+                            <div class="flex flex-wrap
+                                        items-center
+                                        gap-2 mb-4">
 
-                                @if($devolucion->tipo === 'Garantia')
+                                @if(
+                                    $devolucion->tipo
+                                    === 'Garantia'
+                                )
 
-                                    <span class="bg-emerald-100 text-emerald-700
-                                                px-3 py-1 rounded-full
-                                                text-xs font-bold">
+                                    <span class="bg-emerald-100
+                                                 text-emerald-700
+                                                 px-3 py-1
+                                                 rounded-full
+                                                 text-xs font-bold">
                                         Garantía
                                     </span>
 
                                 @else
 
-                                    <span class="bg-purple-100 text-purple-700
-                                                px-3 py-1 rounded-full
-                                                text-xs font-bold">
+                                    <span class="bg-purple-100
+                                                 text-purple-700
+                                                 px-3 py-1
+                                                 rounded-full
+                                                 text-xs font-bold">
                                         Devolución
                                     </span>
 
                                 @endif
 
 
-                                <span class="bg-slate-100 text-slate-700
-                                            px-3 py-1 rounded-full
-                                            text-xs font-semibold">
+                                <span class="bg-slate-100
+                                             text-slate-700
+                                             px-3 py-1
+                                             rounded-full
+                                             text-xs font-semibold">
                                     {{ $devolucion->estado }}
                                 </span>
 
 
-                                @if($devolucion->requiere_repeticion)
+                                @if(
+                                    $devolucion
+                                        ->requiere_repeticion
+                                )
 
-                                    <span class="bg-amber-100 text-amber-700
-                                                px-3 py-1 rounded-full
-                                                text-xs font-bold">
+                                    <span class="bg-amber-100
+                                                 text-amber-700
+                                                 px-3 py-1
+                                                 rounded-full
+                                                 text-xs font-bold">
                                         ↻ Requiere repetición
                                     </span>
 
@@ -900,80 +1647,142 @@
                             </div>
 
 
-                            <div class="grid grid-cols-1 md:grid-cols-2
-                                        xl:grid-cols-3 gap-5">
+                            <div class="grid grid-cols-1
+                                        md:grid-cols-2
+                                        xl:grid-cols-3
+                                        gap-5">
 
                                 {{-- FECHA --}}
                                 <div>
-                                    <p class="text-xs uppercase font-semibold text-slate-400">
+
+                                    <p class="text-xs uppercase
+                                              font-semibold
+                                              text-slate-400">
                                         Fecha
                                     </p>
 
-                                    <p class="font-semibold text-slate-900 mt-1">
-                                        {{ $devolucion->fecha_devolucion?->format('d/m/Y') ?? '—' }}
+                                    <p class="font-semibold
+                                              text-slate-900 mt-1">
+                                        {{
+                                            $devolucion
+                                                ->fecha_devolucion
+                                                ?->format('d/m/Y')
+                                            ?? '—'
+                                        }}
                                     </p>
+
                                 </div>
 
 
                                 {{-- MOTIVO --}}
                                 <div>
-                                    <p class="text-xs uppercase font-semibold text-slate-400">
+
+                                    <p class="text-xs uppercase
+                                              font-semibold
+                                              text-slate-400">
                                         Motivo
                                     </p>
 
-                                    <p class="font-semibold text-slate-900 mt-1">
+                                    <p class="font-semibold
+                                              text-slate-900 mt-1">
                                         {{ $devolucion->motivo }}
                                     </p>
+
                                 </div>
 
 
                                 {{-- TÉCNICO --}}
                                 <div>
-                                    <p class="text-xs uppercase font-semibold text-slate-400">
+
+                                    <p class="text-xs uppercase
+                                              font-semibold
+                                              text-slate-400">
                                         Técnico responsable
                                     </p>
 
-                                    <p class="font-semibold text-slate-900 mt-1">
-                                        {{ $devolucion->tecnicoResponsable?->user?->name ?? 'Sin asignar' }}
+                                    <p class="font-semibold
+                                              text-slate-900 mt-1">
+                                        {{
+                                            $devolucion
+                                                ->tecnicoResponsable
+                                                ?->user
+                                                ?->name
+                                            ?? 'Sin asignar'
+                                        }}
                                     </p>
+
                                 </div>
 
 
-                                {{-- PÉRDIDA --}}
-                                <div>
-                                    <p class="text-xs uppercase font-semibold text-slate-400">
-                                        Pérdida estimada
-                                    </p>
+                                {{-- PÉRDIDA
+                                     SOLO ADMIN --}}
+                                @if($puedeAdministrar)
 
-                                    <p class="font-semibold text-slate-900 mt-1">
-                                        Q {{ number_format($devolucion->perdida_estimada ?? 0, 2) }}
-                                    </p>
-                                </div>
+                                    <div>
+
+                                        <p class="text-xs uppercase
+                                                  font-semibold
+                                                  text-slate-400">
+                                            Pérdida estimada
+                                        </p>
+
+                                        <p class="font-semibold
+                                                  text-slate-900 mt-1">
+                                            Q {{
+                                                number_format(
+                                                    $devolucion
+                                                        ->perdida_estimada
+                                                    ?? 0,
+                                                    2
+                                                )
+                                            }}
+                                        </p>
+
+                                    </div>
+
+                                @endif
 
 
                                 {{-- REGISTRADO POR --}}
                                 <div>
-                                    <p class="text-xs uppercase font-semibold text-slate-400">
+
+                                    <p class="text-xs uppercase
+                                              font-semibold
+                                              text-slate-400">
                                         Registrado por
                                     </p>
 
-                                    <p class="font-semibold text-slate-900 mt-1">
-                                        {{ $devolucion->usuarioRegistro?->name ?? '—' }}
+                                    <p class="font-semibold
+                                              text-slate-900 mt-1">
+                                        {{
+                                            $devolucion
+                                                ->usuarioRegistro
+                                                ?->name
+                                            ?? '—'
+                                        }}
                                     </p>
+
                                 </div>
 
 
                                 {{-- GARANTÍA --}}
                                 <div>
-                                    <p class="text-xs uppercase font-semibold text-slate-400">
+
+                                    <p class="text-xs uppercase
+                                              font-semibold
+                                              text-slate-400">
                                         Garantía asociada
                                     </p>
 
-                                    <p class="font-semibold text-slate-900 mt-1">
-                                        {{ $devolucion->garantia
-                                            ? 'Sí'
-                                            : 'No' }}
+                                    <p class="font-semibold
+                                              text-slate-900 mt-1">
+                                        {{
+                                            $devolucion->garantia
+                                                ? 'Sí'
+                                                : 'No'
+                                        }}
                                     </p>
+
                                 </div>
 
                             </div>
@@ -981,9 +1790,13 @@
 
                             @if($devolucion->observaciones)
 
-                                <div class="mt-5 pt-4 border-t border-slate-100">
+                                <div class="mt-5 pt-4
+                                            border-t
+                                            border-slate-100">
 
-                                    <p class="text-xs uppercase font-semibold text-slate-400">
+                                    <p class="text-xs uppercase
+                                              font-semibold
+                                              text-slate-400">
                                         Observaciones
                                     </p>
 
@@ -998,51 +1811,86 @@
                         </div>
 
 
-                        {{-- ACCIÓN --}}
-                        @if($devolucion->requiere_repeticion)
+                        {{-- ACCIÓN DE REPETICIÓN --}}
+                        @if(
+                            $puedeAdministrar
+                            &&
+                            $devolucion->requiere_repeticion
+                        )
 
                             <div class="lg:shrink-0">
 
                                 @if($devolucion->repeticion)
 
-                                    {{-- YA EXISTE UNA REPETICIÓN --}}
                                     <div class="flex flex-col gap-2">
 
-                                        <span
-                                            class="inline-flex items-center justify-center
-                                                px-4 py-2
-                                                bg-emerald-50 text-emerald-700
-                                                border border-emerald-200
-                                                rounded-lg font-semibold text-sm"
-                                        >
+                                        <span class="inline-flex
+                                                     items-center
+                                                     justify-center
+                                                     px-4 py-2
+                                                     bg-emerald-50
+                                                     text-emerald-700
+                                                     border
+                                                     border-emerald-200
+                                                     rounded-lg
+                                                     font-semibold
+                                                     text-sm">
                                             ✓ Repetición creada
                                         </span>
+
 
                                         <a
                                             href="{{ route(
                                                 'ordenes.show',
-                                                $devolucion->repeticion
+                                                $devolucion
+                                                    ->repeticion
                                             ) }}"
-                                            class="text-center text-blue-700
-                                                hover:underline font-semibold text-sm"
+                                            class="text-center
+                                                   text-blue-700
+                                                   hover:underline
+                                                   font-semibold
+                                                   text-sm"
                                         >
-                                            Ver {{ $devolucion->repeticion->codigo }} →
+                                            Ver
+                                            {{
+                                                $devolucion
+                                                    ->repeticion
+                                                    ->codigo
+                                            }}
+                                            →
                                         </a>
 
                                     </div>
 
-                                @elseif($orden->estadoOrden?->nombre !== 'Cancelado')
 
-                                    {{-- TODAVÍA NO EXISTE REPETICIÓN --}}
+                                @elseif(
+                                    $orden
+                                        ->estadoOrden
+                                        ?->nombre
+                                    !== 'Cancelado'
+                                )
+
                                     <a
-                                        href="{{ route('ordenes.repetir', [
-                                            'orden' => $orden,
-                                            'devolucion' => $devolucion->id
-                                        ]) }}"
-                                        class="inline-flex items-center justify-center
-                                            px-4 py-2.5 bg-amber-600
-                                            hover:bg-amber-700 text-white
-                                            rounded-lg font-semibold text-sm"
+                                        href="{{ route(
+                                            'ordenes.repetir',
+                                            [
+                                                'orden' =>
+                                                    $orden,
+
+                                                'devolucion' =>
+                                                    $devolucion->id
+                                            ]
+                                        ) }}"
+                                        class="inline-flex
+                                               items-center
+                                               justify-center
+                                               px-4 py-2.5
+                                               bg-amber-600
+                                               hover:bg-amber-700
+                                               text-white
+                                               rounded-lg
+                                               font-semibold
+                                               text-sm"
                                     >
                                         ↻ Crear Repetición
                                     </a>
@@ -1052,9 +1900,11 @@
                             </div>
 
                         @endif
+
                     </div>
 
                 </div>
+
 
             @empty
 
@@ -1072,10 +1922,12 @@
 
     </section>
 
+
     {{-- =========================================================
          HISTORIAL DE PRODUCCIÓN
     ========================================================== --}}
-    <section class="bg-white border border-slate-200 rounded-xl shadow-sm overflow-hidden mb-8">
+    <section class="bg-white border border-slate-200
+                    rounded-xl shadow-sm overflow-hidden mb-8">
 
         <div class="px-6 py-5 border-b border-slate-200">
 
@@ -1094,15 +1946,36 @@
 
             <table class="w-full text-sm">
 
-                <thead class="bg-slate-50 text-slate-500 uppercase text-xs">
+                <thead class="bg-slate-50
+                              text-slate-500
+                              uppercase text-xs">
 
                     <tr>
-                        <th class="text-left px-6 py-4">Etapa</th>
-                        <th class="text-left px-6 py-4">Técnico</th>
-                        <th class="text-left px-6 py-4">Inicio</th>
-                        <th class="text-left px-6 py-4">Fin</th>
-                        <th class="text-left px-6 py-4">Estado</th>
-                        <th class="text-left px-6 py-4">Observaciones</th>
+
+                        <th class="text-left px-6 py-4">
+                            Etapa
+                        </th>
+
+                        <th class="text-left px-6 py-4">
+                            Técnico
+                        </th>
+
+                        <th class="text-left px-6 py-4">
+                            Inicio
+                        </th>
+
+                        <th class="text-left px-6 py-4">
+                            Fin
+                        </th>
+
+                        <th class="text-left px-6 py-4">
+                            Estado
+                        </th>
+
+                        <th class="text-left px-6 py-4">
+                            Observaciones
+                        </th>
+
                     </tr>
 
                 </thead>
@@ -1110,35 +1983,121 @@
 
                 <tbody class="divide-y divide-slate-100">
 
-                    @forelse($orden->historialProduccion as $historial)
+                    @forelse(
+                        $orden->historialProduccion
+                        as $historial
+                    )
 
                         <tr>
 
                             <td class="px-6 py-4 font-semibold">
-                                {{ $historial->etapaProduccion?->nombre ?? '—' }}
+
+                                {{
+                                    $historial
+                                        ->etapaProduccion
+                                        ?->nombre
+                                    ?? '—'
+                                }}
+
                             </td>
+
 
                             <td class="px-6 py-4">
-                                {{ $historial->tecnico?->user?->name ?? 'Sin asignar' }}
+
+                                {{
+                                    $historial
+                                        ->tecnico
+                                        ?->user
+                                        ?->name
+                                    ?? 'Sin asignar'
+                                }}
+
                             </td>
 
-                            <td class="px-6 py-4 whitespace-nowrap">
-                                {{ $historial->fecha_inicio?->format('d/m/Y H:i') ?? '—' }}
-                            </td>
 
                             <td class="px-6 py-4 whitespace-nowrap">
-                                {{ $historial->fecha_fin?->format('d/m/Y H:i') ?? '—' }}
+
+                                {{
+                                    $historial
+                                        ->fecha_inicio
+                                        ?->format(
+                                            'd/m/Y H:i'
+                                        )
+                                    ?? '—'
+                                }}
+
                             </td>
+
+
+                            <td class="px-6 py-4 whitespace-nowrap">
+
+                                {{
+                                    $historial
+                                        ->fecha_fin
+                                        ?->format(
+                                            'd/m/Y H:i'
+                                        )
+                                    ?? '—'
+                                }}
+
+                            </td>
+
 
                             <td class="px-6 py-4">
-                                {{ $historial->estado }}
+
+                                @if(
+                                    $historial->estado
+                                    === 'Completado'
+                                )
+
+                                    <span class="bg-emerald-100
+                                                 text-emerald-700
+                                                 px-3 py-1
+                                                 rounded-full
+                                                 text-xs font-semibold">
+                                        Completado
+                                    </span>
+
+                                @elseif(
+                                    $historial->estado
+                                    === 'En proceso'
+                                )
+
+                                    <span class="bg-blue-100
+                                                 text-blue-700
+                                                 px-3 py-1
+                                                 rounded-full
+                                                 text-xs font-semibold">
+                                        En proceso
+                                    </span>
+
+                                @else
+
+                                    <span class="bg-slate-100
+                                                 text-slate-700
+                                                 px-3 py-1
+                                                 rounded-full
+                                                 text-xs font-semibold">
+                                        {{ $historial->estado }}
+                                    </span>
+
+                                @endif
+
                             </td>
+
 
                             <td class="px-6 py-4 text-slate-500">
-                                {{ $historial->observaciones ?? '—' }}
+
+                                {{
+                                    $historial
+                                        ->observaciones
+                                    ?? '—'
+                                }}
+
                             </td>
 
                         </tr>
+
 
                     @empty
 
@@ -1146,7 +2105,9 @@
 
                             <td
                                 colspan="6"
-                                class="px-6 py-10 text-center text-slate-400"
+                                class="px-6 py-10
+                                       text-center
+                                       text-slate-400"
                             >
                                 No hay historial de producción registrado.
                             </td>
@@ -1167,7 +2128,8 @@
     {{-- =========================================================
          HISTORIAL DE ESTADOS
     ========================================================== --}}
-    <section class="bg-white border border-slate-200 rounded-xl shadow-sm overflow-hidden">
+    <section class="bg-white border border-slate-200
+                    rounded-xl shadow-sm overflow-hidden">
 
         <div class="px-6 py-5 border-b border-slate-200">
 
@@ -1186,14 +2148,32 @@
 
             <table class="w-full text-sm">
 
-                <thead class="bg-slate-50 text-slate-500 uppercase text-xs">
+                <thead class="bg-slate-50
+                              text-slate-500
+                              uppercase text-xs">
 
                     <tr>
-                        <th class="text-left px-6 py-4">Estado</th>
-                        <th class="text-left px-6 py-4">Fecha</th>
-                        <th class="text-left px-6 py-4">Usuario</th>
-                        <th class="text-left px-6 py-4">Motivo</th>
-                        <th class="text-left px-6 py-4">Observaciones</th>
+
+                        <th class="text-left px-6 py-4">
+                            Estado
+                        </th>
+
+                        <th class="text-left px-6 py-4">
+                            Fecha
+                        </th>
+
+                        <th class="text-left px-6 py-4">
+                            Usuario
+                        </th>
+
+                        <th class="text-left px-6 py-4">
+                            Motivo
+                        </th>
+
+                        <th class="text-left px-6 py-4">
+                            Observaciones
+                        </th>
+
                     </tr>
 
                 </thead>
@@ -1201,31 +2181,74 @@
 
                 <tbody class="divide-y divide-slate-100">
 
-                    @forelse($orden->historialEstados as $historial)
+                    @forelse(
+                        $orden->historialEstados
+                        as $historial
+                    )
 
                         <tr>
 
                             <td class="px-6 py-4 font-semibold">
-                                {{ $historial->estadoOrden?->nombre ?? '—' }}
+
+                                {{
+                                    $historial
+                                        ->estadoOrden
+                                        ?->nombre
+                                    ?? '—'
+                                }}
+
                             </td>
+
 
                             <td class="px-6 py-4 whitespace-nowrap">
-                                {{ $historial->fecha?->format('d/m/Y H:i') ?? '—' }}
+
+                                {{
+                                    $historial
+                                        ->fecha
+                                        ?->format(
+                                            'd/m/Y H:i'
+                                        )
+                                    ?? '—'
+                                }}
+
                             </td>
 
-                            <td class="px-6 py-4">
-                                {{ $historial->usuarioRegistro?->name ?? '—' }}
-                            </td>
 
                             <td class="px-6 py-4">
-                                {{ $historial->motivo ?? '—' }}
+
+                                {{
+                                    $historial
+                                        ->usuarioRegistro
+                                        ?->name
+                                    ?? '—'
+                                }}
+
                             </td>
+
+
+                            <td class="px-6 py-4">
+
+                                {{
+                                    $historial
+                                        ->motivo
+                                    ?? '—'
+                                }}
+
+                            </td>
+
 
                             <td class="px-6 py-4 text-slate-500">
-                                {{ $historial->observaciones ?? '—' }}
+
+                                {{
+                                    $historial
+                                        ->observaciones
+                                    ?? '—'
+                                }}
+
                             </td>
 
                         </tr>
+
 
                     @empty
 
@@ -1233,7 +2256,9 @@
 
                             <td
                                 colspan="5"
-                                class="px-6 py-10 text-center text-slate-400"
+                                class="px-6 py-10
+                                       text-center
+                                       text-slate-400"
                             >
                                 No hay cambios de estado registrados.
                             </td>
@@ -1249,5 +2274,7 @@
         </div>
 
     </section>
+
 </div>
+
 @endsection
