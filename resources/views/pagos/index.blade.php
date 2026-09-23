@@ -254,61 +254,73 @@
                                 {{ $pago->odontologo?->nombre ?? '—' }}
                             </td>
 
+                               <td class="px-6 py-4">
 
-                            <td class="px-6 py-4">
-                                Q {{ number_format($pago->monto_total, 2) }}
-                            </td>
+                                    @if((float) $pago->monto_total > 0)
 
+                                        Q {{ number_format($pago->monto_total, 2) }}
 
-                            <td class="px-6 py-4 text-emerald-700 font-semibold">
-                                Q {{ number_format($pago->monto_pagado, 2) }}
-                            </td>
+                                    @else
 
+                                        <span class="text-slate-400">
+                                            Por definir
+                                        </span>
 
-                            <td class="px-6 py-4 font-semibold">
-                                Q {{ number_format($pago->saldo_pendiente, 2) }}
-                            </td>
+                                    @endif
+                        </td>
 
+                    <td class="px-6 py-4 text-emerald-700 font-semibold">
+                        Q {{ number_format($pago->monto_pagado, 2) }}
+                    </td>
 
-                            <td class="px-6 py-4">
-                                {{ $pago->cuentaOdontologo?->modalidad_pago ?? 'Sin configurar' }}
-                            </td>
+                    <td class="px-6 py-4 font-semibold">
+                        Q {{ number_format($pago->saldo_pendiente, 2) }}
+                    </td>
 
+                    <td class="px-6 py-4">
+                        {{ $pago->cuentaOdontologo?->modalidad_pago ?? 'Sin configurar' }}
+                    </td>
 
-                            <td class="px-6 py-4">
+                        <td class="px-6 py-4">
+                            @if((float) $pago->monto_total <= 0)
 
-                                @if($pago->estado_pago === 'Pagado')
+                                <span class="bg-slate-100 text-slate-600
+                                            px-3 py-1 rounded-full
+                                            text-xs font-semibold">
+                                    Por configurar
+                                </span>
 
-                                    <span class="bg-emerald-100 text-emerald-700
-                                                 px-3 py-1 rounded-full
-                                                 text-xs font-semibold">
-                                        Pagado
-                                    </span>
+                            @elseif($pago->estado_pago === 'Pagado')
 
-                                @elseif($pago->estado_pago === 'Parcial')
+                                <span class="bg-emerald-100 text-emerald-700
+                                            px-3 py-1 rounded-full
+                                            text-xs font-semibold">
+                                    Pagado
+                                </span>
 
-                                    <span class="bg-amber-100 text-amber-700
-                                                 px-3 py-1 rounded-full
-                                                 text-xs font-semibold">
-                                        Parcial
-                                    </span>
+                            @elseif($pago->estado_pago === 'Parcial')
 
-                                @else
+                                <span class="bg-amber-100 text-amber-700
+                                            px-3 py-1 rounded-full
+                                            text-xs font-semibold">
+                                    Parcial
+                                </span>
 
-                                    <span class="bg-red-100 text-red-700
-                                                 px-3 py-1 rounded-full
-                                                 text-xs font-semibold">
-                                        Pendiente
-                                    </span>
+                            @else
 
-                                @endif
+                                <span class="bg-red-100 text-red-700
+                                            px-3 py-1 rounded-full
+                                            text-xs font-semibold">
+                                    Pendiente
+                                </span>
 
-                            </td>
+                            @endif                            
 
+                        </td>
 
-                            <td class="px-6 py-4">
+                        <td class="px-6 py-4">
 
-                                @if($pago->ordenTrabajo)
+                            @if($pago->ordenTrabajo)
 
                                 <a
                                     href="{{ route('pagos.show', [

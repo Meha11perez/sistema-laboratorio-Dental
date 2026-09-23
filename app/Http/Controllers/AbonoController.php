@@ -15,7 +15,8 @@ class AbonoController extends Controller
         // ==========================================
         // VALIDAR DATOS
         // ==========================================
-        $datos = $request->validate([
+        $datos = $request->validate(
+        [
             'monto' => [
                 'required',
                 'numeric',
@@ -34,6 +35,7 @@ class AbonoController extends Controller
 
             'referencia' => [
                 'nullable',
+                'required_if:metodo_pago,Transferencia,Depósito',
                 'string',
                 'max:150',
             ],
@@ -42,9 +44,40 @@ class AbonoController extends Controller
                 'nullable',
                 'string',
             ],
-        ]);
+        ],
+        [
+            'monto.required' =>
+                'Debe ingresar el monto del abono.',
 
+            'monto.numeric' =>
+                'El monto del abono debe ser un valor numérico.',
 
+            'monto.min' =>
+                'El monto del abono debe ser mayor a Q0.00.',
+
+            'metodo_pago.required' =>
+                'Debe seleccionar un método de pago.',
+
+            'metodo_pago.in' =>
+                'El método de pago seleccionado no es válido.',
+
+            'fecha_abono.required' =>
+                'Debe seleccionar la fecha del abono.',
+
+            'fecha_abono.date' =>
+                'La fecha del abono no es válida.',
+
+            'referencia.required_if' =>
+                'Debe ingresar el número de referencia o boleta para pagos por transferencia o depósito.',
+
+            'referencia.max' =>
+                'La referencia no puede contener más de 150 caracteres.',
+
+            'observaciones.string' =>
+                'Las observaciones deben contener texto.',
+            ]
+        );
+        
         DB::transaction(function () use ($datos, $pago) {
 
             /*

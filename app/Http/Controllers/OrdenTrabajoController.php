@@ -936,50 +936,232 @@ public function store(Request $request)
         'Etapa iniciada correctamente.'
     );
 }
-public function registrarMaterial(
-    Request $request,
-    OrdenTrabajo $orden
-) {
-    // SOLO TÉCNICO
 
-    if (!$this->esTecnico()) {
-        abort(403);
+    public function completarEtapa(OrdenTrabajo $orden)
+    {
+        // Solo Técnico
+        if (!$this->esTecnico()) {
+            abort(403);
+        }
+
+        $tecnico = $this->obtenerTecnicoAutenticado();
+
+        // Verificar que la orden realmente esté asignada a este técnico
+        if ($orden->tecnico_actual_id !== $tecnico->id) {
+            abort(
+                403,
+                'Esta orden no está asignada a usted.'
+            );
+        }
+
+        // La orden debe tener etapa activa
+        if (!$orden->etapa_actual_id) {
+            return back()->with(
+                'error',
+                'La orden no tiene una etapa activa.'
+            );
+        }
+
+        // Cargar relaciones necesarias
+        $orden->loadMissing([
+            'etapaActual',
+            'estadoOrden',
+        ]);
+
+        // No permitir completar órdenes cerradas
+        if (
+            in_array(
+                $orden->estadoOrden?->nombre,
+                [
+                    'Terminado',
+                    'Entregado',
+                    'Cancelado',
+                ],
+                true
+            )
+        ) {
+            return back()->with(
+                'error',
+                'Esta orden ya no puede modificarse en producción.'
+            );
+        }
+
+        $esEtapaFinal =
+            $orden->etapaActual?->nombre === 'Terminados';
+
+
+        DB::transaction(function () use (
+            $orden,
+            $tecnico,
+            $esEtapaFinal
+        ) {
+
+            // =====================================================
+            // CERRAR HISTORIAL DE PRODUCCIÓN ACTUAL
+            // =====================================================
+            $historial = HistorialProduccion::where(
+                    'orden_trabajo_id',
+                    $orden->id
+                )
+                ->where(
+                    'etapa_produccion_id',
+                    $orden->etapa_actual_id
+                )
+                ->where(
+                    'tecnico_id',
+                    $tecnico->id
+                )
+                ->whereNull('fecha_fin')
+                ->latest('id')
+                ->first();
+
+
+            if (!$historial) {
+                throw \Illuminate\Validation\ValidationException
+                    ::withMessages([
+                        'produccion' =>
+                            'No se encontró una etapa activa para completar.',
+                    ]);
+            }
+
+
+            $historial->update([
+                'fecha_fin' => now(),
+                'estado' => 'Completado',
+            ]);
+
+
+            // =====================================================
+            // SI LA ETAPA ES TERMINADOS
+            // LA PRODUCCIÓN COMPLETA FINALIZA
+            // =====================================================
+            if ($esEtapaFinal) {
+
+                $estadoTerminado = EstadoOrden::where(
+                    'nombre',
+                    'Terminado'
+                )->firstOrFail();
+
+
+                $orden->update([
+                    'estado_orden_id' =>
+                        $estadoTerminado->id,
+
+                    'tecnico_actual_id' =>
+                        null,
+                ]);
+
+
+                HistorialEstadoOrden::create([
+                    'orden_trabajo_id' =>
+                        $orden->id,
+
+                    'estado_orden_id' =>
+                        $estadoTerminado->id,
+
+                    'registrado_por' =>
+                        auth()->id(),
+
+                    'motivo' =>
+                        null,
+
+                    'observaciones' =>
+                        'Producción finalizada por el técnico.',
+
+                    'fecha' =>
+                        now(),
+                ]);
+
+
+            } else {
+                        // La etapa terminó.
+                        // La orden queda esperando la siguiente asignación.
+                        $estadoPendiente = EstadoOrden::where(
+                            'nombre',
+                            'Pendiente'
+                        )->firstOrFail();
+
+                        $orden->update([
+                            'estado_orden_id' => $estadoPendiente->id,
+                            'tecnico_actual_id' => null,
+                        ]);
+
+
+                        HistorialEstadoOrden::create([
+                            'orden_trabajo_id' => $orden->id,
+                            'estado_orden_id' => $estadoPendiente->id,
+                            'registrado_por' => auth()->id(),
+                            'motivo' => null,
+                            'observaciones' =>
+                                'Etapa completada. Pendiente de asignación de la siguiente etapa.',
+                            'fecha' => now(),
+                        ]);
+                    }
+        });
+
+        // Si terminó completamente
+        if ($esEtapaFinal) {
+
+            return redirect()
+                ->route('ordenes.index')
+                ->with(
+                    'success',
+                    'Producción finalizada correctamente.'
+                );
+        }
+
+        // Si solamente terminó su etapa
+        return redirect()
+            ->route('ordenes.index')
+            ->with(
+                'success',
+                'Etapa completada correctamente. La orden queda pendiente de la siguiente asignación.'
+            );
     }
-
-    $tecnico =
-        $this->obtenerTecnicoAutenticado();
-    
-    // LA ORDEN DEBE SER DEL TÉCNICO
-    
-    if (
-        $orden->tecnico_actual_id !== $tecnico->id
+    public function registrarMaterial(
+        Request $request,
+        OrdenTrabajo $orden
     ) {
-        abort(
-            403,
-            'Esta orden no está asignada a usted.'
-        );
-    }
+        // SOLO TÉCNICO
 
-    // NO MODIFICAR ÓRDENES FINALIZADAS
+        if (!$this->esTecnico()) {
+            abort(403);
+        }
 
-    $orden->loadMissing('estadoOrden');
+        $tecnico =
+            $this->obtenerTecnicoAutenticado();
+        
+        // LA ORDEN DEBE SER DEL TÉCNICO
+        
+        if (
+            $orden->tecnico_actual_id !== $tecnico->id
+        ) {
+            abort(
+                403,
+                'Esta orden no está asignada a usted.'
+            );
+        }
 
-    if (
-        in_array(
-            $orden->estadoOrden?->nombre,
-            [
-                'Terminado',
-                'Entregado',
-                'Cancelado',
-            ],
-            true
-        )
-    ) {
-        return back()->with(
-            'error',
-            'No se pueden registrar materiales en una orden finalizada.'
-        );
-    }
+        // NO MODIFICAR ÓRDENES FINALIZADAS
+
+        $orden->loadMissing('estadoOrden');
+
+        if (
+            in_array(
+                $orden->estadoOrden?->nombre,
+                [
+                    'Terminado',
+                    'Entregado',
+                    'Cancelado',
+                ],
+                true
+            )
+        ) {
+            return back()->with(
+                'error',
+                'No se pueden registrar materiales en una orden finalizada.'
+            );
+        }
 
     // VALIDACIÓN
 
@@ -1047,7 +1229,6 @@ public function registrarMaterial(
             ]);
         }
 
-
         // DESCONTAR INVENTARIO DEL TÉCNICO
 
         $stockNuevo =
@@ -1057,7 +1238,6 @@ public function registrarMaterial(
         $inventario->update([
             'cantidad' => $stockNuevo,
         ]);
-
 
         // =================================================
         // MATERIAL
@@ -1107,13 +1287,11 @@ public function registrarMaterial(
                     * $costoActual
                 );
 
-
             $costoPromedio =
                 $cantidadNuevaOrden > 0
                     ? $subtotalNuevo
                         / $cantidadNuevaOrden
                     : $costoActual;
-
 
             $ordenMaterial->update([
                 'cantidad' =>
@@ -1147,7 +1325,6 @@ public function registrarMaterial(
             ]);
         }
 
-
         // =================================================
         // HISTORIAL DEL MOVIMIENTO
         // =================================================
@@ -1165,7 +1342,7 @@ public function registrarMaterial(
                 auth()->id(),
 
             'tipo_movimiento' =>
-                'Salida',
+                'Consumo',
 
             'cantidad' =>
                 $cantidadSolicitada,

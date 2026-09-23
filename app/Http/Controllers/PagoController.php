@@ -20,8 +20,6 @@ class PagoController extends Controller
             'odontologo_id',
             $orden->odontologo_id
         )->first();
-
-
         /*
             * Buscamos o creamos el registro principal
             * de pago de la orden.
@@ -48,11 +46,8 @@ class PagoController extends Controller
                 'saldo_pendiente' =>
                     $orden->total ?? 0,
 
-                'estado_pago' =>
-                    ($orden->total ?? 0) > 0
-                        ? 'Pendiente' 
-                        : 'Pagado',
-
+                    'estado_pago' => 'Pendiente',
+                    
                     'fecha_registro' =>
                         now()->toDateString(),
 
@@ -82,34 +77,36 @@ class PagoController extends Controller
                 0,
                 $montoOrden - $totalAbonado
             );
-
-
             /*
             * Determinamos nuevamente el estado del pago.
             */
-            if ($saldoPendiente <= 0) {
+          if ($montoOrden <= 0) {
 
-                $estadoPago = 'Pagado';
+            // Todavía no se ha definido el precio.
+            $estadoPago = 'Pendiente';
 
-            } elseif ($totalAbonado > 0) {
+        } elseif ($saldoPendiente <= 0) {
 
-                $estadoPago = 'Parcial';
+            $estadoPago = 'Pagado';
 
-            } else {
+        } elseif ($totalAbonado > 0) {
 
-                $estadoPago = 'Pendiente';
-            }
+            $estadoPago = 'Parcial';
 
+        } else {
 
-            $pago->update([
-                'monto_total' => $montoOrden,
+            $estadoPago = 'Pendiente';
+        }
+        
+        $pago->update([
+            'monto_total' => $montoOrden,
 
-                'monto_pagado' => $totalAbonado,
+            'monto_pagado' => $totalAbonado,
 
-                'saldo_pendiente' => $saldoPendiente,
+            'saldo_pendiente' => $saldoPendiente,
 
-                'estado_pago' => $estadoPago,
-            ]);
+            'estado_pago' => $estadoPago,
+        ]);
 
         /*
             * Si la cuenta fue creada después del pago,
@@ -121,7 +118,6 @@ class PagoController extends Controller
                 'cuenta_odontologo_id' => $cuenta->id,
             ]);
         }
-
 
         /*
             * Sincronizamos el saldo general de la cuenta
@@ -140,7 +136,6 @@ class PagoController extends Controller
             ]);
         }
 
-
         /*
             * Cargamos relaciones necesarias
             * para mostrar el detalle.
@@ -158,4 +153,133 @@ class PagoController extends Controller
             'pago'
             ));
         }
+    public function actualizarMonto(Request $request, Pago $pago)
+    {
+        // ==========================================
+        // SEGURIDAD
+        // ==========================================
+        $rol = auth()->user()?->role?->nombre;
+
+        if (!in_array($rol, ['Administrador', 'Recepcion'], true)) {
+            abort(
+                403,
+                'No tiene permiso para modificar el monto de una orden.'
+            );
+        }
+        // ==========================================
+        // VALIDAR MONTO
+        // ==========================================
+        $datos = $request->validate([
+            'monto_total' => [
+                'required',
+                'numeric',
+                'min:0.01',
+            ],
+        ]);
+
+
+        DB::transaction(function () use ($datos, $pago) {
+
+            // Bloquear el registro mientras se modifica.
+            $pago = Pago::with([
+                'ordenTrabajo',
+                'cuentaOdontologo',
+            ])
+                ->whereKey($pago->id)
+                ->lockForUpdate()
+                ->firstOrFail();
+
+
+            $nuevoTotal = (float) $datos['monto_total'];
+
+            $totalAbonado = (float) $pago
+                ->abonos()
+                ->sum('monto');
+
+
+            // ==========================================
+            // NO PERMITIR TOTAL MENOR A LO YA PAGADO
+            // ==========================================
+            if ($nuevoTotal < $totalAbonado) {
+
+                throw \Illuminate\Validation\ValidationException::withMessages([
+                    'monto_total' =>
+                        'El monto total no puede ser menor a lo ya pagado: Q '
+                        . number_format($totalAbonado, 2)
+                        . '.',
+                ]);
+            }
+
+
+            // ==========================================
+            // RECALCULAR SALDO
+            // ==========================================
+            $saldoPendiente = max(
+                0,
+                $nuevoTotal - $totalAbonado
+            );
+
+
+            // ==========================================
+            // DETERMINAR ESTADO
+            // ==========================================
+            if ($saldoPendiente <= 0) {
+
+                $estadoPago = 'Pagado';
+
+            } elseif ($totalAbonado > 0) {
+
+                $estadoPago = 'Parcial';
+
+            } else {
+
+                $estadoPago = 'Pendiente';
+            }
+
+
+            // ==========================================
+            // ACTUALIZAR PAGO
+            // ==========================================
+            $pago->update([
+                'monto_total' => $nuevoTotal,
+                'monto_pagado' => $totalAbonado,
+                'saldo_pendiente' => $saldoPendiente,
+                'estado_pago' => $estadoPago,
+            ]);
+
+
+            // ==========================================
+            // SINCRONIZAR CON LA ORDEN
+            // ==========================================
+            if ($pago->ordenTrabajo) {
+
+                $pago->ordenTrabajo->update([
+                    'total' => $nuevoTotal,
+                ]);
+            }
+
+
+            // ==========================================
+            // ACTUALIZAR CUENTA DEL ODONTÓLOGO
+            // ==========================================
+            if ($pago->cuentaOdontologo) {
+
+                $cuenta = $pago->cuentaOdontologo;
+
+                $saldoCuenta = (float) $cuenta
+                    ->pagos()
+                    ->sum('saldo_pendiente');
+
+                $cuenta->update([
+                    'saldo_pendiente' => $saldoCuenta,
+                ]);
+            }
+        });
+
+
+        return back()->with(
+            'success',
+            'Monto del trabajo actualizado correctamente.'
+        );
+    }
 }

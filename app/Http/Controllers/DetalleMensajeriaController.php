@@ -31,7 +31,6 @@ class DetalleMensajeriaController extends Controller
         }
 
         /*
-        * Órdenes disponibles para ENTREGA.
         * Solamente trabajos terminados.
         */
         $ordenes = OrdenTrabajo::with([
@@ -39,11 +38,21 @@ class DetalleMensajeriaController extends Controller
             'odontologo.clinica',
             'estadoOrden',
         ])
-            ->whereHas('estadoOrden', function ($query) {
-                $query->where('nombre', 'Terminado');
-            })
-            ->orderByDesc('id')
-            ->get();
+        ->whereHas('estadoOrden', function ($query) {
+            $query->where('nombre', 'Terminado');
+        })
+
+        // No mostrar órdenes que ya estén asignadas
+        // como entrega en alguna ruta.
+        ->whereNotIn('id', function ($query) {
+            $query->select('orden_trabajo_id')
+                ->from('detalles_mensajeria')
+                ->whereNotNull('orden_trabajo_id')
+                ->where('tipo_movimiento', 'Entrega');
+        })
+
+        ->orderByDesc('id')
+        ->get();
 
         $odontologos = Odontologo::with('clinica')
             ->where('estado', true)
@@ -140,7 +149,7 @@ class DetalleMensajeriaController extends Controller
                 ])
                 ->withInput();
         }
-        
+
         if (
             $datos['tipo_movimiento'] === 'Entrega' &&
             !empty($datos['orden_trabajo_id'])
@@ -149,6 +158,10 @@ class DetalleMensajeriaController extends Controller
             $orden = OrdenTrabajo::with('estadoOrden')
                 ->findOrFail($datos['orden_trabajo_id']);
 
+
+            // ==========================================
+            // VALIDAR ESTADO DE LA ORDEN
+            // ==========================================
             if ($orden->estadoOrden?->nombre !== 'Terminado') {
 
                 return redirect()
@@ -156,6 +169,34 @@ class DetalleMensajeriaController extends Controller
                     ->withErrors([
                         'orden_trabajo_id' =>
                             'Solo se pueden programar para entrega las órdenes que estén en estado Terminado.',
+                    ])
+                    ->withInput();
+            }
+            // ==========================================
+            // EVITAR ORDEN DUPLICADA EN LA MISMA RUTA
+            // ==========================================
+            $yaExisteEnRuta = DetalleMensajeria::where(
+                    'ruta_mensajeria_id',
+                    $ruta->id
+                )
+                ->where(
+                    'orden_trabajo_id',
+                    $orden->id
+                )
+                ->where(
+                    'tipo_movimiento',
+                    $datos['tipo_movimiento']
+                )
+                ->exists();
+
+
+            if ($yaExisteEnRuta) {
+
+                return redirect()
+                    ->back()
+                    ->withErrors([
+                        'orden_trabajo_id' =>
+                            'Esta orden ya se encuentra agregada como entrega en esta ruta.',
                     ])
                     ->withInput();
             }

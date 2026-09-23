@@ -282,27 +282,47 @@
 
                             </td>
 
-
                             {{-- ACCIÓN --}}
-                            <td class="px-6 py-4 text-right">
+                    <td class="px-6 py-4 text-right">
 
-                                <a
-                                    href="{{ route(
-                                        'cuentas-odontologos.edit',
-                                        $odontologo
-                                    ) }}"
-                                    class="inline-flex items-center justify-center
-                                        px-4 py-2
-                                        border border-blue-700
-                                        text-blue-700
-                                        hover:bg-blue-50
-                                        rounded-lg font-semibold text-xs
-                                        transition"
-                                >
-                                    {{ $cuenta ? 'Configurar' : 'Crear cuenta' }}
-                                </a>
+                        <div class="flex items-center justify-end gap-2">
 
-                            </td>
+                            <a
+                                href="{{ route(
+                                    'cuentas-odontologos.show',
+                                    $odontologo
+                                ) }}"
+                                class="inline-flex items-center justify-center
+                                    px-4 py-2
+                                    bg-blue-800
+                                    hover:bg-blue-900
+                                    text-white
+                                    rounded-lg font-semibold text-xs
+                                    transition"
+                            >
+                                Ver detalle
+                            </a>
+
+
+                            <a
+                                href="{{ route(
+                                    'cuentas-odontologos.edit',
+                                    $odontologo
+                                ) }}"
+                                class="inline-flex items-center justify-center
+                                    px-4 py-2
+                                    border border-blue-700
+                                    text-blue-700
+                                    hover:bg-blue-50
+                                    rounded-lg font-semibold text-xs
+                                    transition"
+                            >
+                                {{ $cuenta ? 'Configurar' : 'Crear cuenta' }}
+                            </a>
+
+                        </div>
+
+                    </td>
 
                         </tr>
 

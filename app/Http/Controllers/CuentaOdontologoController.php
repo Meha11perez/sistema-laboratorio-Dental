@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use App\Models\CuentaOdontologo;
 use App\Models\Odontologo;
+use App\Models\Pago;
 use Illuminate\Http\Request;
 
 class CuentaOdontologoController extends Controller
@@ -105,5 +106,62 @@ class CuentaOdontologoController extends Controller
                 'success',
                 'Configuración de pago actualizada correctamente.'
             );
+    }
+public function show(Odontologo $odontologo)
+    {
+        // Buscar la cuenta del odontólogo.
+        // Si todavía no existe, se crea con valores por defecto.
+        $cuenta = CuentaOdontologo::firstOrCreate(
+            [
+                'odontologo_id' => $odontologo->id,
+            ],
+            [
+                'modalidad_pago' => 'Contado',
+                'limite_credito' => 0,
+                'saldo_pendiente' => 0,
+                'estado' => true,
+                'observaciones' => null,
+            ]
+        );
+
+
+        // Todas las órdenes financieras del odontólogo.
+        $pagos = Pago::with([
+            'ordenTrabajo.paciente',
+            'abonos',
+        ])
+            ->where('odontologo_id', $odontologo->id)
+            ->latest('fecha_registro')
+            ->get();
+
+
+        // Totales generales del odontólogo.
+        $montoTotal = (float) $pagos->sum('monto_total');
+        $montoPagado = (float) $pagos->sum('monto_pagado');
+        $saldoPendiente = (float) $pagos->sum('saldo_pendiente');
+
+
+        // Mantener sincronizado el saldo de la cuenta.
+        if ((float) $cuenta->saldo_pendiente !== $saldoPendiente) {
+
+            $cuenta->update([
+                'saldo_pendiente' => $saldoPendiente,
+            ]);
+
+            $cuenta->refresh();
+        }
+
+
+        return view(
+            'cuentas_odontologos.show',
+            compact(
+                'odontologo',
+                'cuenta',
+                'pagos',
+                'montoTotal',
+                'montoPagado',
+                'saldoPendiente'
+            )
+        );
     }
 }

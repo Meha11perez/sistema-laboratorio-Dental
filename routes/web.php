@@ -93,18 +93,20 @@ Route::get('/dashboard', [DashboardController::class, 'index'])->name('dashboard
     //Devoluciones
     Route::get('/ordenes/{orden}/devolucion/crear', [DevolucionController::class, 'create'])->name('devoluciones.create');
     Route::post('/ordenes/{orden}/devolucion',[DevolucionController::class, 'store'])->name('devoluciones.store');  
-    //Abonos
-    Route::post('/pagos/{pago}/abonos',[AbonoController::class, 'store'])->name('abonos.store');
     //Pagos
     Route::view('/pagos', 'pagos.index')->name('pagos.index');
     Route::get('/ordenes/{orden}/pago',[PagoController::class, 'show'])->name('pagos.show');
+    Route::put('/pagos/{pago}/monto', [PagoController::class, 'actualizarMonto'])->name('pagos.monto.update');
+      //Abonos
+    Route::post('/pagos/{pago}/abonos',[AbonoController::class, 'store'])->name('abonos.store');
     //Pagos a crédito
     Route::get('/pagos',[PagoCreditoController::class, 'index'])->name('pagos.index');
     //Cuentas odontólogos
     Route::get('/cuentas-odontologos',[CuentaOdontologoController::class, 'index'])->name('cuentas-odontologos.index');
     Route::get('/odontologos/{odontologo}/cuenta',[CuentaOdontologoController::class, 'edit'])->name('cuentas-odontologos.edit');
     Route::put('/odontologos/{odontologo}/cuenta',[CuentaOdontologoController::class, 'update'])->name('cuentas-odontologos.update');
-   
+    Route::get('/odontologos/{odontologo}/cuenta/detalle',[CuentaOdontologoController::class, 'show'])->name('cuentas-odontologos.show');
+
    // =====================================================
     // MENSAJERÍA
     // =====================================================
@@ -161,23 +163,13 @@ Route::get('/dashboard', [DashboardController::class, 'index'])->name('dashboard
     
     Route::middleware('role:Técnico')->group(function () {
 
-    Route::put(
-        '/ordenes/{orden}/produccion/iniciar',
-        [OrdenTrabajoController::class, 'iniciarEtapa']
-    )->name('ordenes.produccion.iniciar');
+    Route::put('/ordenes/{orden}/produccion/iniciar',[OrdenTrabajoController::class, 'iniciarEtapa'])->name('ordenes.produccion.iniciar');
 
+    Route::put('/ordenes/{orden}/produccion/completar',[OrdenTrabajoController::class, 'completarEtapa'])->name('ordenes.produccion.completar');
 
-    Route::put(
-        '/ordenes/{orden}/produccion/completar',
-        [OrdenTrabajoController::class, 'completarEtapa']
-    )->name('ordenes.produccion.completar');
-
-
-    Route::post(
-        '/ordenes/{orden}/materiales',
-        [OrdenTrabajoController::class, 'registrarMaterial']
-    )->name('ordenes.materiales.store');
-});
+    Route::post('/ordenes/{orden}/materiales',[OrdenTrabajoController::class, 'registrarMaterial'])->name('ordenes.materiales.store');
+    
+    });
 });
 
     

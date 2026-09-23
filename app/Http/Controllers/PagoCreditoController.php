@@ -13,17 +13,19 @@ class PagoCreditoController extends Controller
         // ==========================================
         // CONTADORES
         // ==========================================
-        $pagosPendientes = Pago::where('estado_pago', 'Pendiente')
+       $pagosPendientes = Pago::where('monto_total', '>', 0)
+            ->where('estado_pago', 'Pendiente')
             ->count();
 
-        $pagosParciales = Pago::where('estado_pago', 'Parcial')
+        $pagosParciales = Pago::where('monto_total', '>', 0)
+            ->where('estado_pago', 'Parcial')
             ->count();
 
-        $pagosCompletos = Pago::where('estado_pago', 'Pagado')
+        $pagosCompletos = Pago::where('monto_total', '>', 0)
+            ->where('estado_pago', 'Pagado')
             ->count();
-
+            
         $saldoPendienteTotal = Pago::sum('saldo_pendiente');
-
 
         // ==========================================
         // CONSULTA
