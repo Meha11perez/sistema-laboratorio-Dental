@@ -12,7 +12,7 @@ use App\Http\Controllers\PagoCreditoController;
 use App\Http\Controllers\CuentaOdontologoController;
 use App\Http\Controllers\RutaMensajeriaController;
 use App\Http\Controllers\DetalleMensajeriaController;
-
+use App\Http\Controllers\ProduccionController;
 
 use Illuminate\Support\Facades\Route;
 
@@ -23,14 +23,14 @@ Route::get('/dashboard', [DashboardController::class, 'index'])->name('dashboard
 
     //ORDENES
     // =====================================================
-// ÓRDENES DE TRABAJO
-// =====================================================
+    // ÓRDENES DE TRABAJO
+    // =====================================================
 
 
-// -----------------------------------------------------
-// ADMINISTRADOR / RECEPCIÓN
-// Gestión administrativa de órdenes
-// -----------------------------------------------------
+    // -----------------------------------------------------
+    // ADMINISTRADOR / RECEPCIÓN
+    // Gestión administrativa de órdenes
+    // -----------------------------------------------------
     Route::middleware('role:Administrador,Recepcion')->group(function () {
 
     Route::get('/ordenes/crear', [OrdenTrabajoController::class, 'create'])->name('ordenes.create');
@@ -61,30 +61,77 @@ Route::get('/dashboard', [DashboardController::class, 'index'])->name('dashboard
     Route::get('/ordenes/{orden}', [OrdenTrabajoController::class, 'show'])->name('ordenes.show');
     });
 
+    // PRODUCCIÓN
+    Route::get('/produccion',[ProduccionController::class, 'index'])->name('produccion.index');
+    
     // AGENDA
     Route::get('/agenda', [AgendaController::class, 'index'])->name('agenda.index');
     
     //inventario
-    Route::get('/inventario', [InventarioController::class, 'index'])->name('inventario.index');
-    Route::get('/inventario', [InventarioController::class, 'index'])->name('inventario.index');
-    Route::get('/inventario/crear', [InventarioController::class, 'create'])->name('inventario.create');
-    Route::post('/inventario', [InventarioController::class, 'store'])->name('inventario.store');    
-    Route::get('/inventario/{material}/editar', [InventarioController::class, 'edit'])->name('inventario.edit');
+    // ======================================================
+    // Inventario general
+    Route::get('/inventario',[InventarioController::class, 'index'])->name('inventario.index');
+
+    // ======================================================
+    // INVENTARIO POR TÉCNICO
+    // IMPORTANTE: deben ir antes de /inventario/{material}
+    // ======================================================
+
+    Route::get('/inventario/tecnicos',[InventarioController::class, 'tecnicos'])
+        ->middleware('role:Administrador,Recepcion')
+        ->name('inventario.tecnicos');
+
+    Route::get('/inventario/tecnicos/{tecnico}',[InventarioController::class, 'tecnicoDetalle'])
+        ->middleware('role:Administrador,Recepcion')
+        ->name('inventario.tecnicos.show');
+     // ======================================================
+    // HISTORIAL DE MOVIMIENTOS
+    // ======================================================
+
+    Route::get('/inventario/movimientos',[InventarioController::class, 'movimientos'])
+        ->middleware('role:Administrador,Recepcion')
+        ->name('inventario.movimientos');
+    // ======================================================
+    // CREAR MATERIAL
+    // ======================================================
+
+    Route::get('/inventario/crear',[InventarioController::class, 'create'])->name('inventario.create');
+    Route::post('/inventario',[InventarioController::class, 'store'])->name('inventario.store');
+
+    // ======================================================
+    // ASIGNAR MATERIAL A TÉCNICO
+    // ======================================================
+
     Route::get('/inventario/{material}/asignar',[InventarioController::class, 'createAsignacion'])
         ->middleware('role:Administrador,Recepcion')
         ->name('inventario.asignar');
+
     Route::post('/inventario/{material}/asignar',[InventarioController::class, 'storeAsignacion'])
         ->middleware('role:Administrador,Recepcion')
         ->name('inventario.asignar.store');
 
-    Route::get('/inventario/{material}', [InventarioController::class, 'show'])->name('inventario.show');        
-    Route::get('/inventario/{material}/movimiento', [InventarioController::class, 'createMovimiento'])->name('inventario.movimiento.create');
-    Route::post('/inventario/{material}/movimiento', [InventarioController::class, 'storeMovimiento'])->name('inventario.movimiento.store');
-    Route::put('/inventario/{material}', [InventarioController::class, 'update'])->name('inventario.update');
-    
+    // ======================================================
+    // MOVIMIENTOS DE INVENTARIO
+    // ======================================================
+
+    Route::get('/inventario/{material}/movimiento',[InventarioController::class, 'createMovimiento'])->name('inventario.movimiento.create');
+    Route::post('/inventario/{material}/movimiento',[InventarioController::class, 'storeMovimiento'])->name('inventario.movimiento.store');
+
+    // ======================================================
+    // EDITAR MATERIAL
+    // ======================================================
+
+    Route::get('/inventario/{material}/editar',[InventarioController::class, 'edit'])->name('inventario.edit');
+    Route::put('/inventario/{material}',[InventarioController::class, 'update'])->name('inventario.update');
+
+    // ======================================================
+    // DETALLE DEL MATERIAL
+    // ESTA DEBE QUEDAR AL FINAL
+    // ======================================================
+
+    Route::get('/inventario/{material}',[InventarioController::class, 'show'])->name('inventario.show');
 
     Route::get('/garantias', [GarantiaDevolucionController::class, 'index'])->name('garantias.index');
-
 
     Route::view('/reportes', 'reportes.index')->name('reportes.index');
 
@@ -93,24 +140,23 @@ Route::get('/dashboard', [DashboardController::class, 'index'])->name('dashboard
     //Devoluciones
     Route::get('/ordenes/{orden}/devolucion/crear', [DevolucionController::class, 'create'])->name('devoluciones.create');
     Route::post('/ordenes/{orden}/devolucion',[DevolucionController::class, 'store'])->name('devoluciones.store');  
+    
     //Pagos
     Route::view('/pagos', 'pagos.index')->name('pagos.index');
     Route::get('/ordenes/{orden}/pago',[PagoController::class, 'show'])->name('pagos.show');
     Route::put('/pagos/{pago}/monto', [PagoController::class, 'actualizarMonto'])->name('pagos.monto.update');
-      //Abonos
+    
+    //Abonos
     Route::post('/pagos/{pago}/abonos',[AbonoController::class, 'store'])->name('abonos.store');
+    
     //Pagos a crédito
     Route::get('/pagos',[PagoCreditoController::class, 'index'])->name('pagos.index');
+    
     //Cuentas odontólogos
     Route::get('/cuentas-odontologos',[CuentaOdontologoController::class, 'index'])->name('cuentas-odontologos.index');
     Route::get('/odontologos/{odontologo}/cuenta',[CuentaOdontologoController::class, 'edit'])->name('cuentas-odontologos.edit');
     Route::put('/odontologos/{odontologo}/cuenta',[CuentaOdontologoController::class, 'update'])->name('cuentas-odontologos.update');
     Route::get('/odontologos/{odontologo}/cuenta/detalle',[CuentaOdontologoController::class, 'show'])->name('cuentas-odontologos.show');
-
-   // =====================================================
-    // MENSAJERÍA
-    // =====================================================
-
 
     // -----------------------------------------------------
     // PLANIFICACIÓN
@@ -120,6 +166,7 @@ Route::get('/dashboard', [DashboardController::class, 'index'])->name('dashboard
     Route::get('/mensajeria/crear', [RutaMensajeriaController::class, 'create'])->name('mensajeria.create');
     Route::post('/mensajeria', [RutaMensajeriaController::class, 'store'])->name('mensajeria.store');
 
+    //MENSAJERIA - VISITAS//
     Route::get('/mensajeria/{ruta}/visitas/crear', [DetalleMensajeriaController::class, 'create'])->name('mensajeria.detalles.create');
     Route::post('/mensajeria/{ruta}/visitas', [DetalleMensajeriaController::class, 'store'])->name('mensajeria.detalles.store');
     Route::get('/mensajeria/visitas/{detalle}/reprogramar',[DetalleMensajeriaController::class, 'reprogramarForm'])->name('mensajeria.detalles.reprogramar.form');
@@ -162,11 +209,8 @@ Route::get('/dashboard', [DashboardController::class, 'index'])->name('dashboard
     });  
     
     Route::middleware('role:Técnico')->group(function () {
-
     Route::put('/ordenes/{orden}/produccion/iniciar',[OrdenTrabajoController::class, 'iniciarEtapa'])->name('ordenes.produccion.iniciar');
-
     Route::put('/ordenes/{orden}/produccion/completar',[OrdenTrabajoController::class, 'completarEtapa'])->name('ordenes.produccion.completar');
-
     Route::post('/ordenes/{orden}/materiales',[OrdenTrabajoController::class, 'registrarMaterial'])->name('ordenes.materiales.store');
     
     });

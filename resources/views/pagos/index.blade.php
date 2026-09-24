@@ -261,7 +261,6 @@
                                         Q {{ number_format($pago->monto_total, 2) }}
 
                                     @else
-
                                         <span class="text-slate-400">
                                             Por definir
                                         </span>

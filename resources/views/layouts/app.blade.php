@@ -235,23 +235,9 @@
 
                 {{-- PRODUCCIÓN --}}
                 <a
-                    href="#"
-                    class="
-                        flex
-                        items-center
-                        gap-3
-                        px-6
-                        py-4
-
-                        text-slate-600
-                        border-l-4
-                        border-transparent
-
-                        hover:bg-slate-50
-                        hover:text-blue-900
-
-                        transition
-                    "
+                    href="{{ route('produccion.index') }}"
+                    class="flex items-center gap-3 px-6 py-4 text-slate-600 border-l-4 border-transparent
+                        hover:bg-slate-50 hover:text-blue-900 transition"
                 >
                     <span>⚙️</span>
 
@@ -333,14 +319,8 @@
                         </a>
 
 
-                        <a
-                            href="#"
-                            class="
-                                block
-                                pl-14
-                                pr-6
-                                py-3
-
+                        <a href="{{ route('inventario.tecnicos') }}"
+                            class="block pl-14 pr-6 py-3
                                 text-sm
                                 text-slate-600
 
@@ -351,16 +331,8 @@
                             Inventario por Técnico
                         </a>
 
-                        <a href="#" class=" block pl-14 pr-6 py-3 text-sm text-slate-600  hover:text-blue-900
-                                hover:bg-slate-100
-                            "
-                        >
-                            Materiales
-                        </a>
-
-
-                        <a
-                            href="#" class=" block pl-14 pr-6 py-3
+                        <a href="{{ route('inventario.movimientos') }}"
+                             class=" block pl-14 pr-6 py-3
                                 text-sm
                                 text-slate-600
 

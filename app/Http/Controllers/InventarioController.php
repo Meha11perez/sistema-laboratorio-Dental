@@ -450,5 +450,492 @@ class InventarioController extends Controller
             ->route('inventario.show', $material)
             ->with('success', 'Material actualizado correctamente.');
     }
+    public function tecnicos(Request $request)
+    {
+        // ==========================================
+        // SEGURIDAD
+        // ==========================================
+        $rol = auth()->user()?->role?->nombre;
+
+        if (!in_array(
+            $rol,
+            ['Administrador', 'Recepcion'],
+            true
+        )) {
+            abort(
+                403,
+                'No tiene permiso para consultar el inventario de técnicos.'
+            );
+        }
+
+
+        // ==========================================
+        // CONSULTA DE TÉCNICOS
+        // ==========================================
+        $query = Tecnico::with('user')
+            ->withCount([
+                'inventarios as materiales_asignados' => function ($q) {
+                    $q->where('cantidad', '>', 0);
+                }
+            ])
+            ->where('estado', true);
+
+
+        // ==========================================
+        // BUSCADOR
+        // ==========================================
+        if ($request->filled('buscar')) {
+
+            $buscar = $request->buscar;
+
+            $query->where(function ($q) use ($buscar) {
+
+                $q->where(
+                    'especialidad',
+                    'like',
+                    '%' . $buscar . '%'
+                );
+
+                $q->orWhereHas(
+                    'user',
+                    function ($usuario) use ($buscar) {
+
+                        $usuario->where(
+                            'name',
+                            'like',
+                            '%' . $buscar . '%'
+                        );
+                    }
+                );
+            });
+        }
+
+
+        $tecnicos = $query
+            ->orderBy('id')
+            ->paginate(10)
+            ->withQueryString();
+
+
+        // ==========================================
+        // INDICADORES
+        // ==========================================
+        $totalTecnicos = Tecnico::where(
+                'estado',
+                true
+            )
+            ->count();
+
+
+        $tecnicosConInventario = InventarioTecnico::where(
+                'cantidad',
+                '>',
+                0
+            )
+            ->distinct()
+            ->count('tecnico_id');
+
+
+        $tecnicosSinInventario = max(
+            0,
+            $totalTecnicos - $tecnicosConInventario
+        );
+
+        $materialesAsignados = InventarioTecnico::where(
+                'cantidad',
+                '>',
+                0
+            )
+            ->distinct()
+            ->count('material_id');
+
+
+        return view(
+            'inventario.tecnicos',
+            compact(
+                'tecnicos',
+                'totalTecnicos',
+                'tecnicosConInventario',
+                'tecnicosSinInventario',
+                'materialesAsignados'
+            )
+        );
+    }
+
+    public function tecnicoDetalle(Request $request, Tecnico $tecnico
+    ) {
+        // ==========================================
+        // SEGURIDAD
+        // ==========================================
+        $rol = auth()->user()?->role?->nombre;
+
+        if (!in_array(
+            $rol,
+            ['Administrador', 'Recepcion'],
+            true
+        )) {
+            abort(
+                403,
+                'No tiene permiso para consultar este inventario.'
+            );
+        }
+
+        $tecnico->load('user');
+
+        // ==========================================
+        // INVENTARIO DEL TÉCNICO
+        // ==========================================
+        $query = InventarioTecnico::with('material')
+            ->where(
+                'tecnico_id',
+                $tecnico->id
+            );
+
+        if ($request->filled('buscar')) {
+
+            $buscar = $request->buscar;
+
+            $query->whereHas(
+                'material',
+                function ($q) use ($buscar) {
+
+                    $q->where(
+                        'nombre',
+                        'like',
+                        '%' . $buscar . '%'
+                    )
+                    ->orWhere(
+                        'codigo',
+                        'like',
+                        '%' . $buscar . '%'
+                    );
+                }
+            );
+        }
+
+        $inventarioTecnico = $query
+            ->orderByDesc('cantidad')
+            ->paginate(10)
+            ->withQueryString();
+
+        $totalMateriales = InventarioTecnico::where(
+                'tecnico_id',
+                $tecnico->id
+            )
+            ->where(
+                'cantidad',
+                '>',
+                0
+            )
+            ->count();
+
+
+        return view(
+            'inventario.tecnico-detalle',
+            compact(
+                'tecnico',
+                'inventarioTecnico',
+                'totalMateriales'
+            )
+        );
+    }
+    public function movimientos(Request $request)
+    {
+        // =====================================================
+        // SEGURIDAD
+        // =====================================================
+        $rol = auth()->user()?->role?->nombre;
+
+        if (!in_array(
+            $rol,
+            ['Administrador', 'Recepcion'],
+            true
+        )) {
+            abort(
+                403,
+                'No tiene permiso para consultar los movimientos de inventario.'
+            );
+        }
+
+
+        // =====================================================
+        // CONSULTA PRINCIPAL
+        // =====================================================
+        $query = MovimientoInventario::with([
+            'material',
+            'tecnico.user',
+            'ordenTrabajo',
+            'usuarioRegistro',
+        ]);
+
+
+        // =====================================================
+        // BUSCAR
+        // Material / código / orden / técnico
+        // =====================================================
+        if ($request->filled('buscar')) {
+
+            $buscar = $request->buscar;
+
+            $query->where(function ($q) use ($buscar) {
+
+                $q->whereHas(
+                    'material',
+                    function ($material) use ($buscar) {
+
+                        $material
+                            ->where(
+                                'nombre',
+                                'like',
+                                '%' . $buscar . '%'
+                            )
+                            ->orWhere(
+                                'codigo',
+                                'like',
+                                '%' . $buscar . '%'
+                            );
+                    }
+                );
+
+                $q->orWhereHas(
+                    'ordenTrabajo',
+                    function ($orden) use ($buscar) {
+
+                        $orden->where(
+                            'codigo',
+                            'like',
+                            '%' . $buscar . '%'
+                        );
+                    }
+                );
+
+                $q->orWhereHas(
+                    'tecnico.user',
+                    function ($usuario) use ($buscar) {
+
+                        $usuario->where(
+                            'name',
+                            'like',
+                            '%' . $buscar . '%'
+                        );
+                    }
+                );
+            });
+        }
+
+
+        // =====================================================
+        // FILTRO POR TIPO OPERATIVO
+        // =====================================================
+        if ($request->filled('tipo')) {
+
+            switch ($request->tipo) {
+
+                case 'Entrada':
+
+                    $query->where(
+                        'tipo_movimiento',
+                        'Entrada'
+                    );
+
+                    break;
+
+
+                case 'Asignacion':
+
+                    $query
+                        ->where(
+                            'tipo_movimiento',
+                            'Salida'
+                        )
+                        ->whereNotNull(
+                            'tecnico_id'
+                        )
+                        ->whereNull(
+                            'orden_trabajo_id'
+                        );
+
+                    break;
+
+
+                case 'Consumo':
+
+                    $query->where(function ($q) {
+
+                        $q->where(
+                            'tipo_movimiento',
+                            'Consumo'
+                        );
+
+                        $q->orWhere(function ($salida) {
+
+                            $salida
+                                ->where(
+                                    'tipo_movimiento',
+                                    'Salida'
+                                )
+                                ->whereNotNull(
+                                    'tecnico_id'
+                                )
+                                ->whereNotNull(
+                                    'orden_trabajo_id'
+                                );
+                        });
+                    });
+
+                    break;
+
+
+                case 'Salida':
+
+                    $query
+                        ->where(
+                            'tipo_movimiento',
+                            'Salida'
+                        )
+                        ->whereNull(
+                            'tecnico_id'
+                        )
+                        ->whereNull(
+                            'orden_trabajo_id'
+                        );
+
+                    break;
+
+
+                case 'Ajuste':
+
+                    $query->where(
+                        'tipo_movimiento',
+                        'Ajuste'
+                    );
+
+                    break;
+
+
+                case 'Devolucion':
+
+                    $query->whereIn(
+                        'tipo_movimiento',
+                        [
+                            'Devolución',
+                            'Devolucion',
+                        ]
+                    );
+
+                    break;
+            }
+        }
+
+
+        // =====================================================
+        // FILTRO TÉCNICO
+        // =====================================================
+        if ($request->filled('tecnico')) {
+
+            $query->where(
+                'tecnico_id',
+                $request->tecnico
+            );
+        }
+
+
+        // =====================================================
+        // FILTRO FECHA
+        // =====================================================
+        if ($request->filled('fecha')) {
+
+            $query->whereDate(
+                'fecha_movimiento',
+                $request->fecha
+            );
+        }
+
+
+        // =====================================================
+        // LISTADO
+        // =====================================================
+        $movimientos = $query
+            ->orderByDesc('fecha_movimiento')
+            ->orderByDesc('id')
+            ->paginate(15)
+            ->withQueryString();
+
+
+        // =====================================================
+        // INDICADORES
+        // =====================================================
+
+        $movimientosHoy = MovimientoInventario::whereDate(
+                'fecha_movimiento',
+                now()->toDateString()
+            )
+            ->count();
+
+
+        $entradas = MovimientoInventario::where(
+                'tipo_movimiento',
+                'Entrada'
+            )
+            ->count();
+
+
+        $asignaciones = MovimientoInventario::where(
+                'tipo_movimiento',
+                'Salida'
+            )
+            ->whereNotNull(
+                'tecnico_id'
+            )
+            ->whereNull(
+                'orden_trabajo_id'
+            )
+            ->count();
+
+
+        $consumos = MovimientoInventario::where(function ($q) {
+
+                $q->where(
+                    'tipo_movimiento',
+                    'Consumo'
+                );
+
+                $q->orWhere(function ($salida) {
+
+                    $salida
+                        ->where(
+                            'tipo_movimiento',
+                            'Salida'
+                        )
+                        ->whereNotNull(
+                            'tecnico_id'
+                        )
+                        ->whereNotNull(
+                            'orden_trabajo_id'
+                        );
+                });
+
+            })
+            ->count();
+
+
+        $tecnicos = Tecnico::with('user')
+            ->where('estado', true)
+            ->orderBy('id')
+            ->get();
+
+
+        return view(
+            'inventario.movimientos',
+            compact(
+                'movimientos',
+                'movimientosHoy',
+                'entradas',
+                'asignaciones',
+                'consumos',
+                'tecnicos'
+            )
+        );
+    }
 }
 

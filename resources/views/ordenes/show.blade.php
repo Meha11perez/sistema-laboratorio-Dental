@@ -37,12 +37,15 @@
                 lg:justify-between gap-5 mb-8">
 
         <div>
-
             <a
-                href="{{ route('ordenes.index') }}"
+                href="{{ request('origen') === 'produccion'
+                    ? route('produccion.index')
+                    : route('ordenes.index') }}"
                 class="text-sm font-semibold text-blue-700 hover:underline"
             >
-                ← Volver a órdenes
+                ← {{ request('origen') === 'produccion'
+                    ? 'Volver a Producción'
+                    : 'Volver a órdenes' }}
             </a>
 
 
