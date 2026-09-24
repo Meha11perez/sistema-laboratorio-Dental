@@ -726,60 +726,17 @@
                                     Técnicos
                                 </a>
 
-
-                                <a
-                                    href="#"
-                                    class="
-                                        block
-                                        pl-14
-                                        pr-6
-                                        py-3
-
-                                        text-sm
-                                        text-slate-600
-
-                                        hover:text-blue-900
-                                        hover:bg-slate-100
-                                    "
-                                >
+                                <a href="{{ route('administracion.odontologos.index') }}" class="block pl-14 pr-6 py-3 text-smtext-slate-600 hover:text-blue-900 hover:bg-slate-100">
                                     Odontólogos
                                 </a>
 
-
                                 <a
-                                    href="#"
-                                    class="
-                                        block
-                                        pl-14
-                                        pr-6
-                                        py-3
-
-                                        text-sm
-                                        text-slate-600
-
-                                        hover:text-blue-900
-                                        hover:bg-slate-100
-                                    "
-                                >
+                                    href="#" class=" block pl-14 pr-6 py-3 text-sm text-slate-600hover:text-blue-900 hover:bg-slate-100" >
                                     Clínicas
                                 </a>
 
-
                                 <a
-                                    href="#"
-                                    class="
-                                        block
-                                        pl-14
-                                        pr-6
-                                        py-3
-
-                                        text-sm
-                                        text-slate-600
-
-                                        hover:text-blue-900
-                                        hover:bg-slate-100
-                                    "
-                                >
+                                    href="#" class="block pl-14 pr-6 py-3 text-smtext-slate-600hover:text-blue-900hover:bg-slate-100">
                                     Pacientes
                                 </a>
 

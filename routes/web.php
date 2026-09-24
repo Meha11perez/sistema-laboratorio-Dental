@@ -16,6 +16,7 @@ use App\Http\Controllers\ProduccionController;
 use App\Http\Controllers\UserController;
 use App\Http\Controllers\RoleController;
 use App\Http\Controllers\TecnicoController;
+use App\Http\Controllers\OdontologoController;
 
 use Illuminate\Support\Facades\Route;
 
@@ -179,6 +180,20 @@ Route::get('/dashboard', [DashboardController::class, 'index'])->name('dashboard
     Route::put('/administracion/tecnicos/{tecnico}',[TecnicoController::class, 'update'])->name('administracion.tecnicos.update');
     
     Route::patch('/administracion/tecnicos/{tecnico}/estado',[TecnicoController::class, 'toggleEstado'])->name('administracion.tecnicos.estado');
+
+    // ==================================================
+    // ODONTÓLOGOS
+    // ==================================================
+
+    Route::get('/administracion/odontologos',[OdontologoController::class, 'index'])->name('administracion.odontologos.index');
+    Route::get('/administracion/odontologos/crear',[OdontologoController::class, 'create'])->name('administracion.odontologos.create');
+
+    Route::post('/administracion/odontologos',[OdontologoController::class, 'store'])->name('administracion.odontologos.store');
+    Route::get('/administracion/odontologos/{odontologo}/editar',[OdontologoController::class, 'edit'])->name('administracion.odontologos.edit');
+
+    Route::put('/administracion/odontologos/{odontologo}',[OdontologoController::class, 'update'])->name('administracion.odontologos.update');
+
+    Route::patch('/administracion/odontologos/{odontologo}/estado',[OdontologoController::class, 'toggleEstado'])->name('administracion.odontologos.estado');
 
     });    
    
