@@ -647,7 +647,6 @@
                             Administración
                         </p>
 
-
                         <details
                             class="group"
                             {{ request()->routeIs('administracion.*') ? 'open' : '' }}
@@ -700,59 +699,30 @@
                                 "
                             >
 
-                                <a
-                                    href="{{ route('administracion.index') }}"
-                                    class="
-                                        block
-                                        pl-14
-                                        pr-6
-                                        py-3
+                            <a
+                                href="{{ route('administracion.usuarios.index') }}"
+                                class="
+                                    block
+                                    pl-14
+                                    pr-6
+                                    py-3
 
-                                        text-sm
-                                        text-slate-600
+                                    text-sm
+                                    text-slate-600
 
-                                        hover:text-blue-900
-                                        hover:bg-slate-100
-                                    "
-                                >
-                                    Usuarios
-                                </a>
+                                    hover:text-blue-900
+                                    hover:bg-slate-100
+                                "
+                            >
+                                Usuarios
+                            </a>
 
-
-                                <a
-                                    href="#"
-                                    class="
-                                        block
-                                        pl-14
-                                        pr-6
-                                        py-3
-
-                                        text-sm
-                                        text-slate-600
-
-                                        hover:text-blue-900
-                                        hover:bg-slate-100
-                                    "
-                                >
+                                <a href="{{ route('administracion.roles.index') }}" class="block pl-14 pr-6 py-3 text-smtext-slate-600 hover:text-blue-900  hover:bg-slate-100">
                                     Roles
                                 </a>
 
-
-                                <a
-                                    href="#"
-                                    class="
-                                        block
-                                        pl-14
-                                        pr-6
-                                        py-3
-
-                                        text-sm
-                                        text-slate-600
-
-                                        hover:text-blue-900
-                                        hover:bg-slate-100
-                                    "
-                                >
+                                <a href="{{ route('administracion.tecnicos.index') }}"
+                                    class="block pl-14 pr-6 py-3 text-sm text-slate-600 hover:text-blue-900 hover:bg-slate-100">
                                     Técnicos
                                 </a>
 

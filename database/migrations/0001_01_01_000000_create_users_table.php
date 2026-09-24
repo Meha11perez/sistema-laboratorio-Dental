@@ -18,6 +18,8 @@ return new class extends Migration
                 ->constrained('roles')
                 ->cascadeOnUpdate()
                 ->restrictOnDelete();
+            $table->boolean('estado')
+                ->default(true);
 
             $table->string('name');
             $table->string('email')->unique();

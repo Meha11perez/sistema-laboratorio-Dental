@@ -13,6 +13,9 @@ use App\Http\Controllers\CuentaOdontologoController;
 use App\Http\Controllers\RutaMensajeriaController;
 use App\Http\Controllers\DetalleMensajeriaController;
 use App\Http\Controllers\ProduccionController;
+use App\Http\Controllers\UserController;
+use App\Http\Controllers\RoleController;
+use App\Http\Controllers\TecnicoController;
 
 use Illuminate\Support\Facades\Route;
 
@@ -135,8 +138,43 @@ Route::get('/dashboard', [DashboardController::class, 'index'])->name('dashboard
 
     Route::view('/reportes', 'reportes.index')->name('reportes.index');
 
-    Route::view('/administracion', 'administracion.index')->name('administracion.index');
-    
+    // ======================================================
+    // ADMINISTRACIÓN
+    // SOLO ADMINISTRADOR
+    // ======================================================
+
+    Route::middleware('role:Administrador')->group(function () {
+
+    Route::view('/administracion','administracion.index')->name('administracion.index');
+    // ==================================================
+    // USUARIOS
+    // ==================================================
+    Route::get('/administracion/usuarios',[UserController::class, 'index'])->name('administracion.usuarios.index');
+
+    Route::get('/administracion/usuarios/crear',[UserController::class, 'create'])->name('administracion.usuarios.create');
+    Route::post('/administracion/usuarios',[UserController::class, 'store'])->name('administracion.usuarios.store');
+
+    Route::get('/administracion/usuarios/{user}/editar',[UserController::class, 'edit'])->name('administracion.usuarios.edit');
+    Route::put('/administracion/usuarios/{user}',[UserController::class, 'update'])->name('administracion.usuarios.update');
+
+    Route::patch('/administracion/usuarios/{user}/estado',[UserController::class, 'toggleEstado'])->name('administracion.usuarios.estado');
+   
+    // ROLES
+    Route::get('/administracion/roles',[RoleController::class, 'index'])->name('administracion.roles.index');
+    Route::get('/administracion/roles/{role}/editar',[RoleController::class, 'edit'])->name('administracion.roles.edit');
+
+    Route::put('/administracion/roles/{role}',[RoleController::class, 'update'])->name('administracion.roles.update');
+
+    Route::patch('/administracion/roles/{role}/estado',[RoleController::class, 'toggleEstado'])->name('administracion.roles.estado');
+
+    // ==================================================
+    // TÉCNICOS
+    // ==================================================
+
+    Route::get('/administracion/tecnicos',[TecnicoController::class, 'index'])->name('administracion.tecnicos.index');
+
+    });    
+   
     //Devoluciones
     Route::get('/ordenes/{orden}/devolucion/crear', [DevolucionController::class, 'create'])->name('devoluciones.create');
     Route::post('/ordenes/{orden}/devolucion',[DevolucionController::class, 'store'])->name('devoluciones.store');  
