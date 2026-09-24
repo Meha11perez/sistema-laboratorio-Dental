@@ -6,7 +6,10 @@
 
 <div class="max-w-7xl mx-auto">
 
+    {{-- ===================================================== --}}
     {{-- ENCABEZADO --}}
+    {{-- ===================================================== --}}
+
     <div class="flex flex-col md:flex-row
                 md:items-center md:justify-between
                 gap-4 mb-8">
@@ -28,93 +31,167 @@
 
         </div>
 
-        <button
-            type="button"
-            class="bg-blue-800
+
+        <a
+            href="{{ route('administracion.tecnicos.create') }}"
+            class="inline-flex
+                   items-center
+                   justify-center
+                   bg-blue-800
+                   hover:bg-blue-900
                    text-white
                    px-5 py-2.5
                    rounded-lg
                    font-semibold
-                   opacity-60 cursor-not-allowed"
+                   shadow-sm
+                   transition"
         >
             + Nuevo Técnico
-        </button>
+        </a>
 
     </div>
 
 
+    {{-- ===================================================== --}}
+    {{-- MENSAJES --}}
+    {{-- ===================================================== --}}
+
+    @if(session('success'))
+
+        <div class="mb-6
+                    bg-emerald-50
+                    border border-emerald-200
+                    text-emerald-700
+                    rounded-lg
+                    px-4 py-3">
+
+            {{ session('success') }}
+
+        </div>
+
+    @endif
+
+
+    @if(session('error'))
+
+        <div class="mb-6
+                    bg-red-50
+                    border border-red-200
+                    text-red-700
+                    rounded-lg
+                    px-4 py-3">
+
+            {{ session('error') }}
+
+        </div>
+
+    @endif
+
+
+    {{-- ===================================================== --}}
     {{-- INDICADORES --}}
+    {{-- ===================================================== --}}
+
     <div class="grid grid-cols-1
                 md:grid-cols-2
                 xl:grid-cols-4
                 gap-5 mb-8">
 
+
+        {{-- TOTAL TÉCNICOS --}}
         <div class="bg-white
                     border border-slate-200
                     border-l-4 border-l-blue-600
-                    rounded-xl shadow-sm p-5">
+                    rounded-xl
+                    shadow-sm
+                    p-5">
 
-            <p class="text-xs uppercase
-                      font-semibold text-slate-500">
+            <p class="text-xs
+                      uppercase
+                      font-semibold
+                      text-slate-500">
                 Total técnicos
             </p>
 
-            <p class="text-3xl font-bold
-                      text-blue-700 mt-2">
+            <p class="text-3xl
+                      font-bold
+                      text-blue-700
+                      mt-2">
                 {{ $totalTecnicos }}
             </p>
 
         </div>
 
 
+        {{-- ACTIVOS --}}
         <div class="bg-white
                     border border-slate-200
                     border-l-4 border-l-emerald-500
-                    rounded-xl shadow-sm p-5">
+                    rounded-xl
+                    shadow-sm
+                    p-5">
 
-            <p class="text-xs uppercase
-                      font-semibold text-slate-500">
+            <p class="text-xs
+                      uppercase
+                      font-semibold
+                      text-slate-500">
                 Activos
             </p>
 
-            <p class="text-3xl font-bold
-                      text-emerald-600 mt-2">
+            <p class="text-3xl
+                      font-bold
+                      text-emerald-600
+                      mt-2">
                 {{ $tecnicosActivos }}
             </p>
 
         </div>
 
 
+        {{-- INACTIVOS --}}
         <div class="bg-white
                     border border-slate-200
                     border-l-4 border-l-red-500
-                    rounded-xl shadow-sm p-5">
+                    rounded-xl
+                    shadow-sm
+                    p-5">
 
-            <p class="text-xs uppercase
-                      font-semibold text-slate-500">
+            <p class="text-xs
+                      uppercase
+                      font-semibold
+                      text-slate-500">
                 Inactivos
             </p>
 
-            <p class="text-3xl font-bold
-                      text-red-600 mt-2">
+            <p class="text-3xl
+                      font-bold
+                      text-red-600
+                      mt-2">
                 {{ $tecnicosInactivos }}
             </p>
 
         </div>
 
 
+        {{-- CON ETAPAS --}}
         <div class="bg-white
                     border border-slate-200
                     border-l-4 border-l-violet-500
-                    rounded-xl shadow-sm p-5">
+                    rounded-xl
+                    shadow-sm
+                    p-5">
 
-            <p class="text-xs uppercase
-                      font-semibold text-slate-500">
+            <p class="text-xs
+                      uppercase
+                      font-semibold
+                      text-slate-500">
                 Con etapas asignadas
             </p>
 
-            <p class="text-3xl font-bold
-                      text-violet-600 mt-2">
+            <p class="text-3xl
+                      font-bold
+                      text-violet-600
+                      mt-2">
                 {{ $tecnicosConEtapas }}
             </p>
 
@@ -123,55 +200,86 @@
     </div>
 
 
+    {{-- ===================================================== --}}
     {{-- FILTROS --}}
+    {{-- ===================================================== --}}
+
     <form
         method="GET"
         action="{{ route('administracion.tecnicos.index') }}"
         class="bg-white
                border border-slate-200
-               rounded-xl shadow-sm
-               p-5 mb-8"
+               rounded-xl
+               shadow-sm
+               p-5
+               mb-8"
     >
 
-        <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+        <div class="grid
+                    grid-cols-1
+                    md:grid-cols-2
+                    gap-4">
 
+
+            {{-- BUSCAR --}}
             <div>
 
-                <label class="block text-xs
-                              font-semibold
-                              text-slate-600 mb-2">
+                <label
+                    for="buscar"
+                    class="block
+                           text-xs
+                           font-semibold
+                           text-slate-600
+                           mb-2"
+                >
                     Buscar
                 </label>
 
                 <input
                     type="text"
                     name="buscar"
+                    id="buscar"
                     value="{{ request('buscar') }}"
                     placeholder="Nombre, correo, especialidad..."
                     class="w-full
                            border border-slate-300
                            rounded-lg
-                           px-4 py-2.5"
+                           px-4 py-2.5
+                           focus:outline-none
+                           focus:ring-2
+                           focus:ring-blue-200
+                           focus:border-blue-500"
                 >
 
             </div>
 
 
+            {{-- ESTADO --}}
             <div>
 
-                <label class="block text-xs
-                              font-semibold
-                              text-slate-600 mb-2">
+                <label
+                    for="estado"
+                    class="block
+                           text-xs
+                           font-semibold
+                           text-slate-600
+                           mb-2"
+                >
                     Estado
                 </label>
 
                 <select
                     name="estado"
+                    id="estado"
                     class="w-full
                            border border-slate-300
                            rounded-lg
                            px-4 py-2.5
-                           bg-white"
+                           bg-white
+                           focus:outline-none
+                           focus:ring-2
+                           focus:ring-blue-200
+                           focus:border-blue-500"
                 >
 
                     <option value="">
@@ -180,14 +288,18 @@
 
                     <option
                         value="activo"
-                        @selected(request('estado') === 'activo')
+                        @selected(
+                            request('estado') === 'activo'
+                        )
                     >
                         Activos
                     </option>
 
                     <option
                         value="inactivo"
-                        @selected(request('estado') === 'inactivo')
+                        @selected(
+                            request('estado') === 'inactivo'
+                        )
                     >
                         Inactivos
                     </option>
@@ -199,7 +311,11 @@
         </div>
 
 
-        <div class="flex justify-end gap-3 mt-5">
+        {{-- BOTONES FILTRO --}}
+        <div class="flex
+                    justify-end
+                    gap-3
+                    mt-5">
 
             <a
                 href="{{ route('administracion.tecnicos.index') }}"
@@ -211,6 +327,7 @@
             >
                 Limpiar
             </a>
+
 
             <button
                 type="submit"
@@ -229,14 +346,20 @@
     </form>
 
 
+    {{-- ===================================================== --}}
     {{-- TABLA --}}
+    {{-- ===================================================== --}}
+
     <div class="bg-white
                 border border-slate-200
                 rounded-xl
                 shadow-sm
                 overflow-hidden">
 
-        <div class="px-6 py-5 border-b border-slate-200">
+
+        {{-- ENCABEZADO TABLA --}}
+        <div class="px-6 py-5
+                    border-b border-slate-200">
 
             <h2 class="font-bold text-slate-900">
                 Personal técnico
@@ -253,8 +376,10 @@
 
             <table class="w-full text-sm">
 
+                {{-- CABECERA --}}
                 <thead class="bg-slate-50
-                              text-xs uppercase
+                              text-xs
+                              uppercase
                               text-slate-500">
 
                     <tr>
@@ -292,28 +417,36 @@
                 </thead>
 
 
+                {{-- CUERPO --}}
                 <tbody class="divide-y divide-slate-100">
 
                     @forelse($tecnicos as $tecnico)
 
                         <tr class="hover:bg-slate-50">
 
+
                             {{-- TÉCNICO --}}
                             <td class="px-6 py-4">
 
-                                <p class="font-semibold text-slate-900">
-                                    {{ $tecnico->user?->name ?? 'Sin usuario' }}
+                                <p class="font-semibold
+                                          text-slate-900">
+                                    {{ $tecnico->user?->name
+                                        ?? 'Sin usuario' }}
                                 </p>
 
-                                <p class="text-xs text-slate-400 mt-1">
-                                    {{ $tecnico->user?->email ?? '—' }}
+                                <p class="text-xs
+                                          text-slate-400
+                                          mt-1">
+                                    {{ $tecnico->user?->email
+                                        ?? '—' }}
                                 </p>
 
                             </td>
 
 
                             {{-- ESPECIALIDAD --}}
-                            <td class="px-6 py-4 text-slate-600">
+                            <td class="px-6 py-4
+                                       text-slate-600">
 
                                 {{ $tecnico->especialidad
                                     ?: 'Sin especialidad' }}
@@ -322,15 +455,18 @@
 
 
                             {{-- TELÉFONO --}}
-                            <td class="px-6 py-4 text-slate-600">
+                            <td class="px-6 py-4
+                                       text-slate-600">
 
-                                {{ $tecnico->telefono ?: '—' }}
+                                {{ $tecnico->telefono
+                                    ?: '—' }}
 
                             </td>
 
 
-                            {{-- FECHA --}}
-                            <td class="px-6 py-4 text-slate-600">
+                            {{-- FECHA DE INGRESO --}}
+                            <td class="px-6 py-4
+                                       text-slate-600">
 
                                 {{ $tecnico->fecha_ingreso
                                     ?->format('d/m/Y') ?? '—' }}
@@ -339,7 +475,8 @@
 
 
                             {{-- ETAPAS --}}
-                            <td class="px-6 py-4 text-center">
+                            <td class="px-6 py-4
+                                       text-center">
 
                                 <span class="inline-flex
                                              bg-violet-50
@@ -368,7 +505,9 @@
                                                  rounded-full
                                                  text-xs
                                                  font-semibold">
+
                                         Activo
+
                                     </span>
 
                                 @else
@@ -380,24 +519,84 @@
                                                  rounded-full
                                                  text-xs
                                                  font-semibold">
+
                                         Inactivo
+
                                     </span>
 
                                 @endif
 
                             </td>
 
-
                             {{-- ACCIÓN --}}
-                            <td class="px-6 py-4 text-right">
+                            <td class="px-6 py-4">
 
-                                <span class="text-xs text-slate-400">
-                                    Próximamente
-                                </span>
+                                <div class="flex
+                                            justify-end
+                                            items-center
+                                            gap-4">
+
+                                    {{-- EDITAR --}}
+                                    <a
+                                        href="{{ route(
+                                            'administracion.tecnicos.edit',
+                                            $tecnico
+                                        ) }}"
+                                        class="text-blue-700
+                                            font-semibold
+                                            hover:underline"
+                                    >
+                                        Editar
+                                    </a>
+
+
+                                    {{-- ACTIVAR / DESACTIVAR --}}
+                                    <form
+                                        method="POST"
+                                        action="{{ route(
+                                            'administracion.tecnicos.estado',
+                                            $tecnico
+                                        ) }}"
+                                    >
+
+                                        @csrf
+                                        @method('PATCH')
+
+
+                                        <button
+                                            type="submit"
+                                            onclick="return confirm(
+                                                '{{ $tecnico->estado
+                                                    ? '¿Desea desactivar este técnico?'
+                                                    : '¿Desea activar este técnico?'
+                                                }}'
+                                            )"
+                                            class="
+                                                font-semibold
+                                                hover:underline
+
+                                                {{ $tecnico->estado
+                                                    ? 'text-red-600'
+                                                    : 'text-emerald-600'
+                                                }}
+                                            "
+                                        >
+
+                                            {{ $tecnico->estado
+                                                ? 'Desactivar'
+                                                : 'Activar'
+                                            }}
+
+                                        </button>
+
+                                    </form>
+
+                                </div>
 
                             </td>
 
                         </tr>
+
 
                     @empty
 
@@ -423,10 +622,14 @@
         </div>
 
 
+        {{-- PAGINACIÓN --}}
         @if($tecnicos->hasPages())
 
-            <div class="px-6 py-4 border-t border-slate-200">
+            <div class="px-6 py-4
+                        border-t border-slate-200">
+
                 {{ $tecnicos->links() }}
+
             </div>
 
         @endif

@@ -172,6 +172,13 @@ Route::get('/dashboard', [DashboardController::class, 'index'])->name('dashboard
     // ==================================================
 
     Route::get('/administracion/tecnicos',[TecnicoController::class, 'index'])->name('administracion.tecnicos.index');
+    Route::get('/administracion/tecnicos/crear',[TecnicoController::class, 'create'])->name('administracion.tecnicos.create');
+    Route::post('/administracion/tecnicos',[TecnicoController::class, 'store'])->name('administracion.tecnicos.store');
+    Route::get('/administracion/tecnicos/{tecnico}/editar',[TecnicoController::class, 'edit'])->name('administracion.tecnicos.edit');
+
+    Route::put('/administracion/tecnicos/{tecnico}',[TecnicoController::class, 'update'])->name('administracion.tecnicos.update');
+    
+    Route::patch('/administracion/tecnicos/{tecnico}/estado',[TecnicoController::class, 'toggleEstado'])->name('administracion.tecnicos.estado');
 
     });    
    
