@@ -21,12 +21,15 @@ class Paciente extends Model
         'estado' => 'boolean',
     ];
 
-    public function odontologo(): BelongsTo
+public function odontologo(): BelongsTo
     {
         return $this->belongsTo(Odontologo::class);
     }
-    public function ordenesTrabajo(): HasMany
-{
-    return $this->hasMany(OrdenTrabajo::class);
-}
+public function ordenesTrabajo(): HasMany
+    {
+        return $this->hasMany(
+            OrdenTrabajo::class,
+            'paciente_id'
+        );
+    }
 }

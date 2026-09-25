@@ -10,6 +10,7 @@ use Illuminate\Database\Eloquent\Relations\BelongsTo;
 class Odontologo extends Model
 {
     protected $fillable = [
+        'codigo_cliente',
         'clinica_id',
         'nombre',
         'telefono',

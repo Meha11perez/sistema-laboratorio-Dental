@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use App\Models\Odontologo;
 use App\Models\Clinica;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\DB;
 
 class OdontologoController extends Controller
 {
@@ -153,78 +154,9 @@ class OdontologoController extends Controller
         compact('clinicas')
     );
 }
+
 public function store(Request $request)
-    {
-        $datos = $request->validate([
-            'clinica_id' => [
-                'nullable',
-                'integer',
-                'exists:clinicas,id',
-            ],
-
-            'nombre' => [
-                'required',
-                'string',
-                'max:150',
-            ],
-
-            'telefono' => [
-                'nullable',
-                'string',
-                'max:20',
-            ],
-
-            'correo' => [
-                'nullable',
-                'email',
-                'max:150',
-            ],
-
-            'numero_colegiado' => [
-                'nullable',
-                'string',
-                'max:50',
-            ],
-        ]);
-
-
-        Odontologo::create([
-            'clinica_id' => $datos['clinica_id'] ?? null,
-            'nombre' => $datos['nombre'],
-            'telefono' => $datos['telefono'] ?? null,
-            'correo' => $datos['correo'] ?? null,
-            'numero_colegiado' => $datos['numero_colegiado'] ?? null,
-            'estado' => true,
-        ]);
-
-
-        return redirect()
-            ->route('administracion.odontologos.index')
-            ->with(
-                'success',
-                'Odontólogo registrado correctamente.'
-            );
-    }
-    public function edit(Odontologo $odontologo)
 {
-    $clinicas = Clinica::where('estado', true)
-        ->orderBy('nombre')
-        ->get();
-
-    return view(
-        'administracion.odontologos.edit',
-        compact(
-            'odontologo',
-            'clinicas'
-        )
-    );
-}
-
-
-public function update(
-    Request $request,
-    Odontologo $odontologo
-) {
     $datos = $request->validate([
         'clinica_id' => [
             'nullable',
@@ -258,22 +190,60 @@ public function update(
     ]);
 
 
-    $odontologo->update([
-        'clinica_id' =>
-            $datos['clinica_id'] ?? null,
+    DB::transaction(function () use ($datos) {
 
-        'nombre' =>
-            $datos['nombre'],
+        /*
+        |--------------------------------------------------------------------------
+        | CREAR ODONTÓLOGO
+        |--------------------------------------------------------------------------
+        */
 
-        'telefono' =>
-            $datos['telefono'] ?? null,
+        $odontologo = Odontologo::create([
+            'clinica_id' =>
+                $datos['clinica_id'] ?? null,
 
-        'correo' =>
-            $datos['correo'] ?? null,
+            'nombre' =>
+                $datos['nombre'],
 
-        'numero_colegiado' =>
-            $datos['numero_colegiado'] ?? null,
-    ]);
+            'telefono' =>
+                $datos['telefono'] ?? null,
+
+            'correo' =>
+                $datos['correo'] ?? null,
+
+            'numero_colegiado' =>
+                $datos['numero_colegiado'] ?? null,
+
+            'estado' => true,
+        ]);
+
+
+        /*
+        |--------------------------------------------------------------------------
+        | GENERAR CÓDIGO ÚNICO
+        |--------------------------------------------------------------------------
+        |
+        | Ejemplos:
+        | ID 1  = CLI-0001
+        | ID 25 = CLI-0025
+        |
+        */
+
+        $codigoCliente =
+            'CLI-' .
+            str_pad(
+                $odontologo->id,
+                4,
+                '0',
+                STR_PAD_LEFT
+            );
+
+
+        $odontologo->update([
+            'codigo_cliente' => $codigoCliente,
+        ]);
+
+    });
 
 
     return redirect()
@@ -282,59 +252,140 @@ public function update(
         )
         ->with(
             'success',
-            'Odontólogo actualizado correctamente.'
+            'Odontólogo registrado correctamente.'
         );
 }
 
-public function toggleEstado(Odontologo $odontologo) 
+public function edit(Odontologo $odontologo)
     {
-        /*
-        |--------------------------------------------------------------------------
-        | DESACTIVAR
-        |--------------------------------------------------------------------------
-        | Evitamos desactivar al odontólogo si todavía
-        | tiene órdenes activas.
-        */
+        $clinicas = Clinica::where('estado', true)
+            ->orderBy('nombre')
+            ->get();
 
-        if ($odontologo->estado) {
-
-            $tieneOrdenesActivas = $odontologo
-                ->ordenesTrabajo()
-                ->whereHas(
-                    'estadoOrden',
-                    function ($query) {
-
-                        $query->whereNotIn(
-                            'nombre',
-                            [
-                                'Terminado',
-                                'Entregado',
-                                'Cancelado',
-                            ]
-                        );
-                    }
-                )
-                ->exists();
-
-
-            if ($tieneOrdenesActivas) {
-
-                return back()->with(
-                    'error',
-                    'No puede desactivar este odontólogo porque tiene órdenes activas asociadas.'
-                );
-            }
-        }
-
-        $odontologo->update([
-            'estado' => !$odontologo->estado,
-        ]);
-
-        return back()->with(
-            'success',
-            $odontologo->estado
-                ? 'Odontólogo activado correctamente.'
-                : 'Odontólogo desactivado correctamente.'
+        return view(
+            'administracion.odontologos.edit',
+            compact(
+                'odontologo',
+                'clinicas'
+            )
         );
     }
+
+
+    public function update(
+        Request $request,
+        Odontologo $odontologo
+    ) {
+        $datos = $request->validate([
+            'clinica_id' => [
+                'nullable',
+                'integer',
+                'exists:clinicas,id',
+            ],
+
+            'nombre' => [
+                'required',
+                'string',
+                'max:150',
+            ],
+
+            'telefono' => [
+                'nullable',
+                'string',
+                'max:20',
+            ],
+
+            'correo' => [
+                'nullable',
+                'email',
+                'max:150',
+            ],
+
+            'numero_colegiado' => [
+                'nullable',
+                'string',
+                'max:50',
+            ],
+        ]);
+
+
+        $odontologo->update([
+            'clinica_id' =>
+                $datos['clinica_id'] ?? null,
+
+            'nombre' =>
+                $datos['nombre'],
+
+            'telefono' =>
+                $datos['telefono'] ?? null,
+
+            'correo' =>
+                $datos['correo'] ?? null,
+
+            'numero_colegiado' =>
+                $datos['numero_colegiado'] ?? null,
+        ]);
+
+
+        return redirect()
+            ->route(
+                'administracion.odontologos.index'
+            )
+            ->with(
+                'success',
+                'Odontólogo actualizado correctamente.'
+            );
+    }
+
+    public function toggleEstado(Odontologo $odontologo) 
+        {
+            /*
+            |--------------------------------------------------------------------------
+            | DESACTIVAR
+            |--------------------------------------------------------------------------
+            | Evitamos desactivar al odontólogo si todavía
+            | tiene órdenes activas.
+            */
+
+            if ($odontologo->estado) {
+
+                $tieneOrdenesActivas = $odontologo
+                    ->ordenesTrabajo()
+                    ->whereHas(
+                        'estadoOrden',
+                        function ($query) {
+
+                            $query->whereNotIn(
+                                'nombre',
+                                [
+                                    'Terminado',
+                                    'Entregado',
+                                    'Cancelado',
+                                ]
+                            );
+                        }
+                    )
+                    ->exists();
+
+
+                if ($tieneOrdenesActivas) {
+
+                    return back()->with(
+                        'error',
+                        'No puede desactivar este odontólogo porque tiene órdenes activas asociadas.'
+                    );
+                }
+            }
+
+            $odontologo->update([
+                'estado' => !$odontologo->estado,
+            ]);
+
+            return back()->with(
+                'success',
+                $odontologo->estado
+                    ? 'Odontólogo activado correctamente.'
+                    : 'Odontólogo desactivado correctamente.'
+            );
+        }
 }

@@ -1,6 +1,6 @@
 @extends('layouts.app')
 
-@section('title', 'Odontólogos | Laboratorio Dental')
+@section('title', 'Pacientes | Laboratorio Dental')
 
 @section('content')
 
@@ -29,27 +29,39 @@
             <h1 class="text-3xl
                        font-bold
                        text-slate-900">
-                Odontólogos
+                Pacientes
             </h1>
 
             <p class="text-slate-500 mt-1">
-                Gestión de odontólogos asociados al laboratorio.
+                Gestión de pacientes asociados a los odontólogos.
             </p>
 
         </div>
 
 
-        <a href="{{ route('administracion.odontologos.create') }}"
-            class="inline-flex items-center justify-center
-                bg-blue-800
-                hover:bg-blue-900
-                text-white px-5 py-2.5 rounded-lg font-semibold shadow-sm transition">
-            + Nuevo Odontólogo
+        <a
+            href="{{ route('administracion.pacientes.create') }}"
+            class="inline-flex
+                   items-center
+                   justify-center
+                   bg-blue-800
+                   hover:bg-blue-900
+                   text-white
+                   px-5 py-2.5
+                   rounded-lg
+                   font-semibold
+                   shadow-sm
+                   transition"
+        >
+            + Nuevo Paciente
         </a>
 
     </div>
 
+
+    {{-- ===================================================== --}}
     {{-- MENSAJES --}}
+    {{-- ===================================================== --}}
 
     @if(session('success'))
 
@@ -89,7 +101,7 @@
 
     <div class="grid
                 grid-cols-1
-                md:grid-cols-2
+                sm:grid-cols-2
                 xl:grid-cols-4
                 gap-5
                 mb-8">
@@ -107,14 +119,16 @@
                       uppercase
                       font-semibold
                       text-slate-500">
-                Total odontólogos
+                Total pacientes
             </p>
 
             <p class="text-3xl
                       font-bold
                       text-blue-700
                       mt-2">
-                {{ $totalOdontologos }}
+
+                {{ $totalPacientes }}
+
             </p>
 
         </div>
@@ -139,7 +153,9 @@
                       font-bold
                       text-emerald-600
                       mt-2">
-                {{ $odontologosActivos }}
+
+                {{ $pacientesActivos }}
+
             </p>
 
         </div>
@@ -164,13 +180,15 @@
                       font-bold
                       text-red-600
                       mt-2">
-                {{ $odontologosInactivos }}
+
+                {{ $pacientesInactivos }}
+
             </p>
 
         </div>
 
 
-        {{-- CON CLÍNICA --}}
+        {{-- CON ÓRDENES --}}
         <div class="bg-white
                     border border-slate-200
                     border-l-4 border-l-violet-500
@@ -182,14 +200,16 @@
                       uppercase
                       font-semibold
                       text-slate-500">
-                Con clínica
+                Con órdenes
             </p>
 
             <p class="text-3xl
                       font-bold
                       text-violet-600
                       mt-2">
-                {{ $odontologosConClinica }}
+
+                {{ $pacientesConOrdenes }}
+
             </p>
 
         </div>
@@ -203,7 +223,7 @@
 
     <form
         method="GET"
-        action="{{ route('administracion.odontologos.index') }}"
+        action="{{ route('administracion.pacientes.index') }}"
         class="bg-white
                border border-slate-200
                rounded-xl
@@ -237,33 +257,37 @@
                     name="buscar"
                     id="buscar"
                     value="{{ request('buscar') }}"
-                    placeholder="Nombre, correo, colegiado..."
+                    placeholder="Paciente, teléfono, doctor..."
                     class="w-full
                            border border-slate-300
                            rounded-lg
-                           px-4 py-2.5"
+                           px-4 py-2.5
+                           focus:outline-none
+                           focus:ring-2
+                           focus:ring-blue-200
+                           focus:border-blue-500"
                 >
 
             </div>
 
 
-            {{-- CLÍNICA --}}
+            {{-- ODONTÓLOGO --}}
             <div>
 
                 <label
-                    for="clinica_id"
+                    for="odontologo_id"
                     class="block
                            text-xs
                            font-semibold
                            text-slate-600
                            mb-2"
                 >
-                    Clínica
+                    Odontólogo
                 </label>
 
                 <select
-                    name="clinica_id"
-                    id="clinica_id"
+                    name="odontologo_id"
+                    id="odontologo_id"
                     class="w-full
                            border border-slate-300
                            rounded-lg
@@ -272,19 +296,21 @@
                 >
 
                     <option value="">
-                        Todas
+                        Todos
                     </option>
 
-                    @foreach($clinicas as $clinica)
+                    @foreach($odontologos as $odontologo)
 
                         <option
-                            value="{{ $clinica->id }}"
+                            value="{{ $odontologo->id }}"
                             @selected(
-                                request('clinica_id')
-                                == $clinica->id
+                                request('odontologo_id')
+                                == $odontologo->id
                             )
                         >
-                            {{ $clinica->nombre }}
+                            {{ $odontologo->codigo_cliente }}
+                            -
+                            {{ $odontologo->nombre }}
                         </option>
 
                     @endforeach
@@ -348,15 +374,20 @@
 
 
         <div class="flex
-                    justify-end
+                    flex-col-reverse
+                    sm:flex-row
+                    sm:justify-end
                     gap-3
                     mt-5">
 
             <a
                 href="{{ route(
-                    'administracion.odontologos.index'
+                    'administracion.pacientes.index'
                 ) }}"
-                class="px-5 py-2.5
+                class="inline-flex
+                       items-center
+                       justify-center
+                       px-5 py-2.5
                        border border-slate-300
                        rounded-lg
                        text-slate-600
@@ -368,7 +399,10 @@
 
             <button
                 type="submit"
-                class="px-5 py-2.5
+                class="inline-flex
+                       items-center
+                       justify-center
+                       px-5 py-2.5
                        bg-blue-800
                        hover:bg-blue-900
                        text-white
@@ -397,13 +431,13 @@
                     border-b border-slate-200">
 
             <h2 class="font-bold text-slate-900">
-                Odontólogos registrados
+                Pacientes registrados
             </h2>
 
             <p class="text-sm
                       text-slate-500
                       mt-1">
-                Información de contacto y clínica asociada.
+                Pacientes asociados a odontólogos y órdenes de trabajo.
             </p>
 
         </div>
@@ -411,7 +445,9 @@
 
         <div class="overflow-x-auto">
 
-            <table class="w-full text-sm">
+            <table class="w-full
+                          min-w-[1050px]
+                          text-sm">
 
                 <thead class="bg-slate-50
                               text-xs
@@ -420,28 +456,32 @@
 
                     <tr>
 
-                        <th class="text-left px-6 py-4">
+                        <th class="text-left px-5 py-4">
+                            Paciente
+                        </th>
+
+                        <th class="text-left px-5 py-4">
                             Odontólogo
                         </th>
 
-                        <th class="text-left px-6 py-4">
+                        <th class="text-left px-5 py-4">
                             Clínica
                         </th>
 
-                        <th class="text-left px-6 py-4">
-                            Contacto
+                        <th class="text-left px-5 py-4">
+                            Teléfono
                         </th>
 
-                        <th class="text-left px-6 py-4">
-                            No. colegiado
+                        <th class="text-center px-5 py-4">
+                            Órdenes
                         </th>
 
-                        <th class="text-left px-6 py-4">
+                        <th class="text-center px-5 py-4">
                             Estado
                         </th>
 
-                        <th class="text-right px-6 py-4">
-                            Acción
+                        <th class="text-right px-5 py-4">
+                            Acciones
                         </th>
 
                     </tr>
@@ -451,46 +491,73 @@
 
                 <tbody class="divide-y divide-slate-100">
 
-                    @forelse($odontologos as $odontologo)
+                    @forelse($pacientes as $paciente)
 
-                        <tr class="hover:bg-slate-50">
+                        <tr class="hover:bg-slate-50 transition">
+
+
+                            {{-- PACIENTE --}}
+                            <td class="px-5 py-4 align-top">
+
+                                <p class="font-semibold
+                                          text-slate-900">
+
+                                    {{ $paciente->nombre }}
+
+                                    {{ $paciente->apellido }}
+
+                                </p>
+
+
+                                @if($paciente->observaciones)
+
+                                    <p
+                                        class="text-xs
+                                               text-slate-400
+                                               mt-1
+                                               max-w-[220px]"
+                                        title="{{ $paciente->observaciones }}"
+                                    >
+
+                                        {{ \Illuminate\Support\Str::limit(
+                                            $paciente->observaciones,
+                                            55
+                                        ) }}
+
+                                    </p>
+
+                                @else
+
+                                    <p class="text-xs
+                                              text-slate-400
+                                              mt-1">
+                                        Sin observaciones
+                                    </p>
+
+                                @endif
+
+                            </td>
 
 
                             {{-- ODONTÓLOGO --}}
-                            <td class="px-6 py-4">
+                            <td class="px-5 py-4 align-top">
 
-                               <div class="flex items-center gap-2 flex-wrap">
+                                <p class="font-semibold
+                                          text-slate-700">
 
-                            <p class="font-semibold
-                                    text-slate-900">
+                                    {{ $paciente->odontologo?->nombre
+                                        ?? 'Sin odontólogo' }}
 
-                                {{ $odontologo->nombre }}
+                                </p>
 
-                            </p>
-
-
-                            <span class="inline-flex
-                                        bg-blue-50
-                                        text-blue-700
-                                        border border-blue-100
-                                        px-2 py-0.5
-                                        rounded-md
-                                        text-xs
-                                        font-semibold">
-
-                                {{ $odontologo->codigo_cliente
-                                    ?? 'Sin código' }}
-
-                            </span>
-
-                        </div>
 
                                 <p class="text-xs
-                                          text-slate-400
-                                          mt-1">
+                                          text-blue-700
+                                          mt-1
+                                          font-medium">
 
-                                    {{ $odontologo->correo
-                                        ?: 'Sin correo' }}
+                                    {{ $paciente->odontologo?->codigo_cliente
+                                        ?? 'Sin código' }}
 
                                 </p>
 
@@ -498,39 +565,82 @@
 
 
                             {{-- CLÍNICA --}}
-                            <td class="px-6 py-4
-                                       text-slate-600">
+                            <td class="px-5 py-4 align-top">
 
-                                {{ $odontologo->clinica?->nombre
-                                    ?? 'Sin clínica' }}
+                                <p class="text-slate-700">
+
+                                    {{ $paciente->odontologo?->clinica?->nombre
+                                        ?? 'Sin clínica' }}
+
+                                </p>
+
+
+                                @if(
+                                    $paciente->odontologo?->clinica?->municipio
+                                    ||
+                                    $paciente->odontologo?->clinica?->departamento
+                                )
+
+                                    <p class="text-xs
+                                              text-slate-400
+                                              mt-1">
+
+                                        {{ $paciente->odontologo?->clinica?->municipio }}
+
+                                        @if(
+                                            $paciente->odontologo?->clinica?->municipio
+                                            &&
+                                            $paciente->odontologo?->clinica?->departamento
+                                        )
+                                            ,
+                                        @endif
+
+                                        {{ $paciente->odontologo?->clinica?->departamento }}
+
+                                    </p>
+
+                                @endif
 
                             </td>
 
 
-                            {{-- CONTACTO --}}
-                            <td class="px-6 py-4
-                                       text-slate-600">
+                            {{-- TELÉFONO --}}
+                            <td class="px-5 py-4 align-top">
 
-                                {{ $odontologo->telefono
-                                    ?: '—' }}
+                                {{ $paciente->telefono
+                                    ?: 'Sin teléfono' }}
 
                             </td>
 
 
-                            {{-- COLEGIADO --}}
-                            <td class="px-6 py-4
-                                       text-slate-600">
+                            {{-- ÓRDENES --}}
+                            <td class="px-5 py-4
+                                       text-center
+                                       align-top">
 
-                                {{ $odontologo->numero_colegiado
-                                    ?: '—' }}
+                                <span class="inline-flex
+                                             items-center
+                                             justify-center
+                                             bg-violet-50
+                                             text-violet-700
+                                             px-3 py-1
+                                             rounded-full
+                                             text-xs
+                                             font-semibold">
+
+                                    {{ $paciente->ordenes_trabajo_count }}
+
+                                </span>
 
                             </td>
 
 
                             {{-- ESTADO --}}
-                            <td class="px-6 py-4">
+                            <td class="px-5 py-4
+                                       text-center
+                                       align-top">
 
-                                @if($odontologo->estado)
+                                @if($paciente->estado)
 
                                     <span class="inline-flex
                                                  bg-emerald-100
@@ -558,34 +668,38 @@
 
                             </td>
 
-                            {{-- ACCIÓN --}}
-                            <td class="px-6 py-4">
+
+                            {{-- ACCIONES --}}
+                            <td class="px-5 py-4
+                                       text-right
+                                       align-top">
 
                                 <div class="flex
                                             items-center
                                             justify-end
-                                            gap-4">
+                                            gap-3
+                                            whitespace-nowrap">
 
-                                    {{-- EDITAR --}}
+
                                     <a
                                         href="{{ route(
-                                            'administracion.odontologos.edit',
-                                            $odontologo
+                                            'administracion.pacientes.edit',
+                                            $paciente
                                         ) }}"
                                         class="text-blue-700
-                                            font-semibold
-                                            hover:underline"
+                                               font-semibold
+                                               hover:text-blue-900
+                                               hover:underline"
                                     >
                                         Editar
                                     </a>
 
 
-                                    {{-- ACTIVAR / DESACTIVAR --}}
                                     <form
                                         method="POST"
                                         action="{{ route(
-                                            'administracion.odontologos.estado',
-                                            $odontologo
+                                            'administracion.pacientes.estado',
+                                            $paciente
                                         ) }}"
                                     >
 
@@ -596,20 +710,20 @@
                                         <button
                                             type="submit"
                                             onclick="return confirm(
-                                                '{{ $odontologo->estado
-                                                    ? '¿Desea desactivar este odontólogo?'
-                                                    : '¿Desea activar este odontólogo?'
+                                                '{{ $paciente->estado
+                                                    ? '¿Está seguro de desactivar este paciente?'
+                                                    : '¿Está seguro de activar este paciente?'
                                                 }}'
                                             )"
                                             class="font-semibold
-                                                hover:underline
-                                                {{ $odontologo->estado
-                                                        ? 'text-red-600'
-                                                        : 'text-emerald-600'
-                                                }}"
+                                                   hover:underline
+                                                   {{ $paciente->estado
+                                                       ? 'text-red-600 hover:text-red-800'
+                                                       : 'text-emerald-600 hover:text-emerald-800'
+                                                   }}"
                                         >
 
-                                            {{ $odontologo->estado
+                                            {{ $paciente->estado
                                                 ? 'Desactivar'
                                                 : 'Activar'
                                             }}
@@ -630,12 +744,14 @@
                         <tr>
 
                             <td
-                                colspan="6"
+                                colspan="7"
                                 class="px-6 py-12
                                        text-center
                                        text-slate-400"
                             >
-                                No se encontraron odontólogos.
+
+                                No se encontraron pacientes.
+
                             </td>
 
                         </tr>
@@ -649,12 +765,12 @@
         </div>
 
 
-        @if($odontologos->hasPages())
+        @if($pacientes->hasPages())
 
             <div class="px-6 py-4
                         border-t border-slate-200">
 
-                {{ $odontologos->links() }}
+                {{ $pacientes->links() }}
 
             </div>
 

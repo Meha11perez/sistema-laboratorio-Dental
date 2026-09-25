@@ -17,6 +17,8 @@ use App\Http\Controllers\UserController;
 use App\Http\Controllers\RoleController;
 use App\Http\Controllers\TecnicoController;
 use App\Http\Controllers\OdontologoController;
+use App\Http\Controllers\ClinicaController;
+use App\Http\Controllers\PacienteController;
 
 use Illuminate\Support\Facades\Route;
 
@@ -195,6 +197,31 @@ Route::get('/dashboard', [DashboardController::class, 'index'])->name('dashboard
 
     Route::patch('/administracion/odontologos/{odontologo}/estado',[OdontologoController::class, 'toggleEstado'])->name('administracion.odontologos.estado');
 
+    // ==================================================
+    // CLÍNICAS
+    // ==================================================
+
+    Route::get('/administracion/clinicas',[ClinicaController::class, 'index'])->name('administracion.clinicas.index');
+    Route::get('/administracion/clinicas/crear',[ClinicaController::class, 'create'])->name('administracion.clinicas.create');
+    Route::post('/administracion/clinicas',[ClinicaController::class, 'store'])->name('administracion.clinicas.store');
+    
+    Route::get('/administracion/clinicas/{clinica}/editar',[ClinicaController::class, 'edit'])->name('administracion.clinicas.edit');
+    Route::put('/administracion/clinicas/{clinica}',[ClinicaController::class, 'update'])->name('administracion.clinicas.update');
+
+    Route::patch('/administracion/clinicas/{clinica}/estado',[ClinicaController::class, 'toggleEstado'])->name('administracion.clinicas.estado');
+    
+    // ==================================================
+    // PACIENTES
+    // ==================================================
+
+    Route::get('/administracion/pacientes',[PacienteController::class, 'index'])->name('administracion.pacientes.index');
+    Route::get('/administracion/pacientes/crear',[PacienteController::class, 'create'])->name('administracion.pacientes.create');
+    Route::post('/administracion/pacientes',[PacienteController::class, 'store'])->name('administracion.pacientes.store');
+    Route::get('/administracion/pacientes/{paciente}/editar',[PacienteController::class, 'edit'])->name('administracion.pacientes.edit');
+
+    Route::put('/administracion/pacientes/{paciente}',[PacienteController::class, 'update'])->name('administracion.pacientes.update');
+    Route::patch('/administracion/pacientes/{paciente}/estado',[PacienteController::class, 'toggleEstado'])->name('administracion.pacientes.estado');
+    
     });    
    
     //Devoluciones

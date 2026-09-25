@@ -71,50 +71,35 @@
             md:static
             md:translate-x-0
             md:shadow-none
-            md:flex
-
-            shrink-0
-        "
-    >
-
+            md:flex shrink-0">
 
         {{-- =================================================
-             LOGO
-        ================================================== --}}
+            LOGO
+            ================================================== --}}
         <div
-            class="
-                h-20
-                flex
-                items-center
-                justify-between
-                px-6
-                border-b
-                border-slate-200
-                shrink-0
-            "
-        >
+            class="h-20 flex items-center justify-between px-5 border-b border-slate-200 shrink-0">
 
-            <div>
+            {{-- LOGO + NOMBRE --}}
+            <div class="flex items-center min-w-0">
 
-                <h1
-                    class="
-                        font-bold
-                        text-sm
-                        text-slate-900
-                    "
-                >
-                    LABORATORIO DENTAL
-                </h1>
+                <img src="{{ asset('images/logo-dis-dental.png') }}" alt="Logo Laboratorio Dental" class="h-14 w-14 object-contain shrink-0">
 
-                <p
-                    class="
-                        text-xs
-                        text-blue-900
-                        tracking-widest
-                    "
-                >
-                    PANEL DE CONTROL
-                </p>
+                <div class="ml-3 min-w-0">
+
+                    <p class="font-bold
+                            text-sm
+                            text-slate-900
+                            leading-tight">
+                        Laboratorio Dental
+                    </p>
+
+                    <p class="text-xs
+                            text-blue-800
+                            mt-1">
+                        Panel de Control
+                    </p>
+
+                </div>
 
             </div>
 
@@ -123,32 +108,22 @@
             <button
                 id="closeSidebar"
                 type="button"
-                class="
-                    md:hidden
-
+                class="md:hidden
                     w-9 h-9
-
-                    flex
-                    items-center
+                    flex items-center
                     justify-center
-
                     rounded-lg
-
                     text-slate-500
-
                     hover:bg-slate-100
                     hover:text-slate-900
-
                     transition
-                "
+                    shrink-0"
                 aria-label="Cerrar menú"
             >
                 ✕
             </button>
 
         </div>
-
-
         {{-- =================================================
              MENÚ
         ================================================== --}}
@@ -717,7 +692,7 @@
                                 Usuarios
                             </a>
 
-                                <a href="{{ route('administracion.roles.index') }}" class="block pl-14 pr-6 py-3 text-smtext-slate-600 hover:text-blue-900  hover:bg-slate-100">
+                                <a href="{{ route('administracion.roles.index') }}" class="block pl-14 pr-6 py-3 text-sm text-slate-600 hover:text-blue-900  hover:bg-slate-100">
                                     Roles
                                 </a>
 
@@ -726,17 +701,17 @@
                                     Técnicos
                                 </a>
 
-                                <a href="{{ route('administracion.odontologos.index') }}" class="block pl-14 pr-6 py-3 text-smtext-slate-600 hover:text-blue-900 hover:bg-slate-100">
+                                <a href="{{ route('administracion.odontologos.index') }}" class="block pl-14 pr-6 py-3 text-sm text-slate-600 hover:text-blue-900 hover:bg-slate-100">
                                     Odontólogos
                                 </a>
 
                                 <a
-                                    href="#" class=" block pl-14 pr-6 py-3 text-sm text-slate-600hover:text-blue-900 hover:bg-slate-100" >
+                                    href="{{ route('administracion.clinicas.index') }}" class=" block pl-14 pr-6 py-3 text-sm text-slate-600hover:text-blue-900 hover:bg-slate-100" >
                                     Clínicas
                                 </a>
 
                                 <a
-                                    href="#" class="block pl-14 pr-6 py-3 text-smtext-slate-600hover:text-blue-900hover:bg-slate-100">
+                                    href="{{ route('administracion.pacientes.index') }}" class="block pl-14 pr-6 py-3 text-sm text-slate-600hover:text-blue-900hover:bg-slate-100">
                                     Pacientes
                                 </a>
 
