@@ -153,7 +153,7 @@
                                rounded-lg
                                font-semibold text-sm"
                     >
-                        ↻ Crear Repetición
+                        Crear Repetición
                     </a>
 
                 @endif
@@ -1906,7 +1906,7 @@
                                                font-semibold
                                                text-sm"
                                     >
-                                        ↻ Crear Repetición
+                                        Crear Repetición
                                     </a>
 
                                 @endif

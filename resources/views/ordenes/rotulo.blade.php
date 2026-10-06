@@ -3,74 +3,92 @@
 
 <head>
     <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
     <title>Rótulo {{ $orden->codigo }}</title>
-
-    @vite(['resources/css/app.css', 'resources/js/app.js'])
+    @include('ordenes.partials.estilos-rotulo')
 </head>
 
-<body class="bg-white p-8">
+<body>
 
-<div class="max-w-md mx-auto border-2 border-slate-900 p-6">
+    <main class="rotulo">
 
-    <h1 class="text-xl font-bold text-center mb-6">
-        LABORATORIO DENTAL
-    </h1>
+        <header class="encabezado">
+            <img
+                src="{{ asset('images/logo-dis-dental.png') }}"
+                alt="Diseño Dental — Laboratorio dental"
+                class="logo"
+            >
 
-    <div class="space-y-3">
+            <h1>Rótulo de trabajo</h1>
+        </header>
 
-        <p>
-            <strong>Orden:</strong>
-            {{ $orden->codigo }}
-        </p>
+        <div class="codigo-orden">
+            <span>Orden de trabajo</span>
 
-        <p>
-            <strong>Caja:</strong>
-            {{ $orden->codigo_caja ?? '—' }}
-        </p>
+            <strong>{{ $orden->codigo }}</strong>
+        </div>
 
-        <p>
-            <strong>Doctor:</strong>
-            {{ $orden->odontologo?->nombre ?? '—' }}
-        </p>
+        <div class="datos">
 
-        <p>
-            <strong>Clínica:</strong>
-            {{ $orden->odontologo?->clinica?->nombre ?? '—' }}
-        </p>
+            <p>
+                <strong>Código de área:</strong>
+                {{ $orden->codigo_area ?: '—' }}
+            </p>
 
-        <p>
-            <strong>Paciente:</strong>
-            {{ $orden->paciente?->nombre }}
-            {{ $orden->paciente?->apellido }}
-        </p>
+            <p>
+                <strong>Área de trabajo:</strong>
+                {{ $orden->area_trabajo
+                    ? ucfirst(str_replace('_', ' ', $orden->area_trabajo))
+                    : '—' }}
+            </p>
 
-        <p>
-            <strong>Trabajo:</strong>
-            {{ $orden->tipoProtesis?->nombre }}
-        </p>
+            <p>
+                <strong>Doctor:</strong>
+                {{ $orden->odontologo?->nombre ?: '—' }}
+            </p>
 
-        <p>
+            <p>
+                <strong>Clínica:</strong>
+                {{ $orden->odontologo?->clinica?->nombre ?: '—' }}
+            </p>
+
+            <p>
+                <strong>Paciente:</strong>
+                {{ trim(
+                    ($orden->paciente?->nombre ?? '') . ' ' .
+                    ($orden->paciente?->apellido ?? '')
+                ) ?: '—' }}
+            </p>
+
+            <p>
+                <strong>Trabajo:</strong>
+                {{ $orden->tipoProtesis?->nombre ?: '—' }}
+            </p>
+
+        </div>
+
+        <div class="especificaciones">
             <strong>Especificaciones:</strong>
-            {{ $orden->especificaciones }}
+
+            <p>{{ $orden->especificaciones ?: 'Sin especificaciones registradas.' }}</p>
+        </div>
+
+        <p class="fecha">
+            Fecha de impresión: {{ now()->format('d/m/Y') }}
         </p>
 
-        <p>
-            <strong>Fecha:</strong>
-            {{ now()->format('d/m/Y') }}
-        </p>
+    </main>
 
+    <div class="acciones">
+        <button
+            type="button"
+            onclick="window.print()"
+            class="boton-imprimir"
+        >
+            Imprimir rótulo
+        </button>
     </div>
-
-
-    <button
-        onclick="window.print()"
-        class="mt-6 w-full bg-blue-800 text-white py-3 rounded-lg print:hidden"
-    >
-        Imprimir Rótulo
-    </button>
-
-</div>
 
 </body>
 
