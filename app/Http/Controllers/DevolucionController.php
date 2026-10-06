@@ -30,7 +30,6 @@ class DevolucionController extends Controller
         ));
     }
 
-
     public function store(Request $request, OrdenTrabajo $orden)
     {
         $datos = $request->validate([

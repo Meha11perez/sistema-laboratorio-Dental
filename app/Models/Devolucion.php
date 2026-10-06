@@ -15,7 +15,7 @@ class Devolucion extends Model
         'tecnico_responsable_id',
         'registrado_por',
         'tipo',
-        'motivo',
+        'motivo', 
         'fecha_devolucion',
         'requiere_repeticion',
         'perdida_estimada',

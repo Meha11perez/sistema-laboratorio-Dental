@@ -19,12 +19,13 @@ class AgendaController extends Controller
         $esTecnico =
             $usuario?->role?->nombre === 'Técnico';
 
+
         /*
         |--------------------------------------------------------------------------
         | FECHA
         |--------------------------------------------------------------------------
         | Técnico:
-        | Siempre ve únicamente la agenda de HOY.
+        | Siempre consulta únicamente la agenda del día actual.
         |
         | Administrador / Recepción:
         | Pueden consultar cualquier fecha.
@@ -46,6 +47,11 @@ class AgendaController extends Controller
         }
 
 
+        /*
+        |--------------------------------------------------------------------------
+        | CONSULTA BASE
+        |--------------------------------------------------------------------------
+        */
         $query = OrdenTrabajo::with([
             'odontologo.clinica',
             'paciente',
@@ -61,6 +67,7 @@ class AgendaController extends Controller
         ->whereHas(
             'estadoOrden',
             function ($query) {
+
                 $query->where(
                     'nombre',
                     '!=',
@@ -74,7 +81,8 @@ class AgendaController extends Controller
         |--------------------------------------------------------------------------
         | TÉCNICO
         |--------------------------------------------------------------------------
-        | Solo ve órdenes asignadas actualmente a él.
+        | El técnico únicamente puede visualizar
+        | las órdenes asignadas actualmente a él.
         */
         if ($esTecnico) {
 
@@ -84,6 +92,7 @@ class AgendaController extends Controller
             )->first();
 
             if (!$tecnico) {
+
                 abort(
                     403,
                     'El usuario no tiene un técnico asociado.'
@@ -99,37 +108,78 @@ class AgendaController extends Controller
 
         /*
         |--------------------------------------------------------------------------
-        | FILTROS
+        | FILTROS ADMINISTRATIVOS
         |--------------------------------------------------------------------------
-        | Los filtros administrativos solamente aplican a
-        | Administrador / Recepción.
         */
         if (!$esTecnico) {
 
             if ($request->filled('odontologo')) {
+
                 $query->where(
                     'odontologo_id',
                     $request->odontologo
                 );
             }
 
+
             if ($request->filled('paciente')) {
+
                 $query->where(
                     'paciente_id',
                     $request->paciente
                 );
             }
 
+
             if ($request->filled('estado')) {
+
                 $query->where(
                     'estado_orden_id',
                     $request->estado
                 );
             }
+
+
+            /*
+            |--------------------------------------------------------------------------
+            | ÁREA
+            |--------------------------------------------------------------------------
+            | Se utiliza area_trabajo y ya no
+            | tipo_protesis.categoria.
+            */
+            if ($request->filled('area')) {
+
+                $areasValidas = [
+                    'removible',
+                    'fija',
+                    'cromo_cobalto',
+                    'ortodoncia',
+                ];
+
+                if (
+                    in_array(
+                        $request->area,
+                        $areasValidas,
+                        true
+                    )
+                ) {
+
+                    $query->where(
+                        'area_trabajo',
+                        $request->area
+                    );
+                }
+            }
         }
 
 
+        /*
+        |--------------------------------------------------------------------------
+        | PRIORIDAD
+        |--------------------------------------------------------------------------
+        */
         if ($request->filled('prioridad')) {
+
             $query->where(
                 'prioridad',
                 $request->prioridad
@@ -137,32 +187,41 @@ class AgendaController extends Controller
         }
 
 
-        if ($request->filled('categoria')) {
-
-            $query->whereHas(
-                'tipoProtesis',
-                function ($q) use ($request) {
-
-                    $q->where(
-                        'categoria',
-                        $request->categoria
-                    );
-                }
-            );
-        }
-
-
+        /*
+        |--------------------------------------------------------------------------
+        | OBTENER ÓRDENES
+        |--------------------------------------------------------------------------
+        */
         $ordenes = $query
+            ->orderByDesc('prioridad')
             ->orderBy('fecha_ingreso')
             ->get();
 
 
+        /*
+        |--------------------------------------------------------------------------
+        | CLASIFICACIÓN POR ÁREA
+        |--------------------------------------------------------------------------
+        | Ya no dependemos de tipoProtesis->categoria.
+        |
+        | Las 4 áreas son independientes:
+        |
+        | - Prótesis Removibles
+        | - Prótesis Fijas
+        | - Cromo Cobalto
+        | - Aparatos de Ortodoncia
+        |--------------------------------------------------------------------------
+        */
+
+
+        // ==========================================
+        // PRÓTESIS REMOVIBLES
+        // ==========================================
         $removibles = $ordenes
             ->filter(
                 fn ($orden) =>
-                    strtolower(
-                        $orden->tipoProtesis?->categoria ?? ''
-                    ) === 'removible'
+                    $orden->area_trabajo ===
+                    'removible'
             )
             ->groupBy(
                 fn ($orden) =>
@@ -171,12 +230,14 @@ class AgendaController extends Controller
             );
 
 
+        // ==========================================
+        // PRÓTESIS FIJAS
+        // ==========================================
         $fijas = $ordenes
             ->filter(
                 fn ($orden) =>
-                    strtolower(
-                        $orden->tipoProtesis?->categoria ?? ''
-                    ) === 'fija'
+                    $orden->area_trabajo ===
+                    'fija'
             )
             ->groupBy(
                 fn ($orden) =>
@@ -185,12 +246,30 @@ class AgendaController extends Controller
             );
 
 
+        // ==========================================
+        // CROMO COBALTO
+        // ==========================================
+        $cromoCobalto = $ordenes
+            ->filter(
+                fn ($orden) =>
+                    $orden->area_trabajo ===
+                    'cromo_cobalto'
+            )
+            ->groupBy(
+                fn ($orden) =>
+                    $orden->etapaActual?->nombre
+                    ?? 'Sin etapa asignada'
+            );
+
+
+        // ==========================================
+        // APARATOS DE ORTODONCIA
+        // ==========================================
         $ortodoncia = $ordenes
             ->filter(
                 fn ($orden) =>
-                    strtolower(
-                        $orden->tipoProtesis?->categoria ?? ''
-                    ) === 'ortodoncia'
+                    $orden->area_trabajo ===
+                    'ortodoncia'
             )
             ->groupBy(
                 fn ($orden) =>
@@ -199,6 +278,11 @@ class AgendaController extends Controller
             );
 
 
+        /*
+        |--------------------------------------------------------------------------
+        | DATOS PARA FILTROS
+        |--------------------------------------------------------------------------
+        */
         $odontologos = Odontologo::where(
             'estado',
             true
@@ -223,12 +307,18 @@ class AgendaController extends Controller
         ->get();
 
 
+        /*
+        |--------------------------------------------------------------------------
+        | VISTA
+        |--------------------------------------------------------------------------
+        */
         return view(
             'agenda.index',
             compact(
                 'fecha',
                 'removibles',
                 'fijas',
+                'cromoCobalto',
                 'ortodoncia',
                 'odontologos',
                 'pacientes',

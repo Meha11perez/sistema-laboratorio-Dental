@@ -67,11 +67,10 @@
             </p>
         </div>
 
-        <a
-            href="{{ route('ordenes.index') }}"
-    class="text-sm text-slate-600 hover:text-blue-900 font-semibold"
-        >
-            ← Volver
+       <a href="{{ route('ordenes.index') }}"
+            class="inline-flex items-center justify-center px-4 py-2 rounded-lg bg-blue-100 text-blue-800 border border-blue-200 font-semibold text-sm hover:bg-blue-200 transition"
+            >
+                ← Volver
         </a>
 
     </div>
@@ -103,6 +102,367 @@
 
         @csrf
 
+        {{-- ===================================================== --}}
+        {{-- SELECCIÓN DEL ÁREA DE TRABAJO --}}
+        {{-- ===================================================== --}}
+
+        <div class="bg-white
+                    border border-slate-200
+                    rounded-2xl
+                    shadow-sm
+                    overflow-hidden
+                    mb-6">
+
+            <div class="p-6
+                        border-b border-slate-200">
+
+                <h2 class="text-lg
+                        font-bold
+                        text-slate-900">
+                    Área de trabajo
+                </h2>
+
+                <p class="text-sm
+                        text-slate-500
+                        mt-1">
+                    Seleccione el área a la que pertenece el trabajo.
+                    El sistema generará automáticamente su código especial.
+                </p>
+
+            </div>
+
+
+            <div class="p-6">
+
+                @php
+
+                    $areaSeleccionada = old(
+                        'area_trabajo',
+                        isset($orden)
+                            ? $orden->area_trabajo
+                            : null
+                    );
+
+                @endphp
+
+
+                <input
+                    type="hidden"
+                    name="area_trabajo"
+                    id="area_trabajo"
+                    value="{{ $areaSeleccionada }}"
+                >
+
+
+                <div class="grid
+                            grid-cols-1
+                            sm:grid-cols-2
+                            xl:grid-cols-4
+                            gap-4">
+
+
+                    {{-- ============================================ --}}
+                    {{-- REMOVIBLES --}}
+                    {{-- ============================================ --}}
+
+                    <button
+                        type="button"
+                        data-area="removible"
+                        class="area-card
+                            relative
+                            text-left
+                            border-2
+                            rounded-xl
+                            p-5
+                            transition
+                            hover:border-blue-500
+                            hover:bg-blue-50
+                            {{ $areaSeleccionada === 'removible'
+                                    ? 'border-blue-700 bg-blue-50'
+                                    : 'border-slate-200 bg-white'
+                            }}"
+                    >
+
+                        <div class="flex
+                                    items-center
+                                    justify-between
+                                    gap-3">
+
+                            <span class="inline-flex
+                                        items-center
+                                        justify-center
+                                        w-10 h-10
+                                        rounded-lg
+                                        bg-blue-100
+                                        text-blue-700
+                                        font-bold">
+                                PR
+                            </span>
+
+                            <span
+                                class="area-check
+                                    {{ $areaSeleccionada === 'removible'
+                                            ? ''
+                                            : 'hidden'
+                                    }}
+                                    text-blue-700
+                                    font-bold"
+                            >
+                                ✓
+                            </span>
+
+                        </div>
+
+
+                        <p class="font-bold
+                                text-slate-900
+                                mt-4">
+                            Prótesis Removibles
+                        </p>
+
+                        <p class="text-xs
+                                text-slate-500
+                                mt-1">
+                            Código especial PR
+                        </p>
+
+                    </button>
+
+
+                    {{-- ============================================ --}}
+                    {{-- FIJAS --}}
+                    {{-- ============================================ --}}
+
+                    <button
+                        type="button"
+                        data-area="fija"
+                        class="area-card
+                            relative
+                            text-left
+                            border-2
+                            rounded-xl
+                            p-5
+                            transition
+                            hover:border-violet-500
+                            hover:bg-violet-50
+                            {{ $areaSeleccionada === 'fija'
+                                    ? 'border-violet-700 bg-violet-50'
+                                    : 'border-slate-200 bg-white'
+                            }}"
+                    >
+
+                        <div class="flex
+                                    items-center
+                                    justify-between
+                                    gap-3">
+
+                            <span class="inline-flex
+                                        items-center
+                                        justify-center
+                                        w-10 h-10
+                                        rounded-lg
+                                        bg-violet-100
+                                        text-violet-700
+                                        font-bold">
+                                PF
+                            </span>
+
+                            <span
+                                class="area-check
+                                    {{ $areaSeleccionada === 'fija'
+                                            ? ''
+                                            : 'hidden'
+                                    }}
+                                    text-violet-700
+                                    font-bold"
+                            >
+                                ✓
+                            </span>
+
+                        </div>
+
+
+                        <p class="font-bold
+                                text-slate-900
+                                mt-4">
+                            Prótesis Fijas
+                        </p>
+
+                        <p class="text-xs
+                                text-slate-500
+                                mt-1">
+                            Código especial PF
+                        </p>
+
+                    </button>
+
+
+                    {{-- ============================================ --}}
+                    {{-- CROMO COBALTO --}}
+                    {{-- ============================================ --}}
+
+                    <button
+                        type="button"
+                        data-area="cromo_cobalto"
+                        class="area-card
+                            relative
+                            text-left
+                            border-2
+                            rounded-xl
+                            p-5
+                            transition
+                            hover:border-amber-500
+                            hover:bg-amber-50
+                            {{ $areaSeleccionada === 'cromo_cobalto'
+                                    ? 'border-amber-600 bg-amber-50'
+                                    : 'border-slate-200 bg-white'
+                            }}"
+                    >
+
+                        <div class="flex
+                                    items-center
+                                    justify-between
+                                    gap-3">
+
+                            <span class="inline-flex
+                                        items-center
+                                        justify-center
+                                        w-10 h-10
+                                        rounded-lg
+                                        bg-amber-100
+                                        text-amber-700
+                                        font-bold">
+                                CC
+                            </span>
+
+                            <span
+                                class="area-check
+                                    {{ $areaSeleccionada === 'cromo_cobalto'
+                                            ? ''
+                                            : 'hidden'
+                                    }}
+                                    text-amber-700
+                                    font-bold"
+                            >
+                                ✓
+                            </span>
+
+                        </div>
+
+
+                        <p class="font-bold
+                                text-slate-900
+                                mt-4">
+                            Cromo Cobalto
+                        </p>
+
+                        <p class="text-xs
+                                text-slate-500
+                                mt-1">
+                            Código especial CC
+                        </p>
+
+                    </button>
+
+
+                    {{-- ============================================ --}}
+                    {{-- ORTODONCIA --}}
+                    {{-- ============================================ --}}
+
+                    <button
+                        type="button"
+                        data-area="ortodoncia"
+                        class="area-card
+                            relative
+                            text-left
+                            border-2
+                            rounded-xl
+                            p-5
+                            transition
+                            hover:border-emerald-500
+                            hover:bg-emerald-50
+                            {{ $areaSeleccionada === 'ortodoncia'
+                                    ? 'border-emerald-600 bg-emerald-50'
+                                    : 'border-slate-200 bg-white'
+                            }}"
+                    >
+
+                        <div class="flex
+                                    items-center
+                                    justify-between
+                                    gap-3">
+
+                            <span class="inline-flex
+                                        items-center
+                                        justify-center
+                                        w-10 h-10
+                                        rounded-lg
+                                        bg-emerald-100
+                                        text-emerald-700
+                                        font-bold">
+                                AO
+                            </span>
+
+                            <span
+                                class="area-check
+                                    {{ $areaSeleccionada === 'ortodoncia'
+                                            ? ''
+                                            : 'hidden'
+                                    }}
+                                    text-emerald-700
+                                    font-bold"
+                            >
+                                ✓
+                            </span>
+
+                        </div>
+
+
+                        <p class="font-bold
+                                text-slate-900
+                                mt-4">
+                            Aparatos de Ortodoncia
+                        </p>
+
+                        <p class="text-xs
+                                text-slate-500
+                                mt-1">
+                            Código especial AO
+                        </p>
+
+                    </button>
+
+                </div>
+
+
+                {{-- MENSAJE --}}
+                <div
+                    id="mensajeArea"
+                    class="mt-5
+                        rounded-lg
+                        bg-slate-50
+                        border border-slate-200
+                        px-4 py-3
+                        text-sm
+                        text-slate-600"
+                >
+
+                    @if($areaSeleccionada)
+
+                        Área seleccionada correctamente.
+
+                    @else
+
+                        Seleccione un área para continuar.
+
+                    @endif
+
+                </div>
+
+            </div>
+
+        </div>
+
         <div class="bg-white border border-slate-200 rounded-2xl shadow-sm overflow-hidden">
 
             {{-- DATOS GENERALES --}}
@@ -120,25 +480,7 @@
 
 
             <div class="p-6 grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-
-                {{-- CAJA --}}
-                <div>
-                    <label class="block text-sm font-semibold text-slate-700 mb-2">
-                        Código de caja
-                    </label>
-
-                    <input
-                        type="text"
-                        name="codigo_caja"
-                        value="{{ old('codigo_caja') }}"
-                        placeholder="Ej. V14, A47, F30"
-                        class="w-full border border-slate-300 rounded-lg px-4 py-3
-                               focus:ring-2 focus:ring-blue-100
-                               focus:border-blue-800 outline-none"
-                    >
-                </div>
-
-
+                
                 {{-- FECHA INGRESO --}}
                 <div>
                     <label class="block text-sm font-semibold text-slate-700 mb-2">
@@ -286,33 +628,85 @@
 
 
             <div class="p-6 grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+                {{-- ===================================================== --}}
+                {{-- TIPO DE TRABAJO --}}
+                {{-- ===================================================== --}}
 
-            {{-- TIPO DE PRÓTESIS --}}
-            <div>
-                <label class="block text-sm font-semibold text-slate-700 mb-2">
-                    Tipo de prótesis *
-                </label>
+                <div>
 
-                <select
-                    name="tipo_protesis_id"
-                    required
-                    class="w-full border border-slate-300 rounded-lg px-4 py-3 bg-white"
-                >
-                    @foreach($tiposProtesis as $tipo)
-                        <option
-                            value="{{ $tipo->id }}"
-                            @selected(
-                                old(
-                                    'tipo_protesis_id',
-                                    isset($orden) ? $orden->tipo_protesis_id : null
-                                ) == $tipo->id
-                            )
-                        >
-                            {{ $tipo->nombre }}
+                    <label
+                        for="tipo_protesis_id"
+                        class="block
+                            text-sm
+                            font-semibold
+                            text-slate-700
+                            mb-2"
+                    >
+                        Tipo de trabajo
+                        <span class="text-red-500">*</span>
+                    </label>
+
+
+                    <select
+                        name="tipo_protesis_id"
+                        id="tipo_protesis_id"
+                        required
+                        class="w-full
+                            border border-slate-300
+                            rounded-lg
+                            px-4 py-3
+                            bg-white
+                            focus:ring-2
+                            focus:ring-blue-100
+                            focus:border-blue-800
+                            outline-none"
+                    >
+
+                        <option value="">
+                            Seleccione primero un área
                         </option>
-                    @endforeach
-                </select>
-            </div>
+
+                        @foreach($tiposProtesis as $tipo)
+
+                            <option
+                                value="{{ $tipo->id }}"
+                                data-categoria="{{ $tipo->area_trabajo }}"
+                        
+                                data-nombre="{{
+                                    \Illuminate\Support\Str::lower(
+                                        $tipo->nombre
+                                    )
+                                }}"
+
+                                @selected(
+                                    old(
+                                        'tipo_protesis_id',
+                                        isset($orden)
+                                            ? $orden->tipo_protesis_id
+                                            : null
+                                    ) == $tipo->id
+                                )
+                            >
+
+                                {{ $tipo->nombre }}
+
+                            </option>
+
+                        @endforeach
+
+                    </select>
+
+
+                    <p
+                        id="ayudaTipoTrabajo"
+                        class="text-xs
+                            text-slate-400
+                            mt-2"
+                    >
+                        Seleccione un área para mostrar los trabajos correspondientes.
+                    </p>
+
+                </div>
 
             {{-- TIPO DE ORDEN --}}
             <div>
@@ -465,43 +859,79 @@
                         class="w-full border border-slate-300 rounded-lg px-4 py-3"
                     >
                 </div>
+                
+                {{-- ===================================================== --}}
+                {{-- ETAPA DEL TRABAJO --}}
+                {{-- ===================================================== --}}
 
-
-                {{-- ETAPA --}}
                 <div>
-                    <label class="block text-sm font-semibold text-slate-700 mb-2">
-                        {{ isset($orden)
-                            ? 'Etapa a la que regresa *'
-                            : 'Etapa inicial' }}
+
+                    <label
+                        for="etapa_actual_id"
+                        class="block
+                            text-sm
+                            font-semibold
+                            text-slate-700
+                            mb-2"
+                    >
+                        Etapa del trabajo
                     </label>
+
 
                     <select
                         name="etapa_actual_id"
-                        {{ isset($orden) ? 'required' : '' }}
-                        class="w-full border border-slate-300 rounded-lg px-4 py-3 bg-white"
+                        id="etapa_actual_id"
+                        class="w-full
+                            border border-slate-300
+                            rounded-lg
+                            px-4 py-3
+                            bg-white
+                            focus:ring-2
+                            focus:ring-blue-100
+                            focus:border-blue-800
+                            outline-none"
                     >
 
                         <option value="">
-                            {{ isset($orden)
-                                ? 'Seleccione la etapa a la que regresa...'
-                                : 'Sin asignar' }}
+                            Seleccione una etapa
                         </option>
 
-                        @foreach ($etapas as $etapa)
+                        @foreach($etapas as $etapa)
 
                             <option
                                 value="{{ $etapa->id }}"
-                                @selected(old('etapa_actual_id') == $etapa->id)
+
+                                data-nombre="{{ $etapa->nombre }}"
+
+                                @selected(
+                                    old(
+                                        'etapa_actual_id',
+                                        isset($orden)
+                                            ? $orden->etapa_actual_id
+                                            : null
+                                    ) == $etapa->id
+                                )
                             >
+
                                 {{ $etapa->nombre }}
+
                             </option>
 
                         @endforeach
 
                     </select>
 
-                </div>
 
+                    <p
+                        id="ayudaEtapa"
+                        class="text-xs
+                            text-slate-400
+                            mt-2"
+                    >
+                        Las etapas disponibles dependen del área seleccionada.
+                    </p>
+
+                </div>
 
                 {{-- TÉCNICO --}}
                 <div>
@@ -533,10 +963,7 @@
 
                 </div>
 
-                </div>
-
             </div>
-
 
             {{-- ESPECIFICACIONES --}}
             <div class="px-6 pb-6">
@@ -601,5 +1028,645 @@
     </form>
 
 </div>
+
+<script>
+    document.addEventListener('DOMContentLoaded', function () {
+
+        const areaInput =
+            document.getElementById('area_trabajo');
+
+        const cards =
+            document.querySelectorAll('.area-card');
+
+        const mensaje =
+            document.getElementById('mensajeArea');
+
+        const tipoSelect =
+            document.getElementById('tipo_protesis_id');
+
+        const etapaSelect =
+            document.getElementById('etapa_actual_id');
+
+        const ayudaTipo =
+            document.getElementById('ayudaTipoTrabajo');
+
+        const ayudaEtapa =
+            document.getElementById('ayudaEtapa');
+
+
+        /*
+        |--------------------------------------------------------------------------
+        | CONFIGURACIÓN DE LAS ÁREAS
+        |--------------------------------------------------------------------------
+        */
+
+        const configuracion = {
+
+            removible: {
+
+                borde: 'border-blue-700',
+
+                fondo: 'bg-blue-50',
+
+                mensaje:
+                    'Prótesis Removibles seleccionada — código PR.',
+
+                etapas: [
+                    'Rodetes y cubetas individuales',
+                    'Prueba de dientes',
+                    'Terminados'
+                ]
+
+            },
+
+
+            fija: {
+
+                borde: 'border-violet-700',
+
+                fondo: 'bg-violet-50',
+
+                mensaje:
+                    'Prótesis Fijas seleccionada — código PF.',
+
+                etapas: [
+                    'Prueba de metal',
+                    'Biscochos',
+                    'Terminados'
+                ]
+
+            },
+
+
+            cromo_cobalto: {
+
+                borde: 'border-amber-600',
+
+                fondo: 'bg-amber-50',
+
+                mensaje:
+                    'Cromo Cobalto seleccionado — código CC.',
+
+                etapas: [
+                    'Cromos'
+                ]
+
+            },
+
+
+            ortodoncia: {
+
+                borde: 'border-emerald-600',
+
+                fondo: 'bg-emerald-50',
+
+                mensaje:
+                    'Aparatos de Ortodoncia seleccionada — código AO.',
+
+                etapas: [
+                    'Ortodoncia'
+                ]
+
+            }
+
+        };
+
+
+        /*
+        |--------------------------------------------------------------------------
+        | LIMPIAR ESTILOS DE TARJETAS
+        |--------------------------------------------------------------------------
+        */
+
+        function limpiarTarjetas() {
+
+            cards.forEach(function (card) {
+
+                card.classList.remove(
+                    'border-blue-700',
+                    'bg-blue-50',
+
+                    'border-violet-700',
+                    'bg-violet-50',
+
+                    'border-amber-600',
+                    'bg-amber-50',
+
+                    'border-emerald-600',
+                    'bg-emerald-50'
+                );
+
+
+                card.classList.add(
+                    'border-slate-200',
+                    'bg-white'
+                );
+
+
+                const check =
+                    card.querySelector('.area-check');
+
+
+                if (check) {
+
+                    check.classList.add('hidden');
+
+                }
+
+            });
+
+        }
+
+
+        /*
+        |--------------------------------------------------------------------------
+        | FILTRAR TIPOS DE TRABAJO
+        |--------------------------------------------------------------------------
+        */
+
+        function filtrarTipos(area) {
+
+            if (!tipoSelect) {
+                return;
+            }
+
+
+            const valorActual =
+                tipoSelect.value;
+
+
+            let valorActualValido = false;
+
+
+            Array.from(tipoSelect.options).forEach(
+                function (option, index) {
+
+                    /*
+                    | Primera opción:
+                    | "Seleccione..."
+                    */
+
+                    if (index === 0) {
+
+                        option.hidden = false;
+                        option.disabled = false;
+
+                        if (area === 'removible') {
+                            option.textContent =
+                                'Seleccione el tipo de prótesis removible';
+                        }
+
+                        else if (area === 'fija') {
+                            option.textContent =
+                                'Seleccione el tipo de prótesis fija';
+                        }
+
+                        else if (area === 'cromo_cobalto') {
+                            option.textContent =
+                                'Seleccione el trabajo de Cromo Cobalto';
+                        }
+
+                        else if (area === 'ortodoncia') {
+                            option.textContent =
+                                'Seleccione el aparato de ortodoncia';
+                        }
+
+                        return;
+                    }
+
+                    const categoria =
+                        option.dataset.categoria || '';
+
+                    const nombre =
+                        option.dataset.nombre || '';
+
+
+                    let mostrar = false;
+
+
+                    /*
+                    |--------------------------------------------------------------------------
+                    | REMOVIBLES
+                    |--------------------------------------------------------------------------
+                    |
+                    | Mostramos categoría removible,
+                    | excepto Cromo Cobalto porque ahora
+                    | tiene su propia área.
+                    |
+                    */
+
+                    if (area === 'removible') {
+
+                        mostrar =
+                            categoria === 'removible'
+                            &&
+                            !nombre.includes('cromo');
+
+                    }
+
+
+                    /*
+                    |--------------------------------------------------------------------------
+                    | FIJAS
+                    |--------------------------------------------------------------------------
+                    */
+
+                    if (area === 'fija') {
+
+                        mostrar =
+                            categoria === 'fija';
+
+                    }
+
+
+                    /*
+                    |--------------------------------------------------------------------------
+                    | CROMO COBALTO
+                    |--------------------------------------------------------------------------
+                    */
+
+                    if (area === 'cromo_cobalto') {
+
+                        mostrar =
+                            nombre.includes('cromo');
+
+                    }
+
+
+                    /*
+                    |--------------------------------------------------------------------------
+                    | ORTODONCIA
+                    |--------------------------------------------------------------------------
+                    */
+
+                    if (area === 'ortodoncia') {
+
+                        mostrar =
+                            categoria === 'ortodoncia';
+
+                    }
+
+
+                    option.hidden =
+                        !mostrar;
+
+                    option.disabled =
+                        !mostrar;
+
+
+                    if (
+                        mostrar
+                        &&
+                        option.value === valorActual
+                    ) {
+
+                        valorActualValido = true;
+
+                    }
+
+                }
+            );
+
+
+            /*
+            | Si el tipo seleccionado anteriormente
+            | ya no pertenece al área nueva,
+            | lo limpiamos.
+            */
+
+            if (!valorActualValido) {
+
+                tipoSelect.value = '';
+
+            }
+
+
+            if (ayudaTipo) {
+
+                if (area === 'removible') {
+
+                    ayudaTipo.textContent =
+                        'Mostrando únicamente trabajos de Prótesis Removibles.';
+
+                }
+
+                else if (area === 'fija') {
+
+                    ayudaTipo.textContent =
+                        'Mostrando únicamente trabajos de Prótesis Fijas.';
+
+                }
+
+                else if (area === 'cromo_cobalto') {
+
+                    ayudaTipo.textContent =
+                        'Mostrando únicamente trabajos de Cromo Cobalto.';
+
+                }
+
+                else if (area === 'ortodoncia') {
+
+                    ayudaTipo.textContent =
+                        'Mostrando únicamente Aparatos de Ortodoncia.';
+
+                }
+
+            }
+
+        }
+
+
+        /*
+        |--------------------------------------------------------------------------
+        | FILTRAR ETAPAS
+        |--------------------------------------------------------------------------
+        */
+
+        function filtrarEtapas(area) {
+
+            if (
+                !etapaSelect
+                ||
+                !configuracion[area]
+            ) {
+                return;
+            }
+
+
+            const etapasPermitidas =
+                configuracion[area].etapas;
+
+
+            const valorActual =
+                etapaSelect.value;
+
+
+            let valorActualValido = false;
+
+            let unicaOpcion = null;
+
+            let cantidadDisponibles = 0;
+
+
+            Array.from(etapaSelect.options).forEach(
+                function (option, index) {
+
+                    /*
+                    | Primera opción vacía
+                    */
+
+                    if (index === 0) {
+
+                        option.hidden = false;
+                        option.disabled = false;
+
+                        return;
+                    }
+
+
+                    const nombre =
+                        option.dataset.nombre || '';
+
+
+                    const mostrar =
+                        etapasPermitidas.includes(nombre);
+
+
+                    option.hidden =
+                        !mostrar;
+
+                    option.disabled =
+                        !mostrar;
+
+
+                    if (mostrar) {
+
+                        cantidadDisponibles++;
+
+                        unicaOpcion = option;
+
+                    }
+
+
+                    if (
+                        mostrar
+                        &&
+                        option.value === valorActual
+                    ) {
+
+                        valorActualValido = true;
+
+                    }
+
+                }
+            );
+
+
+            /*
+            | Si la etapa anterior no pertenece al área,
+            | se limpia.
+            */
+
+            if (!valorActualValido) {
+
+                etapaSelect.value = '';
+
+            }
+
+
+            /*
+            |--------------------------------------------------------------------------
+            | CROMO Y ORTODONCIA
+            |--------------------------------------------------------------------------
+            |
+            | Como solamente tienen una etapa,
+            | se selecciona automáticamente.
+            |
+            */
+
+            if (
+                cantidadDisponibles === 1
+                &&
+                !etapaSelect.value
+                &&
+                unicaOpcion
+            ) {
+
+                etapaSelect.value =
+                    unicaOpcion.value;
+
+            }
+
+
+            if (ayudaEtapa) {
+
+                if (area === 'removible') {
+
+                    ayudaEtapa.textContent =
+                        'Etapas disponibles: Rodetes/Cubetas, Prueba de dientes o Terminados.';
+
+                }
+
+                else if (area === 'fija') {
+
+                    ayudaEtapa.textContent =
+                        'Etapas disponibles: Prueba de metal, Biscochos o Terminados.';
+
+                }
+
+                else if (area === 'cromo_cobalto') {
+
+                    ayudaEtapa.textContent =
+                        'Cromo Cobalto utiliza una sola etapa: Cromos.';
+
+                }
+
+                else if (area === 'ortodoncia') {
+
+                    ayudaEtapa.textContent =
+                        'Ortodoncia utiliza una sola etapa: Ortodoncia.';
+
+                }
+
+            }
+
+        }
+
+
+        /*
+        |--------------------------------------------------------------------------
+        | SELECCIONAR ÁREA
+        |--------------------------------------------------------------------------
+        */
+
+        function seleccionarArea(area) {
+
+            const card =
+                document.querySelector(
+                    '[data-area="' + area + '"]'
+                );
+
+
+            if (
+                !card
+                ||
+                !configuracion[area]
+            ) {
+                return;
+            }
+
+
+            limpiarTarjetas();
+
+
+            /*
+            | Guardar área
+            */
+
+            areaInput.value =
+                area;
+
+
+            /*
+            | Estilo tarjeta seleccionada
+            */
+
+            card.classList.remove(
+                'border-slate-200',
+                'bg-white'
+            );
+
+
+            card.classList.add(
+                configuracion[area].borde,
+                configuracion[area].fondo
+            );
+
+
+            const check =
+                card.querySelector(
+                    '.area-check'
+                );
+
+
+            if (check) {
+
+                check.classList.remove(
+                    'hidden'
+                );
+
+            }
+
+
+            /*
+            | Mensaje
+            */
+
+            if (mensaje) {
+
+                mensaje.textContent =
+                    configuracion[area].mensaje;
+
+            }
+
+
+            /*
+            | Filtrar campos dependientes
+            */
+
+            filtrarTipos(area);
+
+            filtrarEtapas(area);
+
+        }
+
+
+        /*
+        |--------------------------------------------------------------------------
+        | EVENTOS
+        |--------------------------------------------------------------------------
+        */
+
+        cards.forEach(function (card) {
+
+            card.addEventListener(
+                'click',
+                function () {
+
+                    seleccionarArea(
+                        this.dataset.area
+                    );
+
+                }
+            );
+
+        });
+
+
+        /*
+        |--------------------------------------------------------------------------
+        | RESTAURAR SELECCIÓN
+        |--------------------------------------------------------------------------
+        |
+        | Importante si Laravel devuelve el formulario
+        | por un error de validación o si se crea
+        | una repetición.
+        |
+        */
+
+        if (
+            areaInput
+            &&
+            areaInput.value
+        ) {
+
+            seleccionarArea(
+                areaInput.value
+            );
+
+        }
+
+    });
+</script>
 
 @endsection

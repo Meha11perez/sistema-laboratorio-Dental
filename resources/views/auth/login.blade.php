@@ -4,363 +4,491 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
-    <title>Iniciar sesión | Laboratorio Dental</title>
+    <title>Iniciar sesión | Diseño Dental</title>
 
     @vite(['resources/css/app.css', 'resources/js/app.js'])
+
+    <style>
+        html {
+            min-height: 100%;
+        }
+
+        body.dental-login {
+            box-sizing: border-box;
+            margin: 0;
+            min-height: 100vh;
+            min-height: 100svh;
+            padding: 24px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-family: 'Segoe UI', system-ui, -apple-system, BlinkMacSystemFont, Arial, sans-serif;
+            background: #edf3f8;
+            color: #18324b;
+        }
+
+        .dental-login *,
+        .dental-login *::before,
+        .dental-login *::after {
+            box-sizing: border-box;
+        }
+
+        .dental-login .login-card {
+            width: 100%;
+            max-width: 1020px;
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            overflow: hidden;
+            border-radius: 20px;
+            border: 1px solid #dce6ef;
+            background: #fff;
+            box-shadow: 0 18px 45px rgba(10, 45, 90, .13);
+        }
+
+        .dental-login .brand-panel,
+        .dental-login .access-panel {
+            padding: 44px;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+        }
+
+        .dental-login .company-logo {
+            display: block;
+            width: 100%;
+            max-width: 330px;
+            height: auto;
+            margin: 0 0 24px;
+        }
+
+        .dental-login .brand-label {
+            margin: 0 0 14px;
+            color: #073279;
+            font-size: 11px;
+            font-weight: 700;
+            letter-spacing: 1.5px;
+            text-transform: uppercase;
+        }
+
+        .dental-login .brand-title {
+            margin: 0 0 16px;
+            color: #073279;
+            font-size: 29px;
+            font-weight: 700;
+            line-height: 1.25;
+        }
+
+        .dental-login .brand-description {
+            margin: 0;
+            color: #64748b;
+            font-size: 14px;
+            line-height: 1.8;
+        }
+
+        .dental-login .services {
+            margin: 26px 0 0;
+            padding: 0;
+            list-style: none;
+        }
+
+        .dental-login .services li {
+            margin-bottom: 12px;
+            padding: 11px 14px;
+            border-left: 3px solid #1bb5c9;
+            background: #f4f8fc;
+            border-radius: 0 6px 6px 0;
+            color: #294565;
+            font-size: 13px;
+        }
+
+        .dental-login .access-panel {
+            background: linear-gradient(145deg, #073279, #004d98);
+            color: #fff;
+        }
+
+        .dental-login .access-label {
+            margin: 0 0 12px;
+            color: #b8edf3;
+            font-size: 11px;
+            font-weight: 700;
+            letter-spacing: 1.5px;
+            text-transform: uppercase;
+        }
+
+        .dental-login .access-title {
+            margin: 0 0 10px;
+            color: #fff;
+            font-size: 29px;
+            font-weight: 700;
+            line-height: 1.25;
+        }
+
+        .dental-login .access-description {
+            margin: 0 0 26px;
+            color: #d6e7fa;
+            font-size: 14px;
+            line-height: 1.6;
+        }
+
+        .dental-login .login-errors {
+            margin-bottom: 20px;
+            padding: 12px 14px;
+            border: 1px solid #fecaca;
+            border-radius: 8px;
+            background: #fff1f2;
+            color: #991b1b;
+            font-size: 13px;
+            line-height: 1.6;
+        }
+
+        .dental-login .login-errors p {
+            margin: 0;
+        }
+
+        .dental-login .field {
+            margin-bottom: 20px;
+        }
+
+        .dental-login .field-label {
+            display: block;
+            margin-bottom: 8px;
+            color: #fff;
+            font-size: 14px;
+            font-weight: 600;
+        }
+
+        .dental-login .field-input {
+            display: block;
+            width: 100%;
+            min-width: 0;
+            height: 48px;
+            padding: 12px 14px;
+            border: 1px solid #d1deeb;
+            border-radius: 8px;
+            outline: none;
+            background: #fff;
+            color: #18324b;
+            font: inherit;
+            font-size: 14px;
+        }
+
+        .dental-login .field-input::placeholder {
+            color: #77879a;
+        }
+
+        .dental-login .field-input:focus {
+            border-color: #1bb5c9;
+            box-shadow: 0 0 0 3px rgba(27, 181, 201, .3);
+        }
+
+        .dental-login .password-wrapper {
+            position: relative;
+        }
+
+        .dental-login .password-input {
+            padding-right: 86px;
+        }
+
+        .dental-login .password-button {
+            position: absolute;
+            top: 5px;
+            right: 5px;
+            height: 38px;
+            padding: 0 10px;
+            border: 0;
+            border-radius: 5px;
+            background: #edf3f8;
+            color: #073279;
+            font-size: 12px;
+            font-weight: 600;
+            cursor: pointer;
+        }
+
+        .dental-login .password-button:hover {
+            background: #dceaf5;
+        }
+
+        .dental-login .remember {
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            margin-bottom: 22px;
+            color: #e1ecfa;
+            font-size: 13px;
+            cursor: pointer;
+        }
+
+        .dental-login .remember input {
+            width: 15px;
+            height: 15px;
+            accent-color: #1bb5c9;
+        }
+
+        .dental-login .submit-button {
+            width: 100%;
+            min-height: 48px;
+            padding: 12px 18px;
+            border: 1px solid #1bb5c9;
+            border-radius: 8px;
+            background: #007d96;
+            color: #fff;
+            font: inherit;
+            font-size: 14px;
+            font-weight: 700;
+            cursor: pointer;
+            transition: background .15s;
+        }
+
+        .dental-login .submit-button:hover {
+            background: #00677e;
+        }
+
+        .dental-login .admin-help {
+            margin: 20px 0 0;
+            color: #d6e7fa;
+            font-size: 12px;
+            line-height: 1.7;
+        }
+
+        .dental-login .access-footer {
+            margin: 24px 0 0;
+            padding-top: 18px;
+            border-top: 1px solid rgba(255, 255, 255, .18);
+            color: #bfd5ed;
+            font-size: 11px;
+            line-height: 1.7;
+        }
+
+        .dental-login button:focus-visible,
+        .dental-login .remember input:focus-visible {
+            outline: 3px solid #a0e5f0;
+            outline-offset: 3px;
+        }
+
+        @media (max-width: 760px) {
+            body.dental-login {
+                padding: 16px;
+            }
+
+            .dental-login .login-card {
+                max-width: 460px;
+                grid-template-columns: 1fr;
+            }
+
+            .dental-login .brand-panel {
+                padding: 24px 28px;
+            }
+
+            .dental-login .company-logo {
+                max-width: 240px;
+                margin-bottom: 14px;
+            }
+
+            .dental-login .brand-title {
+                font-size: 22px;
+                margin-bottom: 0;
+            }
+
+            .dental-login .brand-label,
+            .dental-login .brand-description,
+            .dental-login .services {
+                display: none;
+            }
+
+            .dental-login .access-panel {
+                padding: 30px 28px;
+            }
+
+            .dental-login .access-title {
+                font-size: 26px;
+            }
+        }
+    </style>
 </head>
 
-<body class="min-h-screen bg-stone-100 flex items-center justify-center px-4 py-8">
+<body class="dental-login">
 
-    <div class="w-full max-w-5xl bg-white rounded-3xl shadow-2xl overflow-hidden grid md:grid-cols-2">
+    @php
+        // Corresponde a public/images/logo-dis-dental.png.
+        $rutaLogoEmpresa = 'images/logo-dis-dental.png';
+    @endphp
 
-        {{-- =========================================================
-             PANEL IZQUIERDO - LOGIN
-        ========================================================== --}}
-        <section class="p-8 md:p-12 flex flex-col justify-center">
+    <main class="login-card">
 
-            <div class="text-center mb-8">
+        {{-- IZQUIERDA: LOGO E IDENTIFICACIÓN --}}
+        <aside class="brand-panel" aria-label="Laboratorio Diseño Dental">
 
-                {{-- LOGO --}}
-                <div class="mx-auto w-14 h-14 bg-teal-700 text-white rounded-2xl flex items-center justify-center mb-4">
+            @if (is_file(public_path($rutaLogoEmpresa)))
+                <img
+                    src="{{ asset($rutaLogoEmpresa) }}"
+                    alt="Diseño Dental"
+                    class="company-logo"
+                    width="330"
+                    height="165"
+                >
+            @endif
 
-                    <svg
-                        xmlns="http://www.w3.org/2000/svg"
-                        viewBox="0 0 24 24"
-                        fill="none"
-                        stroke="currentColor"
-                        stroke-width="1.8"
-                        class="w-8 h-8"
-                    >
-                        <path
-                            stroke-linecap="round"
-                            stroke-linejoin="round"
-                            d="M12 3c-1.6 0-2.5-.8-4-.8C4.8 2.2 3 4.9 3 8c0 3.7 1.4 5.9 2.2 8.8.5 1.7.8 4.2 2.2 4.2 1.7 0 1.7-4.8 4.6-4.8s2.9 4.8 4.6 4.8c1.4 0 1.7-2.5 2.2-4.2C19.6 13.9 21 11.7 21 8c0-3.1-1.8-5.8-5-5.8-1.5 0-2.4.8-4 .8Z"
-                        />
-                    </svg>
+            <p class="brand-label">
+                Laboratorio dental
+            </p>
 
-                </div>
+            <h1 class="brand-title">
+                Sistema de Control de Producción
+            </h1>
 
-                <p class="text-xs tracking-[0.3em] text-slate-400 mb-2">
-                    BIENVENIDO
-                </p>
+            <p class="brand-description">
+                Gestión de órdenes, seguimiento de etapas y control
+                de materiales para el trabajo diario del laboratorio.
+            </p>
 
-                <h1 class="text-2xl md:text-3xl font-bold text-teal-800">
-                    Laboratorio Dental
-                </h1>
+            <ul class="services">
+                <li>Órdenes y producción</li>
+                <li>Inventario de materiales</li>
+                <li>Trazabilidad por etapa y técnico</li>
+            </ul>
 
-                <p class="text-sm text-slate-500 mt-2">
-                    Ingrese sus credenciales para acceder al sistema.
-                </p>
+        </aside>
 
-            </div>
+        {{-- DERECHA: ACCESO --}}
+        <section class="access-panel" aria-labelledby="login-title">
 
+            <p class="access-label">
+                Acceso al sistema
+            </p>
+
+            <h2 class="access-title" id="login-title">
+                Iniciar sesión
+            </h2>
+
+            <p class="access-description">
+                Ingrese las credenciales asignadas por el administrador.
+            </p>
 
             {{-- ERRORES --}}
             @if ($errors->any())
-
-                <div class="mb-5 bg-red-50 border border-red-200 text-red-700 px-4 py-3 rounded-xl text-sm">
+                <div class="login-errors" role="alert">
 
                     @foreach ($errors->all() as $error)
                         <p>{{ $error }}</p>
                     @endforeach
 
                 </div>
-
             @endif
 
-
-            <form method="POST" action="{{ route('login') }}" class="space-y-4">
+            <form method="POST" action="{{ route('login') }}">
 
                 @csrf
 
-
                 {{-- USUARIO --}}
-                <div>
+                <div class="field">
 
-                    <label
-                        for="email"
-                        class="block text-sm font-semibold text-slate-700 mb-2"
-                    >
+                    <label class="field-label" for="email">
                         Usuario
                     </label>
 
-                    <div class="relative">
-
-                        <span class="absolute inset-y-0 left-0 flex items-center pl-4 text-slate-400">
-
-                            <svg
-                                xmlns="http://www.w3.org/2000/svg"
-                                fill="none"
-                                viewBox="0 0 24 24"
-                                stroke-width="1.7"
-                                stroke="currentColor"
-                                class="w-5 h-5"
-                            >
-                                <path
-                                    stroke-linecap="round"
-                                    stroke-linejoin="round"
-                                    d="M15.75 6a3.75 3.75 0 1 1-7.5 0 3.75 3.75 0 0 1 7.5 0ZM4.5 20.118a7.5 7.5 0 0 1 15 0"
-                                />
-                            </svg>
-
-                        </span>
-
-                        <input
-                            type="email"
-                            id="email"
-                            name="email"
-                            value="{{ old('email') }}"
-                            placeholder="usuario@laboratorio.com"
-                            required
-                            autofocus
-                            autocomplete="email"
-                            class="w-full border border-slate-300 rounded-full
-                                   pl-11 pr-4 py-3 text-sm
-                                   outline-none
-                                   focus:border-teal-600
-                                   focus:ring-2 focus:ring-teal-100"
-                        >
-
-                    </div>
+                    <input
+                        class="field-input"
+                        type="email"
+                        name="email"
+                        id="email"
+                        value="{{ old('email') }}"
+                        placeholder="usuario@laboratorio.com"
+                        required
+                        autofocus
+                        autocomplete="email"
+                        aria-invalid="{{ $errors->has('email') ? 'true' : 'false' }}"
+                    >
 
                 </div>
 
-
                 {{-- CONTRASEÑA --}}
-                <div>
+                <div class="field">
 
-                    <label
-                        for="password"
-                        class="block text-sm font-semibold text-slate-700 mb-2"
-                    >
+                    <label class="field-label" for="password">
                         Contraseña
                     </label>
 
-                    <div class="relative">
-
-                        <span class="absolute inset-y-0 left-0 flex items-center pl-4 text-slate-400">
-
-                            <svg
-                                xmlns="http://www.w3.org/2000/svg"
-                                fill="none"
-                                viewBox="0 0 24 24"
-                                stroke-width="1.7"
-                                stroke="currentColor"
-                                class="w-5 h-5"
-                            >
-                                <path
-                                    stroke-linecap="round"
-                                    stroke-linejoin="round"
-                                    d="M16.5 10.5V7.5a4.5 4.5 0 0 0-9 0v3m-1.5 0h12v9h-12v-9Z"
-                                />
-                            </svg>
-
-                        </span>
+                    <div class="password-wrapper">
 
                         <input
+                            class="field-input password-input"
                             type="password"
-                            id="password"
                             name="password"
-                            placeholder="••••••••"
+                            id="password"
+                            placeholder="Ingrese su contraseña"
                             required
                             autocomplete="current-password"
-                            class="w-full border border-slate-300 rounded-full
-                                   pl-11 pr-12 py-3 text-sm
-                                   outline-none
-                                   focus:border-teal-600
-                                   focus:ring-2 focus:ring-teal-100"
+                            aria-invalid="{{ $errors->has('password') ? 'true' : 'false' }}"
                         >
 
                         <button
+                            class="password-button"
                             type="button"
-                            onclick="togglePassword()"
-                            class="absolute inset-y-0 right-0 flex items-center pr-4 text-slate-400 hover:text-teal-700"
+                            id="toggle-password"
+                            aria-controls="password"
+                            aria-label="Mostrar contraseña"
+                            aria-pressed="false"
                         >
-                            <svg
-                                xmlns="http://www.w3.org/2000/svg"
-                                fill="none"
-                                viewBox="0 0 24 24"
-                                stroke-width="1.7"
-                                stroke="currentColor"
-                                class="w-5 h-5"
-                            >
-                                <path
-                                    stroke-linecap="round"
-                                    stroke-linejoin="round"
-                                    d="M2.25 12s3.75-6 9.75-6 9.75 6 9.75 6-3.75 6-9.75 6S2.25 12 2.25 12Z"
-                                />
-                                <circle cx="12" cy="12" r="2.5"/>
-                            </svg>
+                            Mostrar
                         </button>
 
                     </div>
-
                 </div>
 
+                <label class="remember">
 
-                {{-- OPCIONES --}}
-                <div class="flex items-center justify-between text-sm pt-1">
+                    <input
+                        type="checkbox"
+                        name="remember"
+                        @checked(old('remember'))
+                    >
 
-                    <label class="flex items-center gap-2 text-slate-600">
+                    Recordarme
 
-                        <input
-                            type="checkbox"
-                            name="remember"
-                            class="rounded border-slate-300 text-teal-600 focus:ring-teal-600"
-                        >
+                </label>
 
-                        Recordarme
-
-                    </label>
-
-                    @if (Route::has('password.request'))
-
-                        <a
-                            href="{{ route('password.request') }}"
-                            class="text-teal-700 hover:underline"
-                        >
-                            ¿Olvidó su contraseña?
-                        </a>
-
-                    @endif
-
-                </div>
-
-
-                {{-- BOTÓN --}}
-                <button
-                    type="submit"
-                    class="w-full bg-teal-600 hover:bg-teal-700
-                           text-white font-semibold py-3 rounded-full
-                           transition shadow-md"
-                >
-                    INICIAR SESIÓN
+                <button class="submit-button" type="submit">
+                    Iniciar sesión
                 </button>
 
             </form>
 
+            <p class="admin-help">
+                ¿Necesita restablecer su contraseña?<br>
+                Solicítelo al administrador del laboratorio.
+            </p>
 
-            <div class="text-center mt-7">
-
-                <p class="text-xs text-slate-400">
-                    Sistema de Control de Producción
-                </p>
-
-                <p class="text-xs text-slate-400 mt-1">
-                    Acceso exclusivo para personal autorizado
-                </p>
-
-            </div>
+            <p class="access-footer">
+                Acceso exclusivo para personal autorizado.
+            </p>
 
         </section>
 
-
-        {{-- =========================================================
-             PANEL DERECHO
-        ========================================================== --}}
-        <section
-            class="relative hidden md:flex
-                   bg-gradient-to-br from-teal-700 via-teal-600 to-cyan-700
-                   text-white p-12
-                   flex-col items-center justify-center
-                   text-center overflow-hidden"
-        >
-
-            {{-- FORMAS DECORATIVAS --}}
-            <div class="absolute -top-20 -right-20 w-64 h-64 rounded-full bg-white/10"></div>
-
-            <div class="absolute -bottom-24 -left-16 w-72 h-72 rounded-full bg-black/10"></div>
-
-            <div class="relative z-10 max-w-sm">
-
-                {{-- ICONO GRANDE --}}
-                <div
-                    class="mx-auto w-24 h-24 rounded-full
-                           bg-white/10 border border-white/20
-                           flex items-center justify-center mb-7"
-                >
-
-                    <svg
-                        xmlns="http://www.w3.org/2000/svg"
-                        viewBox="0 0 24 24"
-                        fill="none"
-                        stroke="currentColor"
-                        stroke-width="1.5"
-                        class="w-14 h-14"
-                    >
-                        <path
-                            stroke-linecap="round"
-                            stroke-linejoin="round"
-                            d="M12 3c-1.6 0-2.5-.8-4-.8C4.8 2.2 3 4.9 3 8c0 3.7 1.4 5.9 2.2 8.8.5 1.7.8 4.2 2.2 4.2 1.7 0 1.7-4.8 4.6-4.8s2.9 4.8 4.6 4.8c1.4 0 1.7-2.5 2.2-4.2C19.6 13.9 21 11.7 21 8c0-3.1-1.8-5.8-5-5.8-1.5 0-2.4.8-4 .8Z"
-                        />
-                    </svg>
-
-                </div>
-
-                <p class="text-xs tracking-[0.35em] text-teal-100 mb-3">
-                    SISTEMA INTEGRAL
-                </p>
-
-                <h2 class="text-4xl font-bold mb-5">
-                    Laboratorio Dental
-                </h2>
-
-                <p class="text-teal-50 leading-7">
-                    Control, trazabilidad y seguimiento de la producción
-                    de piezas dentales en una sola plataforma.
-                </p>
-
-
-                <div class="grid grid-cols-3 gap-4 mt-10">
-
-                    <div>
-                        <div class="w-10 h-10 mx-auto bg-white/10 rounded-full flex items-center justify-center mb-2">
-                            ✓
-                        </div>
-
-                        <p class="text-xs">
-                            Producción
-                        </p>
-                    </div>
-
-                    <div>
-                        <div class="w-10 h-10 mx-auto bg-white/10 rounded-full flex items-center justify-center mb-2">
-                            ✓
-                        </div>
-
-                        <p class="text-xs">
-                            Inventario
-                        </p>
-                    </div>
-
-                    <div>
-                        <div class="w-10 h-10 mx-auto bg-white/10 rounded-full flex items-center justify-center mb-2">
-                            ✓
-                        </div>
-
-                        <p class="text-xs">
-                            Trazabilidad
-                        </p>
-                    </div>
-
-                </div>
-
-            </div>
-
-        </section>
-
-    </div>
-
+    </main>
 
     <script>
-        function togglePassword() {
-            const password = document.getElementById('password');
+        (() => {
+            const input = document.getElementById('password');
+            const button = document.getElementById('toggle-password');
 
-            password.type =
-                password.type === 'password'
-                    ? 'text'
-                    : 'password';
-        }
+            button.addEventListener('click', () => {
+                const visible = input.type === 'password';
+
+                input.type = visible ? 'text' : 'password';
+
+                button.textContent = visible ? 'Ocultar' : 'Mostrar';
+
+                button.setAttribute(
+                    'aria-pressed',
+                    String(visible)
+                );
+
+                button.setAttribute(
+                    'aria-label',
+                    visible ? 'Ocultar contraseña' : 'Mostrar contraseña'
+                );
+            });
+        })();
     </script>
 
 </body>

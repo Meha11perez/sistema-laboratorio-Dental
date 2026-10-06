@@ -17,7 +17,12 @@ class ProduccionController extends Controller
         // ==========================================
         $rol = auth()->user()?->role?->nombre;
 
-        if (!in_array($rol, ['Administrador', 'Recepcion'], true)) {
+        if (!in_array(
+            $rol,
+            ['Administrador', 'Recepcion'],
+            true
+        )) {
+
             abort(
                 403,
                 'No tiene permiso para consultar el módulo de producción.'
@@ -26,8 +31,8 @@ class ProduccionController extends Controller
 
 
         // ==========================================
-        // ESTADOS QUE YA NO FORMAN PARTE
-        // DE PRODUCCIÓN ACTIVA
+        // ESTADOS CERRADOS
+        // Ya no forman parte de producción activa
         // ==========================================
         $estadosCerrados = [
             'Terminado',
@@ -37,16 +42,32 @@ class ProduccionController extends Controller
 
 
         // ==========================================
+        // ÁREAS VÁLIDAS
+        // ==========================================
+        $areasValidas = [
+            'removible',
+            'fija',
+            'cromo_cobalto',
+            'ortodoncia',
+        ];
+
+
+        // ==========================================
         // SIN ASIGNAR
         // ==========================================
-        $sinAsignar = OrdenTrabajo::whereNull('tecnico_actual_id')
-            ->whereHas('estadoOrden', function ($query) use ($estadosCerrados) {
+        $sinAsignar = OrdenTrabajo::whereNull(
+                'tecnico_actual_id'
+            )
+            ->whereHas(
+                'estadoOrden',
+                function ($query) use ($estadosCerrados) {
 
-                $query->whereNotIn(
-                    'nombre',
-                    $estadosCerrados
-                );
-            })
+                    $query->whereNotIn(
+                        'nombre',
+                        $estadosCerrados
+                    );
+                }
+            )
             ->count();
 
 
@@ -98,7 +119,6 @@ class ProduccionController extends Controller
 
         // ==========================================
         // ATRASADAS
-        // Fecha estimada ya pasó y siguen activas
         // ==========================================
         $atrasadas = OrdenTrabajo::whereNotNull(
                 'fecha_entrega_estimada'
@@ -146,31 +166,85 @@ class ProduccionController extends Controller
 
         // ==========================================
         // BUSCAR
+        // Busca por:
+        // - Código general ORD
+        // - Código del área PR/PF/CC/AO
+        // - Nombre del paciente
+        // - Apellido del paciente
         // ==========================================
         if ($request->filled('buscar')) {
 
-            $buscar = $request->buscar;
+            $buscar = trim(
+                $request->buscar
+            );
 
-            $query->where(function ($q) use ($buscar) {
 
-                $q->where(
-                    'codigo',
-                    'like',
-                    '%' . $buscar . '%'
-                );
+            $query->where(
+                function ($q) use ($buscar) {
 
-                $q->orWhereHas(
-                    'paciente',
-                    function ($paciente) use ($buscar) {
+                    $q->where(
+                        'codigo',
+                        'like',
+                        '%' . $buscar . '%'
+                    );
 
-                        $paciente->where(
-                            'nombre',
-                            'like',
-                            '%' . $buscar . '%'
-                        );
-                    }
-                );
-            });
+                    $q->orWhere(
+                        'codigo_area',
+                        'like',
+                        '%' . $buscar . '%'
+                    );
+
+                    $q->orWhereHas(
+                        'paciente',
+                        function ($paciente) use ($buscar) {
+
+                            $paciente->where(
+                                'nombre',
+                                'like',
+                                '%' . $buscar . '%'
+                            );
+
+                            $paciente->orWhere(
+                                'apellido',
+                                'like',
+                                '%' . $buscar . '%'
+                            );
+                        }
+                    );
+                }
+            );
+        }
+
+
+        // ==========================================
+        // ÁREA
+        // ==========================================
+        if (
+            $request->filled('area')
+            &&
+            in_array(
+                $request->area,
+                $areasValidas,
+                true
+            )
+        ) {
+
+            $query->where(
+                'area_trabajo',
+                $request->area
+            );
+        }
+
+
+        // ==========================================
+        // ESTADO
+        // ==========================================
+        if ($request->filled('estado')) {
+
+            $query->where(
+                'estado_orden_id',
+                $request->estado
+            );
         }
 
 
@@ -191,7 +265,10 @@ class ProduccionController extends Controller
         // ==========================================
         if ($request->filled('tecnico')) {
 
-            if ($request->tecnico === 'sin_asignar') {
+            if (
+                $request->tecnico ===
+                'sin_asignar'
+            ) {
 
                 $query->whereNull(
                     'tecnico_actual_id'
@@ -208,21 +285,16 @@ class ProduccionController extends Controller
 
 
         // ==========================================
-        // ESTADO
-        // ==========================================
-        if ($request->filled('estado')) {
-
-            $query->where(
-                'estado_orden_id',
-                $request->estado
-            );
-        }
-
-
-        // ==========================================
         // SOLO ATRASADAS
         // ==========================================
-        if ($request->filtro === 'atrasadas') {
+        if (
+            $request->filtro ===
+            'atrasadas'
+        ) {
+
+            $query->whereNotNull(
+                'fecha_entrega_estimada'
+            );
 
             $query->whereDate(
                 'fecha_entrega_estimada',
@@ -239,37 +311,62 @@ class ProduccionController extends Controller
             ->orderByRaw(
                 'fecha_entrega_estimada IS NULL'
             )
-            ->orderBy('fecha_entrega_estimada')
-            ->orderByDesc('prioridad')
+            ->orderBy(
+                'fecha_entrega_estimada'
+            )
+            ->orderByDesc(
+                'prioridad'
+            )
             ->paginate(10)
             ->withQueryString();
 
 
         // ==========================================
-        // FILTROS
+        // ESTADOS PARA FILTRO
         // ==========================================
-        $estados = EstadoOrden::where('estado', true)
+        $estados = EstadoOrden::where(
+                'estado',
+                true
+            )
             ->whereNotIn(
                 'nombre',
                 $estadosCerrados
             )
-            ->orderBy('orden')
+            ->orderBy(
+                'orden'
+            )
             ->get();
 
 
+        // ==========================================
+        // ETAPAS PARA FILTRO
+        // ==========================================
         $etapas = EtapaProduccion::where(
                 'estado',
                 true
             )
-            ->orderBy('orden')
+            ->orderBy(
+                'orden'
+            )
             ->get();
 
 
-        $tecnicos = Tecnico::with('user')
-            ->where('estado', true)
+        // ==========================================
+        // TÉCNICOS PARA FILTRO
+        // ==========================================
+        $tecnicos = Tecnico::with(
+                'user'
+            )
+            ->where(
+                'estado',
+                true
+            )
             ->get();
 
 
+        // ==========================================
+        // VISTA
+        // ==========================================
         return view(
             'produccion.index',
             compact(

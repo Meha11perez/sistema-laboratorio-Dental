@@ -527,21 +527,32 @@
                 </p>
 
             </div>
-
-
-            {{-- CAJA --}}
+            {{-- ÁREA Y CÓDIGO ESPECIAL --}}
             <div>
 
+                @php
+                    $nombreArea = match($orden->area_trabajo) {
+                        'removible' => 'Prótesis Removibles',
+                        'fija' => 'Prótesis Fijas',
+                        'cromo_cobalto' => 'Cromo Cobalto',
+                        'ortodoncia' => 'Aparatos de Ortodoncia',
+                        default => 'Sin área',
+                    };
+                @endphp
+
                 <p class="text-xs font-semibold text-slate-400 uppercase">
-                    Código de caja
+                    Código del área
                 </p>
 
-                <p class="font-semibold text-slate-900 mt-1">
-                    {{ $orden->codigo_caja ?? '—' }}
+                <p class="font-semibold text-blue-700 mt-1">
+                    {{ $orden->codigo_area ?? '—' }}
+                </p>
+
+                <p class="text-sm text-slate-500 mt-1">
+                    {{ $nombreArea }}
                 </p>
 
             </div>
-
 
             {{-- TIPO --}}
             <div>

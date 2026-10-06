@@ -6,9 +6,9 @@
 
 <div class="max-w-7xl mx-auto">
 
-    {{-- =========================
+    {{-- =========================================================
          ENCABEZADO
-    ========================== --}}
+    ========================================================== --}}
     <div class="mb-8">
 
         <p class="text-sm font-semibold text-teal-700">
@@ -26,219 +26,263 @@
     </div>
 
 
-    {{-- =========================
+    {{-- =========================================================
          FILTROS
-    ========================== --}}
+    ========================================================== --}}
     <form
         method="GET"
         action="{{ route('agenda.index') }}"
-        class="bg-white border border-slate-200 rounded-xl
-               p-5 mb-8 shadow-sm"
+        class="bg-white border border-slate-200 rounded-xl p-5 mb-8 shadow-sm"
     >
 
-        <div class="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-6 gap-4">
+        @if(!($esTecnico ?? false))
 
-            {{-- FECHA --}}
-            <div>
+            <div class="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-6 gap-4">
 
-                <label class="block text-sm font-semibold text-slate-700 mb-2">
-                    Fecha
-                </label>
+                {{-- FECHA --}}
+                <div>
 
-                <input
-                    type="date"
-                    name="fecha"
-                    value="{{ $fecha }}"
-                    class="w-full border border-slate-300
-                           rounded-lg px-4 py-2.5"
-                >
+                    <label class="block text-sm font-semibold text-slate-700 mb-2">
+                        Fecha
+                    </label>
 
-            </div>
+                    <input
+                        type="date"
+                        name="fecha"
+                        value="{{ $fecha }}"
+                        class="w-full border border-slate-300 rounded-lg px-4 py-2.5"
+                    >
+
+                </div>
 
 
-            {{-- ODONTÓLOGO --}}
-            <div>
+                {{-- ODONTÓLOGO --}}
+                <div>
 
-                <label class="block text-sm font-semibold text-slate-700 mb-2">
-                    Odontólogo
-                </label>
+                    <label class="block text-sm font-semibold text-slate-700 mb-2">
+                        Odontólogo
+                    </label>
 
-                <select
-                    name="odontologo"
-                    class="w-full border border-slate-300
-                           rounded-lg px-4 py-2.5 bg-white"
-                >
+                    <select
+                        name="odontologo"
+                        class="w-full border border-slate-300 rounded-lg px-4 py-2.5 bg-white"
+                    >
 
-                    <option value="">
-                        Todos
-                    </option>
-
-                    @foreach($odontologos as $odontologo)
-
-                        <option
-                            value="{{ $odontologo->id }}"
-                            @selected(request('odontologo') == $odontologo->id)
-                        >
-                            {{ $odontologo->nombre }}
+                        <option value="">
+                            Todos
                         </option>
 
-                    @endforeach
-
-                </select>
-
-            </div>
-
-
-            {{-- PACIENTE --}}
-            <div>
-
-                <label class="block text-sm font-semibold text-slate-700 mb-2">
-                    Paciente
-                </label>
-
-                <select
-                    name="paciente"
-                    class="w-full border border-slate-300
-                           rounded-lg px-4 py-2.5 bg-white"
-                >
-
-                    <option value="">
-                        Todos
-                    </option>
-
-                    @foreach($pacientes as $paciente)
-
-                        <option
-                            value="{{ $paciente->id }}"
-                            @selected(request('paciente') == $paciente->id)
-                        >
-                            {{ $paciente->nombre }}
-                            {{ $paciente->apellido }}
-                        </option>
-
-                    @endforeach
-
-                </select>
-
-            </div>
-
-
-            {{-- ESTADO --}}
-            <div>
-
-                <label class="block text-sm font-semibold text-slate-700 mb-2">
-                    Estado
-                </label>
-
-                <select
-                    name="estado"
-                    class="w-full border border-slate-300
-                           rounded-lg px-4 py-2.5 bg-white"
-                >
-
-                    <option value="">
-                        Todos
-                    </option>
-
-                    @foreach($estados as $estado)
-
-                        @if($estado->nombre !== 'Cancelado')
+                        @foreach($odontologos as $odontologo)
 
                             <option
-                                value="{{ $estado->id }}"
-                                @selected(request('estado') == $estado->id)
+                                value="{{ $odontologo->id }}"
+                                @selected(request('odontologo') == $odontologo->id)
                             >
-                                {{ $estado->nombre }}
+                                {{ $odontologo->nombre }}
                             </option>
 
-                        @endif
+                        @endforeach
 
-                    @endforeach
+                    </select>
 
-                </select>
+                </div>
+
+
+                {{-- PACIENTE --}}
+                <div>
+
+                    <label class="block text-sm font-semibold text-slate-700 mb-2">
+                        Paciente
+                    </label>
+
+                    <select
+                        name="paciente"
+                        class="w-full border border-slate-300 rounded-lg px-4 py-2.5 bg-white"
+                    >
+
+                        <option value="">
+                            Todos
+                        </option>
+
+                        @foreach($pacientes as $paciente)
+
+                            <option
+                                value="{{ $paciente->id }}"
+                                @selected(request('paciente') == $paciente->id)
+                            >
+                                {{ $paciente->nombre }}
+                                {{ $paciente->apellido }}
+                            </option>
+
+                        @endforeach
+
+                    </select>
+
+                </div>
+
+
+                {{-- ESTADO --}}
+                <div>
+
+                    <label class="block text-sm font-semibold text-slate-700 mb-2">
+                        Estado
+                    </label>
+
+                    <select
+                        name="estado"
+                        class="w-full border border-slate-300 rounded-lg px-4 py-2.5 bg-white"
+                    >
+
+                        <option value="">
+                            Todos
+                        </option>
+
+                        @foreach($estados as $estado)
+
+                            @if($estado->nombre !== 'Cancelado')
+
+                                <option
+                                    value="{{ $estado->id }}"
+                                    @selected(request('estado') == $estado->id)
+                                >
+                                    {{ $estado->nombre }}
+                                </option>
+
+                            @endif
+
+                        @endforeach
+
+                    </select>
+
+                </div>
+
+
+                {{-- ÁREA DE TRABAJO --}}
+                <div>
+
+                    <label class="block text-sm font-semibold text-slate-700 mb-2">
+                        Área
+                    </label>
+
+                    <select
+                        name="area"
+                        class="w-full border border-slate-300 rounded-lg px-4 py-2.5 bg-white"
+                    >
+
+                        <option value="">
+                            Todas
+                        </option>
+
+                        <option
+                            value="removible"
+                            @selected(request('area') === 'removible')
+                        >
+                            Prótesis Removibles
+                        </option>
+
+                        <option
+                            value="fija"
+                            @selected(request('area') === 'fija')
+                        >
+                            Prótesis Fijas
+                        </option>
+
+                        <option
+                            value="cromo_cobalto"
+                            @selected(request('area') === 'cromo_cobalto')
+                        >
+                            Cromo Cobalto
+                        </option>
+
+                        <option
+                            value="ortodoncia"
+                            @selected(request('area') === 'ortodoncia')
+                        >
+                            Aparatos de Ortodoncia
+                        </option>
+
+                    </select>
+
+                </div>
+
+
+                {{-- PRIORIDAD --}}
+                <div>
+
+                    <label class="block text-sm font-semibold text-slate-700 mb-2">
+                        Prioridad
+                    </label>
+
+                    <select
+                        name="prioridad"
+                        class="w-full border border-slate-300 rounded-lg px-4 py-2.5 bg-white"
+                    >
+
+                        <option value="">
+                            Todas
+                        </option>
+
+                        <option
+                            value="Normal"
+                            @selected(request('prioridad') === 'Normal')
+                        >
+                            Normal
+                        </option>
+
+                        <option
+                            value="Urgente"
+                            @selected(request('prioridad') === 'Urgente')
+                        >
+                            Urgente
+                        </option>
+
+                    </select>
+
+                </div>
 
             </div>
 
+        @else
 
-            {{-- CATEGORÍA --}}
-            <div>
+            {{-- FILTRO PARA TÉCNICO --}}
+            <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
 
-                <label class="block text-sm font-semibold text-slate-700 mb-2">
-                    Categoría
-                </label>
+                <div>
 
-                <select
-                    name="categoria"
-                    class="w-full border border-slate-300
-                           rounded-lg px-4 py-2.5 bg-white"
-                >
+                    <label class="block text-sm font-semibold text-slate-700 mb-2">
+                        Prioridad
+                    </label>
 
-                    <option value="">
-                        Todas
-                    </option>
-
-                    <option
-                        value="removible"
-                        @selected(request('categoria') === 'removible')
+                    <select
+                        name="prioridad"
+                        class="w-full border border-slate-300 rounded-lg px-4 py-2.5 bg-white"
                     >
-                        Removible
-                    </option>
 
-                    <option
-                        value="fija"
-                        @selected(request('categoria') === 'fija')
-                    >
-                        Fija
-                    </option>
+                        <option value="">
+                            Todas
+                        </option>
 
-                    <option
-                        value="ortodoncia"
-                        @selected(request('categoria') === 'ortodoncia')
-                    >
-                        Ortodoncia
-                    </option>
+                        <option
+                            value="Normal"
+                            @selected(request('prioridad') === 'Normal')
+                        >
+                            Normal
+                        </option>
 
-                </select>
+                        <option
+                            value="Urgente"
+                            @selected(request('prioridad') === 'Urgente')
+                        >
+                            Urgente
+                        </option>
+
+                    </select>
+
+                </div>
 
             </div>
 
-
-            {{-- PRIORIDAD --}}
-            <div>
-
-                <label class="block text-sm font-semibold text-slate-700 mb-2">
-                    Prioridad
-                </label>
-
-                <select
-                    name="prioridad"
-                    class="w-full border border-slate-300
-                           rounded-lg px-4 py-2.5 bg-white"
-                >
-
-                    <option value="">
-                        Todas
-                    </option>
-
-                    <option
-                        value="Normal"
-                        @selected(request('prioridad') === 'Normal')
-                    >
-                        Normal
-                    </option>
-
-                    <option
-                        value="Urgente"
-                        @selected(request('prioridad') === 'Urgente')
-                    >
-                        Urgente
-                    </option>
-
-                </select>
-
-            </div>
-
-        </div>
+        @endif
 
 
         {{-- BOTONES --}}
@@ -248,7 +292,7 @@
                 href="{{ route('agenda.index') }}"
                 class="px-5 py-2.5 border border-slate-300
                        rounded-lg text-slate-600 font-semibold
-                       hover:bg-slate-50"
+                       hover:bg-slate-50 transition"
             >
                 Limpiar
             </a>
@@ -257,7 +301,7 @@
                 type="submit"
                 class="px-6 py-2.5 bg-teal-700
                        hover:bg-teal-800 text-white
-                       rounded-lg font-semibold"
+                       rounded-lg font-semibold transition"
             >
                 Filtrar
             </button>
@@ -267,9 +311,9 @@
     </form>
 
 
-    {{-- =========================
+    {{-- =========================================================
          FECHA Y NAVEGACIÓN
-    ========================== --}}
+    ========================================================== --}}
     <div class="mb-6 bg-white border border-slate-200
                 rounded-xl px-6 py-4 shadow-sm
                 flex flex-col md:flex-row
@@ -293,74 +337,124 @@
         </div>
 
 
-        {{-- NAVEGACIÓN --}}
-        <div class="flex items-center gap-2">
+        {{-- NAVEGACIÓN SOLO ADMIN / RECEPCIÓN --}}
+        @if(!($esTecnico ?? false))
 
-            {{-- ANTERIOR --}}
-            <a
-                href="{{ route('agenda.index', [
-                    'fecha' => \Carbon\Carbon::parse($fecha)
-                        ->subDay()
-                        ->toDateString()
-                ]) }}"
-                class="px-4 py-2 border border-slate-300
-                       rounded-lg text-sm font-semibold
-                       text-slate-600 hover:bg-slate-50 transition"
-            >
-                ← Anterior
-            </a>
+            <div class="flex flex-wrap items-center gap-2">
 
-
-            {{-- HOY --}}
-            <a
-                href="{{ route('agenda.index', [
-                    'fecha' => now()->toDateString()
-                ]) }}"
-                class="px-4 py-2 bg-teal-50 text-teal-700
-                       rounded-lg text-sm font-semibold
-                       hover:bg-teal-100 transition"
-            >
-                Hoy
-            </a>
+                {{-- ANTERIOR --}}
+                <a
+                    href="{{ route(
+                        'agenda.index',
+                        array_merge(
+                            request()->except('fecha'),
+                            [
+                                'fecha' => \Carbon\Carbon::parse($fecha)
+                                    ->subDay()
+                                    ->toDateString()
+                            ]
+                        )
+                    ) }}"
+                    class="px-4 py-2 border border-slate-300
+                           rounded-lg text-sm font-semibold
+                           text-slate-600 hover:bg-slate-50 transition"
+                >
+                    ← Anterior
+                </a>
 
 
-            {{-- SIGUIENTE --}}
-            <a
-                href="{{ route('agenda.index', [
-                    'fecha' => \Carbon\Carbon::parse($fecha)
-                        ->addDay()
-                        ->toDateString()
-                ]) }}"
-                class="px-4 py-2 border border-slate-300
-                       rounded-lg text-sm font-semibold
-                       text-slate-600 hover:bg-slate-50 transition"
-            >
-                Siguiente →
-            </a>
+                {{-- HOY --}}
+                <a
+                    href="{{ route(
+                        'agenda.index',
+                        array_merge(
+                            request()->except('fecha'),
+                            [
+                                'fecha' => \Carbon\Carbon::today(
+                                    'America/Guatemala'
+                                )->toDateString()
+                            ]
+                        )
+                    ) }}"
+                    class="px-4 py-2 bg-teal-50 text-teal-700
+                           rounded-lg text-sm font-semibold
+                           hover:bg-teal-100 transition"
+                >
+                    Hoy
+                </a>
 
-        </div>
+
+                {{-- SIGUIENTE --}}
+                <a
+                    href="{{ route(
+                        'agenda.index',
+                        array_merge(
+                            request()->except('fecha'),
+                            [
+                                'fecha' => \Carbon\Carbon::parse($fecha)
+                                    ->addDay()
+                                    ->toDateString()
+                            ]
+                        )
+                    ) }}"
+                    class="px-4 py-2 border border-slate-300
+                           rounded-lg text-sm font-semibold
+                           text-slate-600 hover:bg-slate-50 transition"
+                >
+                    Siguiente →
+                </a>
+
+            </div>
+
+        @else
+
+            <div class="px-4 py-2 bg-teal-50 text-teal-700
+                        rounded-lg text-sm font-semibold">
+                Mis trabajos asignados
+            </div>
+
+        @endif
 
     </div>
-    
-    {{-- ===========================
+
+
+    {{-- =========================================================
          PRÓTESIS REMOVIBLES
-    ============================ --}}
+    ========================================================== --}}
     <section class="mb-8">
 
         <div class="bg-teal-800 text-white px-6 py-4 rounded-t-xl">
-            <h2 class="font-bold text-lg">
-                PRÓTESIS REMOVIBLES
-            </h2>
+
+            <div class="flex items-center justify-between">
+
+                <h2 class="font-bold text-lg">
+                    PRÓTESIS REMOVIBLES
+                </h2>
+
+                <span class="text-xs font-semibold bg-white/20 px-3 py-1 rounded-full">
+                    PR
+                </span>
+
+            </div>
+
         </div>
+
 
         @forelse($removibles as $nombreEtapa => $grupo)
 
             <div class="bg-white border-x border-b border-slate-200">
 
-                <div class="bg-slate-100 px-6 py-3">
+                <div class="bg-slate-100 px-6 py-3 flex items-center justify-between">
+
                     <h3 class="font-bold text-slate-700 uppercase text-sm">
                         {{ $nombreEtapa }}
                     </h3>
+
+                    <span class="text-xs font-semibold text-slate-500">
+                        {{ $grupo->count() }}
+                        {{ $grupo->count() === 1 ? 'trabajo' : 'trabajos' }}
+                    </span>
+
                 </div>
 
                 @include('agenda.partials.tabla', [
@@ -371,7 +465,9 @@
 
         @empty
 
-            <div class="bg-white border border-slate-200 px-6 py-8 text-center text-slate-400">
+            <div class="bg-white border border-slate-200
+                        rounded-b-xl px-6 py-8
+                        text-center text-slate-400">
                 Sin trabajos removibles programados.
             </div>
 
@@ -379,59 +475,44 @@
 
     </section>
 
-    {{-- ===========================
-       PRÓTESIS FIJAS
-    ============================ --}}
-        <section class="mb-8">
 
-            <div class="bg-blue-900 text-white px-6 py-4 rounded-t-xl">
+    {{-- =========================================================
+         PRÓTESIS FIJAS
+    ========================================================== --}}
+    <section class="mb-8">
+
+        <div class="bg-blue-900 text-white px-6 py-4 rounded-t-xl">
+
+            <div class="flex items-center justify-between">
+
                 <h2 class="font-bold text-lg">
                     PRÓTESIS FIJAS
                 </h2>
+
+                <span class="text-xs font-semibold bg-white/20 px-3 py-1 rounded-full">
+                    PF
+                </span>
+
             </div>
 
-            @forelse($fijas as $nombreEtapa => $grupo)
-
-                <div class="bg-white border-x border-b border-slate-200">
-
-                    <div class="bg-slate-100 px-6 py-3">
-                        <h3 class="font-bold text-slate-700 uppercase text-sm">
-                            {{ $nombreEtapa }}
-                        </h3>
-                    </div>
-
-                    @include('agenda.partials.tabla', [
-                        'ordenesGrupo' => $grupo
-                    ])
-
-                </div>
-
-            @empty
-
-                <div class="bg-white border border-slate-200 px-6 py-8 text-center text-slate-400">
-                    Sin trabajos fijos programados.
-                </div>
-
-            @endforelse
-
-        </section>
-
-        <section class="mb-8">
-
-        <div class="bg-slate-800 text-white px-6 py-4 rounded-t-xl">
-            <h2 class="font-bold text-lg">
-                ORTODONCIA
-            </h2>
         </div>
 
-        @forelse($ortodoncia as $nombreEtapa => $grupo)
+
+        @forelse($fijas as $nombreEtapa => $grupo)
 
             <div class="bg-white border-x border-b border-slate-200">
 
-                <div class="bg-slate-100 px-6 py-3">
+                <div class="bg-slate-100 px-6 py-3 flex items-center justify-between">
+
                     <h3 class="font-bold text-slate-700 uppercase text-sm">
                         {{ $nombreEtapa }}
                     </h3>
+
+                    <span class="text-xs font-semibold text-slate-500">
+                        {{ $grupo->count() }}
+                        {{ $grupo->count() === 1 ? 'trabajo' : 'trabajos' }}
+                    </span>
+
                 </div>
 
                 @include('agenda.partials.tabla', [
@@ -442,11 +523,132 @@
 
         @empty
 
-            <div class="bg-white border border-slate-200 px-6 py-8 text-center text-slate-400">
+            <div class="bg-white border border-slate-200
+                        rounded-b-xl px-6 py-8
+                        text-center text-slate-400">
+                Sin trabajos fijos programados.
+            </div>
+
+        @endforelse
+
+    </section>
+
+
+    {{-- =========================================================
+         CROMO COBALTO
+    ========================================================== --}}
+    <section class="mb-8">
+
+        <div class="bg-indigo-800 text-white px-6 py-4 rounded-t-xl">
+
+            <div class="flex items-center justify-between">
+
+                <h2 class="font-bold text-lg">
+                    CROMO COBALTO
+                </h2>
+
+                <span class="text-xs font-semibold bg-white/20 px-3 py-1 rounded-full">
+                    CC
+                </span>
+
+            </div>
+
+        </div>
+
+
+        @forelse($cromoCobalto as $nombreEtapa => $grupo)
+
+            <div class="bg-white border-x border-b border-slate-200">
+
+                <div class="bg-slate-100 px-6 py-3 flex items-center justify-between">
+
+                    <h3 class="font-bold text-slate-700 uppercase text-sm">
+                        {{ $nombreEtapa }}
+                    </h3>
+
+                    <span class="text-xs font-semibold text-slate-500">
+                        {{ $grupo->count() }}
+                        {{ $grupo->count() === 1 ? 'trabajo' : 'trabajos' }}
+                    </span>
+
+                </div>
+
+                @include('agenda.partials.tabla', [
+                    'ordenesGrupo' => $grupo
+                ])
+
+            </div>
+
+        @empty
+
+            <div class="bg-white border border-slate-200
+                        rounded-b-xl px-6 py-8
+                        text-center text-slate-400">
+                Sin trabajos de Cromo Cobalto programados.
+            </div>
+
+        @endforelse
+
+    </section>
+
+
+    {{-- =========================================================
+         APARATOS DE ORTODONCIA
+    ========================================================== --}}
+    <section class="mb-8">
+
+        <div class="bg-slate-800 text-white px-6 py-4 rounded-t-xl">
+
+            <div class="flex items-center justify-between">
+
+                <h2 class="font-bold text-lg">
+                    APARATOS DE ORTODONCIA
+                </h2>
+
+                <span class="text-xs font-semibold bg-white/20 px-3 py-1 rounded-full">
+                    AO
+                </span>
+
+            </div>
+
+        </div>
+
+
+        @forelse($ortodoncia as $nombreEtapa => $grupo)
+
+            <div class="bg-white border-x border-b border-slate-200">
+
+                <div class="bg-slate-100 px-6 py-3 flex items-center justify-between">
+
+                    <h3 class="font-bold text-slate-700 uppercase text-sm">
+                        {{ $nombreEtapa }}
+                    </h3>
+
+                    <span class="text-xs font-semibold text-slate-500">
+                        {{ $grupo->count() }}
+                        {{ $grupo->count() === 1 ? 'trabajo' : 'trabajos' }}
+                    </span>
+
+                </div>
+
+                @include('agenda.partials.tabla', [
+                    'ordenesGrupo' => $grupo
+                ])
+
+            </div>
+
+        @empty
+
+            <div class="bg-white border border-slate-200
+                        rounded-b-xl px-6 py-8
+                        text-center text-slate-400">
                 Sin trabajos de ortodoncia programados.
             </div>
 
         @endforelse
 
     </section>
+
+</div>
+
 @endsection

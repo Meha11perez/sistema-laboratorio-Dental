@@ -23,7 +23,7 @@
             </h1>
 
             <p class="text-slate-500 mt-1">
-                Supervisión de trabajos activos por etapa,
+                Supervisión de trabajos activos por área, etapa,
                 técnico y fecha de entrega.
             </p>
 
@@ -37,7 +37,6 @@
     ========================================================== --}}
     <div class="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-4
                 gap-5 mb-8">
-
 
         {{-- SIN ASIGNAR --}}
         <a
@@ -66,9 +65,11 @@
 
 
         {{-- EN PRODUCCIÓN --}}
-        <div class="bg-white border border-slate-200
-                    border-l-4 border-l-blue-600
-                    rounded-xl shadow-sm p-5">
+        <div
+            class="bg-white border border-slate-200
+                   border-l-4 border-l-blue-600
+                   rounded-xl shadow-sm p-5"
+        >
 
             <p class="text-xs uppercase font-semibold text-slate-500">
                 En producción
@@ -85,10 +86,12 @@
         </div>
 
 
-        {{-- PRÓXIMAS --}}
-        <div class="bg-white border border-slate-200
-                    border-l-4 border-l-violet-500
-                    rounded-xl shadow-sm p-5">
+        {{-- PRÓXIMAS A ENTREGAR --}}
+        <div
+            class="bg-white border border-slate-200
+                   border-l-4 border-l-violet-500
+                   rounded-xl shadow-sm p-5"
+        >
 
             <p class="text-xs uppercase font-semibold text-slate-500">
                 Próximas a entregar
@@ -143,13 +146,15 @@
                rounded-xl shadow-sm p-5 mb-8"
     >
 
-        <div class="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-4 gap-4">
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
 
             {{-- BUSCAR --}}
             <div>
 
-                <label class="block text-xs font-semibold
-                              text-slate-600 mb-1">
+                <label
+                    class="block text-xs font-semibold
+                           text-slate-600 mb-1"
+                >
                     Buscar
                 </label>
 
@@ -157,7 +162,7 @@
                     type="text"
                     name="buscar"
                     value="{{ request('buscar') }}"
-                    placeholder="Orden o paciente..."
+                    placeholder="Orden, código o paciente..."
                     class="w-full border border-slate-300
                            rounded-lg px-3 py-2"
                 >
@@ -165,117 +170,53 @@
             </div>
 
 
-            {{-- ESTADO --}}
+            {{-- ÁREA --}}
             <div>
 
-                <label class="block text-xs font-semibold
-                              text-slate-600 mb-1">
-                    Estado
+                <label
+                    class="block text-xs font-semibold
+                           text-slate-600 mb-1"
+                >
+                    Área
                 </label>
 
                 <select
-                    name="estado"
+                    name="area"
                     class="w-full border border-slate-300
                            rounded-lg px-3 py-2 bg-white"
                 >
 
                     <option value="">
-                        Todos
-                    </option>
-
-                    @foreach($estados as $estado)
-
-                        <option
-                            value="{{ $estado->id }}"
-                            @selected(
-                                request('estado') == $estado->id
-                            )
-                        >
-                            {{ $estado->nombre }}
-                        </option>
-
-                    @endforeach
-
-                </select>
-
-            </div>
-
-
-            {{-- ETAPA --}}
-            <div>
-
-                <label class="block text-xs font-semibold
-                              text-slate-600 mb-1">
-                    Etapa
-                </label>
-
-                <select
-                    name="etapa"
-                    class="w-full border border-slate-300
-                           rounded-lg px-3 py-2 bg-white"
-                >
-
-                    <option value="">
-                        Todas
-                    </option>
-
-                    @foreach($etapas as $etapa)
-
-                        <option
-                            value="{{ $etapa->id }}"
-                            @selected(
-                                request('etapa') == $etapa->id
-                            )
-                        >
-                            {{ $etapa->nombre }}
-                        </option>
-
-                    @endforeach
-
-                </select>
-
-            </div>
-
-
-            {{-- TÉCNICO --}}
-            <div>
-
-                <label class="block text-xs font-semibold
-                              text-slate-600 mb-1">
-                    Técnico
-                </label>
-
-                <select
-                    name="tecnico"
-                    class="w-full border border-slate-300
-                           rounded-lg px-3 py-2 bg-white"
-                >
-
-                    <option value="">
-                        Todos
+                        Todas las áreas
                     </option>
 
                     <option
-                        value="sin_asignar"
-                        @selected(
-                            request('tecnico') === 'sin_asignar'
-                        )
+                        value="removible"
+                        @selected(request('area') === 'removible')
                     >
-                        Sin asignar
+                        Prótesis Removibles
                     </option>
 
-                    @foreach($tecnicos as $tecnico)
+                    <option
+                        value="fija"
+                        @selected(request('area') === 'fija')
+                    >
+                        Prótesis Fijas
+                    </option>
 
-                        <option
-                            value="{{ $tecnico->id }}"
-                            @selected(
-                                request('tecnico') == $tecnico->id
-                            )
-                        >
-                            {{ $tecnico->user?->name ?? 'Sin usuario' }}
-                        </option>
+                    <option
+                        value="cromo_cobalto"
+                        @selected(request('area') === 'cromo_cobalto')
+                    >
+                        Cromo Cobalto
+                    </option>
 
-                    @endforeach
+                    <option
+                        value="ortodoncia"
+                        @selected(request('area') === 'ortodoncia')
+                    >
+                        Aparatos de Ortodoncia
+                    </option>
 
                 </select>
 
@@ -284,12 +225,15 @@
         </div>
 
 
+        {{-- BOTONES --}}
         <div class="flex justify-end gap-3 mt-5">
 
             <a
                 href="{{ route('produccion.index') }}"
-                class="px-5 py-2 border border-slate-300
-                       rounded-lg text-slate-600
+                class="px-5 py-2
+                       border border-slate-300
+                       rounded-lg
+                       text-slate-600
                        hover:bg-slate-50"
             >
                 Limpiar
@@ -297,9 +241,12 @@
 
             <button
                 type="submit"
-                class="px-5 py-2 bg-blue-800
-                       text-white rounded-lg
-                       font-semibold hover:bg-blue-900"
+                class="px-5 py-2
+                       bg-blue-800
+                       text-white
+                       rounded-lg
+                       font-semibold
+                       hover:bg-blue-900"
             >
                 Filtrar
             </button>
@@ -312,8 +259,10 @@
     {{-- =========================================================
          TABLA DE PRODUCCIÓN ACTIVA
     ========================================================== --}}
-    <section class="bg-white border border-slate-200
-                    rounded-xl shadow-sm overflow-hidden">
+    <section
+        class="bg-white border border-slate-200
+               rounded-xl shadow-sm overflow-hidden"
+    >
 
         <div class="px-6 py-5 border-b border-slate-200">
 
@@ -333,7 +282,12 @@
 
             <table class="w-full text-sm">
 
-                <thead class="bg-slate-50 text-slate-500 uppercase text-xs">
+                <thead
+                    class="bg-slate-50
+                           text-slate-500
+                           uppercase
+                           text-xs"
+                >
 
                     <tr>
 
@@ -342,7 +296,11 @@
                         </th>
 
                         <th class="text-left px-5 py-4">
-                            Prótesis
+                            Área / Código
+                        </th>
+
+                        <th class="text-left px-5 py-4">
+                            Trabajo
                         </th>
 
                         <th class="text-left px-5 py-4">
@@ -384,34 +342,78 @@
                                 &&
                                 \Carbon\Carbon::parse(
                                     $orden->fecha_entrega_estimada
-                                )->startOfDay()->lt(
+                                )
+                                ->startOfDay()
+                                ->lt(
                                     now()->startOfDay()
                                 );
+
+                            $nombreArea = match(
+                                $orden->area_trabajo
+                            ) {
+
+                                'removible' =>
+                                    'Prótesis Removibles',
+
+                                'fija' =>
+                                    'Prótesis Fijas',
+
+                                'cromo_cobalto' =>
+                                    'Cromo Cobalto',
+
+                                'ortodoncia' =>
+                                    'Aparatos de Ortodoncia',
+
+                                default =>
+                                    'Sin área',
+
+                            };
 
                         @endphp
 
 
-                        <tr class="
-                            hover:bg-slate-50
-                            {{ $atrasada ? 'bg-red-50/40' : '' }}
-                        ">
+                        <tr
+                            class="
+                                hover:bg-slate-50
+                                {{ $atrasada
+                                    ? 'bg-red-50/40'
+                                    : ''
+                                }}
+                            "
+                        >
 
-                            {{-- ORDEN --}}
-                            <td class="px-5 py-4">
+                            {{-- =====================================
+                                 ORDEN
+                            ====================================== --}}
+                            <td class="px-5 py-4 align-top">
 
-                                <p class="font-bold text-blue-900">
+                                <p
+                                    class="font-bold
+                                           text-blue-900
+                                           whitespace-nowrap"
+                                >
                                     {{ $orden->codigo }}
                                 </p>
 
-                                <p class="text-xs text-slate-400 mt-1">
-                                    {{ $orden->paciente?->nombre ?? 'Sin paciente' }}
+                                <p
+                                    class="text-xs
+                                           text-slate-500
+                                           mt-1"
+                                >
+                                    {{ $orden->paciente?->nombre
+                                        ?? 'Sin paciente'
+                                    }}
                                 </p>
 
                                 @if($orden->prioridad === 'Urgente')
 
-                                    <span class="inline-block mt-1
-                                                 text-xs font-bold
-                                                 text-red-600">
+                                    <span
+                                        class="inline-block
+                                               mt-1
+                                               text-xs
+                                               font-bold
+                                               text-red-600"
+                                    >
                                         Urgente
                                     </span>
 
@@ -420,32 +422,65 @@
                             </td>
 
 
-                            {{-- PRÓTESIS --}}
-                            <td class="px-5 py-4">
+                            {{-- =====================================
+                                 ÁREA / CÓDIGO
+                            ====================================== --}}
+                            <td class="px-5 py-4 align-top">
 
-                                {{ $orden->tipoProtesis?->nombre ?? '—' }}
+                                <p class="font-semibold text-slate-800">
+                                    {{ $nombreArea }}
+                                </p>
+
+                                <p
+                                    class="text-xs
+                                           text-blue-700
+                                           font-semibold
+                                           mt-1
+                                           whitespace-nowrap"
+                                >
+                                    {{ $orden->codigo_area ?? '—' }}
+                                </p>
 
                             </td>
 
 
-                            {{-- ETAPA --}}
-                            <td class="px-5 py-4">
+                            {{-- =====================================
+                                 TIPO DE TRABAJO
+                            ====================================== --}}
+                            <td class="px-5 py-4 align-top">
+
+                                <p class="font-medium text-slate-800">
+                                    {{ $orden->tipoProtesis?->nombre ?? '—' }}
+                                </p>
+
+                            </td>
+
+
+                            {{-- =====================================
+                                 ETAPA
+                            ====================================== --}}
+                            <td class="px-5 py-4 align-top">
 
                                 @if($orden->etapaActual)
 
-                                    <span class="inline-flex px-3 py-1
-                                                 rounded-full
-                                                 bg-violet-50
-                                                 text-violet-700
-                                                 text-xs font-semibold">
-
+                                    <span
+                                        class="inline-flex
+                                               px-3 py-1
+                                               rounded-full
+                                               bg-violet-50
+                                               text-violet-700
+                                               text-xs
+                                               font-semibold"
+                                    >
                                         {{ $orden->etapaActual->nombre }}
-
                                     </span>
 
                                 @else
 
-                                    <span class="text-amber-600 font-semibold">
+                                    <span
+                                        class="text-amber-600
+                                               font-semibold"
+                                    >
                                         Sin etapa
                                     </span>
 
@@ -454,17 +489,31 @@
                             </td>
 
 
-                            {{-- TÉCNICO --}}
-                            <td class="px-5 py-4">
+                            {{-- =====================================
+                                 TÉCNICO
+                            ====================================== --}}
+                            <td class="px-5 py-4 align-top">
 
                                 @if($orden->tecnicoActual)
 
-                                    {{ $orden->tecnicoActual->user?->name
-                                        ?? 'Técnico #' . $orden->tecnicoActual->id }}
+                                    <p class="font-medium text-slate-800">
+
+                                        {{
+                                            $orden->tecnicoActual
+                                                ->user?->name
+                                            ??
+                                            'Técnico #' .
+                                            $orden->tecnicoActual->id
+                                        }}
+
+                                    </p>
 
                                 @else
 
-                                    <span class="text-amber-600 font-semibold">
+                                    <span
+                                        class="text-amber-600
+                                               font-semibold"
+                                    >
                                         Sin asignar
                                     </span>
 
@@ -473,27 +522,37 @@
                             </td>
 
 
-                            {{-- ESTADO --}}
-                            <td class="px-5 py-4">
+                            {{-- =====================================
+                                 ESTADO
+                            ====================================== --}}
+                            <td class="px-5 py-4 align-top">
 
                                 @if($estado === 'En proceso')
 
-                                    <span class="bg-blue-100
-                                                 text-blue-700
-                                                 px-3 py-1 rounded-full
-                                                 text-xs font-semibold">
+                                    <span
+                                        class="inline-flex
+                                               bg-blue-100
+                                               text-blue-700
+                                               px-3 py-1
+                                               rounded-full
+                                               text-xs
+                                               font-semibold"
+                                    >
                                         En proceso
                                     </span>
 
                                 @else
 
-                                    <span class="bg-amber-100
-                                                 text-amber-700
-                                                 px-3 py-1 rounded-full
-                                                 text-xs font-semibold">
-
+                                    <span
+                                        class="inline-flex
+                                               bg-amber-100
+                                               text-amber-700
+                                               px-3 py-1
+                                               rounded-full
+                                               text-xs
+                                               font-semibold"
+                                    >
                                         {{ $estado ?? 'Pendiente' }}
-
                                     </span>
 
                                 @endif
@@ -501,27 +560,41 @@
                             </td>
 
 
-                            {{-- ENTREGA --}}
-                            <td class="px-5 py-4">
+                            {{-- =====================================
+                                 ENTREGA
+                            ====================================== --}}
+                            <td class="px-5 py-4 align-top">
 
                                 @if($orden->fecha_entrega_estimada)
 
-                                    <p class="
-                                        font-semibold
-                                        {{ $atrasada
-                                            ? 'text-red-700'
-                                            : 'text-slate-700' }}
-                                    ">
+                                    <p
+                                        class="
+                                            font-semibold
+                                            whitespace-nowrap
+                                            {{
+                                                $atrasada
+                                                    ? 'text-red-700'
+                                                    : 'text-slate-700'
+                                            }}
+                                        "
+                                    >
 
-                                        {{ \Carbon\Carbon::parse(
-                                            $orden->fecha_entrega_estimada
-                                        )->format('d/m/Y') }}
+                                        {{
+                                            \Carbon\Carbon::parse(
+                                                $orden
+                                                    ->fecha_entrega_estimada
+                                            )->format('d/m/Y')
+                                        }}
 
                                     </p>
 
                                     @if($atrasada)
 
-                                        <span class="text-xs font-bold text-red-600">
+                                        <span
+                                            class="text-xs
+                                                   font-bold
+                                                   text-red-600"
+                                        >
                                             Atrasada
                                         </span>
 
@@ -538,39 +611,59 @@
                             </td>
 
 
-                            {{-- ACCIÓN --}}
-                            <td class="px-5 py-4 text-right">
-                            <a
-                                href="{{ route('ordenes.show', [
-                                    'orden' => $orden,
-                                    'origen' => 'produccion',
-                                ]) }}"
-                                class="text-blue-700
-                                    font-semibold
-                                    hover:underline">
-                                    
-                                Gestionar
-                            </a>
+                            {{-- =====================================
+                                 ACCIÓN
+                            ====================================== --}}
+                            <td
+                                class="px-5 py-4
+                                       text-right
+                                       align-top"
+                            >
+
+                                <a
+                                    href="{{ route(
+                                        'ordenes.show',
+                                        [
+                                            'orden' => $orden,
+                                            'origen' => 'produccion',
+                                        ]
+                                    ) }}"
+                                    class="text-blue-700
+                                           font-semibold
+                                           hover:underline
+                                           whitespace-nowrap"
+                                >
+                                    Gestionar
+                                </a>
+
                             </td>
 
                         </tr>
+
 
                     @empty
 
                         <tr>
 
                             <td
-                                colspan="7"
+                                colspan="8"
                                 class="px-6 py-12 text-center"
                             >
 
-                                <p class="font-semibold text-slate-600">
+                                <p
+                                    class="font-semibold
+                                           text-slate-600"
+                                >
                                     No hay trabajos activos.
                                 </p>
 
-                                <p class="text-sm text-slate-400 mt-1">
-                                    No se encontraron órdenes que requieran
-                                    seguimiento de producción.
+                                <p
+                                    class="text-sm
+                                           text-slate-400
+                                           mt-1"
+                                >
+                                    No se encontraron órdenes que
+                                    requieran seguimiento de producción.
                                 </p>
 
                             </td>
@@ -586,6 +679,7 @@
         </div>
 
 
+        {{-- PAGINACIÓN --}}
         @if($ordenes->hasPages())
 
             <div class="px-6 py-4 border-t border-slate-200">

@@ -2,6 +2,10 @@
 
 return [
 
+   'failed' => 'El correo o la contraseña son incorrectos, o su cuenta está desactivada.',
+    'password' => 'La contraseña es incorrecta.',
+    'throttle' => 'Demasiados intentos de acceso. Intente nuevamente en :seconds segundos.',
+
     'accepted' => 'El campo :attribute debe ser aceptado.',
     'accepted_if' => 'El campo :attribute debe ser aceptado cuando :other sea :value.',
     'active_url' => 'El campo :attribute debe contener una URL válida.',

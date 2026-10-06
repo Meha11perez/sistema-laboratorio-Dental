@@ -14,13 +14,20 @@ class TipoProtesis extends Model
         'categoria',
         'descripcion',
         'estado',
+        'area_trabajo',
     ];
+
     protected $casts = [
         'estado' => 'boolean',
     ];
 
+    public function permiteArea(string $area): bool
+    {
+        return $this->area_trabajo === $area;
+    }
+
     public function ordenesTrabajo(): HasMany
-        {
-            return $this->hasMany(OrdenTrabajo::class);
-        }
+    {
+        return $this->hasMany(OrdenTrabajo::class);
+    }
 }

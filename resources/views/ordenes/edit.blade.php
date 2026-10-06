@@ -31,7 +31,6 @@
 
     </div>
 
-
     @if ($errors->any())
 
         <div class="mb-6 bg-red-50 border border-red-200 rounded-xl p-4 text-red-700">
@@ -51,7 +50,6 @@
         </div>
 
     @endif
-
 
     <form
         method="POST"
@@ -76,7 +74,6 @@
 
             </div>
 
-
             <div class="p-6 grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
 
                 {{-- CÓDIGO --}}
@@ -94,21 +91,24 @@
                     >
                 </div>
 
-
-                {{-- CAJA --}}
+                {{-- CÓDIGO DEL ÁREA --}}
                 <div>
-                    <label class="block text-sm font-semibold text-slate-700 mb-2">
-                        Código de caja
-                    </label>
 
-                    <input
-                        type="text"
-                        name="codigo_caja"
-                        value="{{ old('codigo_caja', $orden->codigo_caja) }}"
-                        class="w-full border border-slate-300 rounded-lg px-4 py-3"
-                    >
+                    <p class="text-xs
+                            font-semibold
+                            text-slate-400
+                            uppercase">
+                        Código del área
+                    </p>
+
+                    <p class="font-semibold
+                            text-blue-700
+                            mt-1">
+                        {{ $orden->codigo_area
+                            ?? 'Orden anterior sin código de área' }}
+                    </p>
+
                 </div>
-
 
                 {{-- PRIORIDAD --}}
                 <div>
@@ -139,7 +139,6 @@
                     </select>
                 </div>
 
-
                 {{-- ODONTÓLOGO --}}
                 <div>
                     <label class="block text-sm font-semibold text-slate-700 mb-2">
@@ -168,7 +167,6 @@
 
                     </select>
                 </div>
-
 
                 {{-- PACIENTE --}}
                 <div>
@@ -200,39 +198,9 @@
                     </select>
                 </div>
 
-
-                {{-- TIPO PRÓTESIS --}}
-                <div>
-                    <label class="block text-sm font-semibold text-slate-700 mb-2">
-                        Tipo de prótesis *
-                    </label>
-
-                    <select
-                        name="tipo_protesis_id"
-                        required
-                        class="w-full border border-slate-300 rounded-lg px-4 py-3 bg-white"
-                    >
-
-                        @foreach ($tiposProtesis as $tipo)
-
-                            <option
-                                value="{{ $tipo->id }}"
-                                @selected(
-                                    old('tipo_protesis_id', $orden->tipo_protesis_id)
-                                    == $tipo->id
-                                )
-                            >
-                                {{ ucfirst($tipo->categoria) }}
-                                — {{ $tipo->nombre }}
-                            </option>
-
-                        @endforeach
-
-                    </select>
-                </div>
+                @include('ordenes.partials.produccion')
 
             </div>
-
 
             {{-- ESTADO Y PRODUCCIÓN --}}
             <div class="p-6 border-y border-slate-200 bg-slate-50">
@@ -243,8 +211,7 @@
 
             </div>
 
-
-            <div class="p-6 grid grid-cols-1 md:grid-cols-3 gap-6">
+            <div class="p-6 grid grid-cols-1 md:grid-cols-2 gap-6">
 
                 {{-- ESTADO --}}
                 <div>
@@ -276,42 +243,6 @@
                     </select>
 
                 </div>
-
-
-                {{-- ETAPA --}}
-                <div>
-
-                    <label class="block text-sm font-semibold text-slate-700 mb-2">
-                        Etapa actual
-                    </label>
-
-                    <select
-                        name="etapa_actual_id"
-                        class="w-full border border-slate-300 rounded-lg px-4 py-3 bg-white"
-                    >
-
-                        <option value="">
-                            Sin asignar
-                        </option>
-
-                        @foreach ($etapas as $etapa)
-
-                            <option
-                                value="{{ $etapa->id }}"
-                                @selected(
-                                    old('etapa_actual_id', $orden->etapa_actual_id)
-                                    == $etapa->id
-                                )
-                            >
-                                {{ $etapa->nombre }}
-                            </option>
-
-                        @endforeach
-
-                    </select>
-
-                </div>
-
 
                 {{-- TÉCNICO --}}
                 <div>
@@ -349,7 +280,6 @@
 
             </div>
 
-
             {{-- FECHAS --}}
             <div class="p-6 border-y border-slate-200 bg-slate-50">
 
@@ -358,7 +288,6 @@
                 </h2>
 
             </div>
-
 
             <div class="p-6 grid grid-cols-1 md:grid-cols-3 gap-6">
 
@@ -376,12 +305,10 @@
                             'fecha_ingreso',
                             $orden->fecha_ingreso?->format('Y-m-d')
                         ) }}"
-                        min="{{ now()->format('Y-m-d') }}"
                         class="w-full border border-slate-300 rounded-lg px-4 py-3"
                     >
 
                 </div>
-
 
                 <div>
 
@@ -393,12 +320,10 @@
                         type="date"
                         name="fecha_entrega_estimada"
                         value="{{ old('fecha_entrega_estimada', $orden->fecha_entrega_estimada?->format('Y-m-d')) }}"
-                        min="{{ now()->format('Y-m-d') }}"
                         class="w-full border border-slate-300 rounded-lg px-4 py-3"
                     >
 
                 </div>
-
 
                 <div>
 
@@ -420,7 +345,6 @@
 
             </div>
 
-
             {{-- DATOS DEL TRABAJO --}}
             <div class="p-6 border-y border-slate-200 bg-slate-50">
 
@@ -429,7 +353,6 @@
                 </h2>
 
             </div>
-
 
             <div class="p-6 grid grid-cols-1 md:grid-cols-3 gap-6">
 
@@ -451,6 +374,22 @@
 
                 </div>
 
+                {{-- TOTAL --}}
+                <div>
+                    <label for="total" class="block text-sm font-semibold text-slate-700 mb-2">
+                        Total de la orden (Q)
+                    </label>
+                    <input
+                        id="total"
+                        type="number"
+                        name="total"
+                        min="0"
+                        step="0.01"
+                        required
+                        value="{{ old('total', $orden->total ?? 0) }}"
+                        class="w-full border border-slate-300 rounded-lg px-4 py-3"
+                    >
+                </div>
 
                 {{-- COLOR --}}
                 <div>
@@ -486,7 +425,6 @@
 
             </div>
 
-
             {{-- OBSERVACIONES --}}
             <div class="px-6 pb-6">
 
@@ -501,7 +439,6 @@
                 >{{ old('observaciones', $orden->observaciones) }}</textarea>
 
             </div>
-
 
             {{-- BOTONES --}}
             <div class="px-6 py-5 bg-slate-50 border-t border-slate-200 flex justify-end gap-3">

@@ -116,6 +116,35 @@ private function verificarOrdenTecnico(
             );
         }
     }
+    private function validarProduccion(array $datos): void
+    {
+        $area = (string) $datos['area_trabajo'];
+        $tipo = TipoProtesis::findOrFail($datos['tipo_protesis_id']);
+
+        if (!$tipo->estado || !$tipo->permiteArea($area)) {
+            throw \Illuminate\Validation\ValidationException::withMessages([
+                'tipo_protesis_id' =>
+                    'El tipo de trabajo debe estar activo y corresponder al área seleccionada.',
+            ]);
+        }
+
+        if (!empty($datos['etapa_actual_id'])) {
+            $etapa = EtapaProduccion::findOrFail($datos['etapa_actual_id']);
+
+            if (!$etapa->estado || !$etapa->permiteArea($area)) {
+                throw \Illuminate\Validation\ValidationException::withMessages([
+                    'etapa_actual_id' =>
+                        'La etapa debe estar activa y corresponder al área seleccionada.',
+                ]);
+            }
+        } elseif (!empty($datos['tecnico_actual_id'])) {
+            throw \Illuminate\Validation\ValidationException::withMessages([
+                'etapa_actual_id' =>
+                    'Seleccione una etapa antes de asignar un técnico.',
+            ]);
+        }
+    }
+
 public function create()
     {
         $odontologos = Odontologo::where('estado', true)
@@ -151,64 +180,68 @@ public function create()
             'etapas',
             'tecnicos'
 
-        
         ));
     }
-    
+
 public function store(Request $request)
      {
         $datos = $request->validate([
-        'codigo_caja' => 'nullable|string|max:20',
 
-        'odontologo_id' => 'required|exists:odontologos,id',
-        'paciente_id' => 'required|exists:pacientes,id',
-        'tipo_protesis_id' => 'required|exists:tipos_protesis,id',
-
-        'etapa_actual_id' => 'nullable|exists:etapas_produccion,id',
-        'tecnico_actual_id' => 'nullable|exists:tecnicos,id',
-
-        'fecha_ingreso' => [
+            'area_trabajo' => [
             'required',
-            'date',
-            'after_or_equal:today',
-        ],
+            'in:removible,fija,cromo_cobalto,ortodoncia',
 
-        'fecha_entrega_estimada' => [
-            'nullable',
-            'date',
-            'after_or_equal:today',
-            'after_or_equal:fecha_ingreso',
-        ],
+            ],
 
-        'cantidad' => 'required|integer|min:1',
+            'odontologo_id' => 'required|exists:odontologos,id',
+            'paciente_id' => 'required|exists:pacientes,id',
+            'tipo_protesis_id' => 'required|exists:tipos_protesis,id',
 
-        'especificaciones' => 'required|string',
-        'observaciones' => 'nullable|string',
-        'color' => 'nullable|string|max:100',
+            'etapa_actual_id' => 'nullable|exists:etapas_produccion,id',
+            'tecnico_actual_id' => 'nullable|exists:tecnicos,id',
 
-        'prioridad' => 'required|in:Normal,Urgente',
+            'fecha_ingreso' => [
+                'required',
+                'date',
+                'after_or_equal:today',
+            ],
 
-        'total' => 'nullable|numeric|min:0',
+            'fecha_entrega_estimada' => [
+                'nullable',
+                'date',
+                'after_or_equal:today',
+                'after_or_equal:fecha_ingreso',
+            ],
 
-        'tipo_orden' => 'required|in:Nueva,Repeticion',
+            'cantidad' => 'required|integer|min:1',
 
-        'orden_origen_id' => [
-            'nullable',
-            'required_if:tipo_orden,Repeticion',
-            'exists:ordenes_trabajo,id',
-        ],
+            'especificaciones' => 'required|string',
+            'observaciones' => 'nullable|string',
+            'color' => 'nullable|string|max:100',
 
-        'devolucion_id' => [
-            'nullable',
-            'exists:devoluciones,id',
-        ],
+            'prioridad' => 'required|in:Normal,Urgente',
+
+            'total' => 'nullable|numeric|min:0',
+
+            'tipo_orden' => 'required|in:Nueva,Repeticion',
+
+            'orden_origen_id' => [
+                'nullable',
+                'required_if:tipo_orden,Repeticion',
+                'exists:ordenes_trabajo,id',
+            ],
+
+            'devolucion_id' => [
+                'nullable',
+                'exists:devoluciones,id',
+            ],
         ]);
+        $this->validarProduccion($datos);
 
-    $estadoInicial = EstadoOrden::where('nombre', 'Pendiente')
-        ->firstOrFail();
+        $estadoInicial = EstadoOrden::where('nombre', 'Pendiente')
+           ->firstOrFail();
 
-
-    $ultimaOrden = OrdenTrabajo::latest('id')->first();
+        $ultimaOrden = OrdenTrabajo::latest('id')->first();
 
     $numero = $ultimaOrden
         ? $ultimaOrden->id + 1
@@ -236,7 +269,7 @@ public function store(Request $request)
         $orden = OrdenTrabajo::create([
             'codigo' => $codigo,
 
-            'codigo_caja' => $datos['codigo_caja'] ?? null,
+            'area_trabajo' => $datos['area_trabajo'],
 
             'odontologo_id' => $datos['odontologo_id'],
             'paciente_id' => $datos['paciente_id'],
@@ -269,11 +302,40 @@ public function store(Request $request)
             'tipo_orden' => $datos['tipo_orden'],
 
             'orden_origen_id' => $datos['orden_origen_id'] ?? null,
-           
+
             'devolucion_id' => $datos['devolucion_id'] ?? null,
-            
+
         ]);
 
+        // ==========================================
+        // CÓDIGO ESPECIAL POR ÁREA
+        // ==========================================
+
+        $prefijosArea = [
+            'removible' => 'PR',
+            'fija' => 'PF',
+            'cromo_cobalto' => 'CC',
+            'ortodoncia' => 'AO',
+        ];
+
+        $prefijo =
+            $prefijosArea[$orden->area_trabajo];
+
+        $codigoArea =
+            $prefijo
+            . '-'
+            . now()->format('Y')
+            . '-'
+            . str_pad(
+                $orden->id,
+                6,
+                '0',
+                STR_PAD_LEFT
+            );
+
+        $orden->update([
+            'codigo_area' => $codigoArea,
+        ]);
 
         // ==========================================
         // HISTORIAL DE PRODUCCIÓN INICIAL
@@ -305,7 +367,6 @@ public function store(Request $request)
                     'Etapa inicial de la orden.',
             ]);
         }
-
 
         // ==========================================
         // HISTORIAL DE ESTADO INICIAL
@@ -345,7 +406,6 @@ public function store(Request $request)
         // Si es Técnico, verifica que la orden sea realmente suya.
         $this->verificarOrdenTecnico($orden);
 
-
         // =====================================================
         // CARGAR INFORMACIÓN COMPLETA DE LA ORDEN
         // =====================================================
@@ -378,7 +438,6 @@ public function store(Request $request)
             'materialesUtilizados.material',
         ]);
 
-
         // =====================================================
         // VARIABLES PARA INVENTARIO DEL TÉCNICO
         // =====================================================
@@ -386,14 +445,12 @@ public function store(Request $request)
 
         $puedeRegistrarMaterial = false;
 
-
         // =====================================================
         // SOLO SI EL USUARIO ES TÉCNICO
         // =====================================================
         if ($this->esTecnico()) {
 
             $tecnico = $this->obtenerTecnicoAutenticado();
-
 
             // Solamente puede consumir materiales si:
             // 1. La orden sigue asignada a él.
@@ -408,7 +465,6 @@ public function store(Request $request)
             ) {
 
                 $puedeRegistrarMaterial = true;
-
 
                 // Materiales que todavía tiene disponibles
                 $inventarioTecnico = InventarioTecnico::with('material')
@@ -425,7 +481,6 @@ public function store(Request $request)
                     ->get();
             }
         }
-
 
         return view(
             'ordenes.show',
@@ -488,8 +543,10 @@ public function store(Request $request)
             }
 
             $datos = $request->validate([
-
-                'codigo_caja' => 'nullable|string|max:20',
+                'area_trabajo' => [
+                    'required',
+                    'in:removible,fija,cromo_cobalto,ortodoncia',
+                ],
 
                 'odontologo_id' => 'required|exists:odontologos,id',
                 'paciente_id' => 'required|exists:pacientes,id',
@@ -500,10 +557,10 @@ public function store(Request $request)
                 'etapa_actual_id' => 'nullable|exists:etapas_produccion,id',
                 'tecnico_actual_id' => 'nullable|exists:tecnicos,id',
 
-                'fecha_ingreso' => 'required|date|after_or_equal:today',
+                'fecha_ingreso' => 'required|date',
 
                 'fecha_entrega_estimada' =>
-                    'nullable|date|after_or_equal:today|after_or_equal:fecha_ingreso',
+                    'nullable|date|after_or_equal:fecha_ingreso',
 
                 'fecha_entrega_real' =>
                     'nullable|date|after_or_equal:fecha_ingreso',
@@ -519,7 +576,9 @@ public function store(Request $request)
 
                 'total' => 'nullable|numeric|min:0',
             ]);
-            
+
+            $this->validarProduccion($datos);
+
                 $pago = Pago::where(
                         'orden_trabajo_id',
                         $orden->id
@@ -549,8 +608,42 @@ public function store(Request $request)
                 $etapaAnterior = $orden->etapa_actual_id;
                 $tecnicoAnterior = $orden->tecnico_actual_id;
                 $estadoAnterior = $orden->estado_orden_id;
-                
+                $areaAnterior = $orden->area_trabajo;
+
+                // ACTUALIZAR EL CÓDIGO CUANDO CAMBIA EL ÁREA O NO EXISTE.
+                if ($areaAnterior !== $datos['area_trabajo'] || !$orden->codigo_area) {
+                    $prefijosArea = [
+                        'removible' => 'PR',
+                        'fija' => 'PF',
+                        'cromo_cobalto' => 'CC',
+                        'ortodoncia' => 'AO',
+                    ];
+
+                    // Conserva el año y número del código original al cambiar de área.
+                    if (preg_match(
+                        '/^(?:PR|PF|CC|AO)-(\d{4})-(\d+)$/',
+                        (string) $orden->codigo_area,
+                        $partesCodigo
+                    )) {
+                        $sufijo = $partesCodigo[1] . '-' . $partesCodigo[2];
+                    } else {
+                        $anio = $orden->created_at?->format('Y') ?? now()->format('Y');
+                        $sufijo = $anio . '-' . str_pad(
+                            (string) $orden->id,
+                            6,
+                            '0',
+                            STR_PAD_LEFT
+                        );
+                    }
+
+                    $datos['codigo_area'] =
+                        $prefijosArea[$datos['area_trabajo']] . '-' . $sufijo;
+                }
+
                 $orden->update($datos);
+
+                // Recarga el estado después de cambiar su ID para evaluar la garantía.
+                $orden->unsetRelation('estadoOrden');
 
                 // ===============================
                 // SI CAMBIÓ EL ESTADO DE LA ORDEN
@@ -585,7 +678,7 @@ public function store(Request $request)
                         ]);
                     }
                 }
-                    
+
                         // ===============================
                         // SI CAMBIÓ LA ETAPA
                         // ===============================
@@ -613,7 +706,7 @@ public function store(Request $request)
                                     'observaciones' => 'Cambio de etapa registrado.',
                                     ]);
                                 }
-                            
+
                             }
 
                         // ===============================
@@ -649,7 +742,6 @@ public function store(Request $request)
 
                 return view('ordenes.cancelar', compact('orden'));
             }
-
 
             // ==========================================
             // CANCELAR LA ORDEN
@@ -840,11 +932,17 @@ public function store(Request $request)
         );
     }
 
+    $this->validarProduccion([
+        'area_trabajo' => $orden->area_trabajo,
+        'tipo_protesis_id' => $orden->tipo_protesis_id,
+        'etapa_actual_id' => $orden->etapa_actual_id,
+        'tecnico_actual_id' => $orden->tecnico_actual_id,
+    ]);
+
     $estadoEnProceso = EstadoOrden::where(
         'nombre',
         'En proceso'
     )->firstOrFail();
-
 
     DB::transaction(function () use (
         $orden,
@@ -883,7 +981,6 @@ public function store(Request $request)
             ]);
         }
 
-
         $historial =
             HistorialProduccion::where(
                 'orden_trabajo_id',
@@ -892,7 +989,6 @@ public function store(Request $request)
             ->whereNull('fecha_fin')
             ->latest('id')
             ->first();
-
 
         if (!$historial) {
 
@@ -929,7 +1025,6 @@ public function store(Request $request)
             ]);
         }
     });
-
 
     return back()->with(
         'success',
@@ -986,15 +1081,21 @@ public function store(Request $request)
             );
         }
 
-        $esEtapaFinal =
-            $orden->etapaActual?->nombre === 'Terminados';
+        $this->validarProduccion([
+            'area_trabajo' => $orden->area_trabajo,
+            'tipo_protesis_id' => $orden->tipo_protesis_id,
+            'etapa_actual_id' => $orden->etapa_actual_id,
+            'tecnico_actual_id' => $orden->tecnico_actual_id,
+        ]);
 
+        // La etapa indica si al completarse finaliza la producción de la orden.
+        $esEtapaFinal = $orden->etapaActual?->es_final === true;
 
-        DB::transaction(function () use (
+            DB::transaction(function () use (
             $orden,
             $tecnico,
             $esEtapaFinal
-        ) {
+            ) {
 
             // =====================================================
             // CERRAR HISTORIAL DE PRODUCCIÓN ACTUAL
@@ -1015,7 +1116,6 @@ public function store(Request $request)
                 ->latest('id')
                 ->first();
 
-
             if (!$historial) {
                 throw \Illuminate\Validation\ValidationException
                     ::withMessages([
@@ -1024,12 +1124,10 @@ public function store(Request $request)
                     ]);
             }
 
-
             $historial->update([
                 'fecha_fin' => now(),
                 'estado' => 'Completado',
             ]);
-
 
             // =====================================================
             // SI LA ETAPA ES TERMINADOS
@@ -1042,7 +1140,6 @@ public function store(Request $request)
                     'Terminado'
                 )->firstOrFail();
 
-
                 $orden->update([
                     'estado_orden_id' =>
                         $estadoTerminado->id,
@@ -1050,7 +1147,6 @@ public function store(Request $request)
                     'tecnico_actual_id' =>
                         null,
                 ]);
-
 
                 HistorialEstadoOrden::create([
                     'orden_trabajo_id' =>
@@ -1072,7 +1168,6 @@ public function store(Request $request)
                         now(),
                 ]);
 
-
             } else {
                         // La etapa terminó.
                         // La orden queda esperando la siguiente asignación.
@@ -1085,7 +1180,6 @@ public function store(Request $request)
                             'estado_orden_id' => $estadoPendiente->id,
                             'tecnico_actual_id' => null,
                         ]);
-
 
                         HistorialEstadoOrden::create([
                             'orden_trabajo_id' => $orden->id,
@@ -1130,9 +1224,9 @@ public function store(Request $request)
 
         $tecnico =
             $this->obtenerTecnicoAutenticado();
-        
+
         // LA ORDEN DEBE SER DEL TÉCNICO
-        
+
         if (
             $orden->tecnico_actual_id !== $tecnico->id
         ) {
@@ -1178,7 +1272,6 @@ public function store(Request $request)
         ],
     ]);
 
-
     DB::transaction(function () use (
         $datos,
         $orden,
@@ -1186,7 +1279,7 @@ public function store(Request $request)
     ) {
 
         // INVENTARIO ACTUAL DEL TÉCNICO
-        
+
         $inventario = InventarioTecnico::where(
             'tecnico_id',
             $tecnico->id
@@ -1198,7 +1291,6 @@ public function store(Request $request)
         ->lockForUpdate()
         ->first();
 
-
         if (!$inventario) {
 
             throw \Illuminate\Validation\ValidationException::withMessages([
@@ -1207,13 +1299,11 @@ public function store(Request $request)
             ]);
         }
 
-
         $cantidadSolicitada =
             (float) $datos['cantidad'];
 
         $stockAnterior =
             (float) $inventario->cantidad;
-
 
         if (
             $cantidadSolicitada > $stockAnterior
@@ -1234,7 +1324,6 @@ public function store(Request $request)
         $stockNuevo =
             $stockAnterior - $cantidadSolicitada;
 
-
         $inventario->update([
             'cantidad' => $stockNuevo,
         ]);
@@ -1246,10 +1335,8 @@ public function store(Request $request)
             $datos['material_id']
         );
 
-
         $costoActual =
             (float) $material->costo_unitario;
-
 
         // =================================================
         // MATERIAL UTILIZADO EN LA ORDEN
@@ -1265,7 +1352,6 @@ public function store(Request $request)
         ->lockForUpdate()
         ->first();
 
-
         if ($ordenMaterial) {
 
             $cantidadAnteriorOrden =
@@ -1274,11 +1360,9 @@ public function store(Request $request)
             $subtotalAnterior =
                 (float) $ordenMaterial->subtotal;
 
-
             $cantidadNuevaOrden =
                 $cantidadAnteriorOrden
                 + $cantidadSolicitada;
-
 
             $subtotalNuevo =
                 $subtotalAnterior
@@ -1362,7 +1446,6 @@ public function store(Request $request)
         ]);
 
     });
-
 
     return redirect()
         ->route(

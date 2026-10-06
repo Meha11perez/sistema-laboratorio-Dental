@@ -14,7 +14,9 @@ class OrdenTrabajo extends Model
 
     protected $fillable = [
         'codigo',
-        'codigo_caja',
+        'area_trabajo',
+        'codigo_area',
+        
         'odontologo_id',
         'paciente_id',
         'tipo_protesis_id',
@@ -36,6 +38,7 @@ class OrdenTrabajo extends Model
         'orden_origen_id',
         'motivo_repeticion',
         'devolucion_id',
+        
     ];
 
     protected $casts = [

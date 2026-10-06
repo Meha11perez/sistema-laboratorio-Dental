@@ -251,7 +251,7 @@ public function toggleEstado(User $user)
 }
 public function store(Request $request)
     {
-        $datos = $request->validate([
+        $datos = $request->validate([ 
             'name' => [
                 'required',
                 'string',
