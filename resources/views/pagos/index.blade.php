@@ -4,7 +4,7 @@
 
 @section('content')
 
-<div class="max-w-7xl mx-auto">
+<div class="w-full min-w-0">
 
     {{-- ENCABEZADO --}}
     <div class="mb-8">
@@ -13,7 +13,7 @@
             Finanzas
         </p>
 
-        <h1 class="text-3xl font-bold text-slate-900">
+        <h1 class="text-2xl sm:text-3xl font-bold tracking-tight text-slate-900">
             Pagos y Créditos
         </h1>
 
@@ -25,7 +25,7 @@
 
 
     {{-- TARJETAS --}}
-    <div class="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-4 gap-5 mb-8">
+    <div class="grid grid-cols-1 sm:grid-cols-2 2xl:grid-cols-4 gap-4 mb-6">
 
         <div class="bg-white border-l-4 border-red-600
                     rounded-xl shadow-sm p-5">
@@ -76,7 +76,7 @@
                 Saldo pendiente total
             </p>
 
-            <p class="text-3xl font-bold text-blue-800 mt-2">
+            <p class="text-2xl font-bold text-[#315875] mt-2 tabular-nums break-words"></p>
                 Q {{ number_format($saldoPendienteTotal, 2) }}
             </p>
 
@@ -93,7 +93,7 @@
                rounded-xl shadow-sm p-5 mb-8"
     >
 
-        <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+        <div class="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-3 gap-4">
 
             {{-- ORDEN --}}
             <div>
@@ -107,8 +107,7 @@
                     name="orden"
                     value="{{ request('orden') }}"
                     placeholder="ORD-2026-..."
-                    class="w-full border border-slate-300
-                           rounded-lg px-4 py-2.5"
+                    class="w-full min-w-0 border border-slate-200 rounded-lg bg-white px-4 py-2.5 text-sm text-slate-800 focus:outline-none focus:ring-2 focus:ring-[#315875] focus:border-[#315875]"
                 >
 
             </div>
@@ -134,16 +133,14 @@
 
 
             {{-- ESTADO --}}
-            <div>
-
+            <div class="min-w-0 sm:col-span-2 xl:col-span-1">
                 <label class="block text-sm font-semibold text-slate-700 mb-2">
                     Estado
                 </label>
 
                 <select
                     name="estado"
-                    class="w-full border border-slate-300
-                           rounded-lg px-4 py-2.5 bg-white"
+                    class="w-full min-w-0 border border-slate-200 rounded-lg bg-white px-4 py-2.5 text-sm text-slate-800 focus:outline-none focus:ring-2 focus:ring-[#315875] focus:border-[#315875]"
                 >
 
                     <option value="">
@@ -176,23 +173,18 @@
             </div>
 
         </div>
-
-
-        <div class="flex justify-end gap-3 mt-5">
+        <div class="flex flex-col sm:flex-row sm:justify-end gap-3 mt-5">
 
             <a
                 href="{{ route('pagos.index') }}"
-                class="px-5 py-2.5 border border-slate-300
-                       rounded-lg font-semibold text-slate-600"
+                class="inline-flex items-center justify-center px-5 py-2.5 border border-slate-200 rounded-lg text-[#315875] text-sm font-semibold hover:bg-[#e7eef8] transition-colors"
             >
                 Limpiar
             </a>
 
             <button
                 type="submit"
-                class="px-6 py-2.5 bg-blue-800
-                       hover:bg-blue-900
-                       text-white rounded-lg font-semibold"
+                class="inline-flex items-center justify-center px-6 py-2.5 bg-[#315875] hover:bg-[#182d47] text-white rounded-lg text-sm font-semibold transition-colors"
             >
                 Filtrar
             </button>
@@ -219,11 +211,14 @@
         </div>
 
 
-        <div class="overflow-x-auto">
+        <div class="w-full min-w-0 overflow-x-auto"
+            tabindex="0"
+            role="region"
+            aria-label="Registro de pagos">
 
-            <table class="w-full text-sm">
+            <table class="w-full min-w-[1100px] text-sm">
 
-                <thead class="bg-slate-50 text-slate-500 uppercase text-xs">
+                <thead class="bg-[#eef3ff] text-slate-500 uppercase text-xs">
 
                     <tr>
                         <th class="text-left px-6 py-4">Orden</th>
@@ -245,7 +240,7 @@
 
                         <tr class="hover:bg-slate-50">
 
-                            <td class="px-6 py-4 font-semibold text-blue-900">
+                            <td class="px-6 py-4 whitespace-nowrap font-semibold text-[#315875]">
                                 {{ $pago->ordenTrabajo?->codigo ?? '—' }}
                             </td>
 
@@ -254,7 +249,7 @@
                                 {{ $pago->odontologo?->nombre ?? '—' }}
                             </td>
 
-                               <td class="px-6 py-4">
+                               <td class="px-6 py-4 whitespace-nowrap tabular-nums">
 
                                     @if((float) $pago->monto_total > 0)
 
@@ -268,11 +263,11 @@
                                     @endif
                         </td>
 
-                    <td class="px-6 py-4 text-emerald-700 font-semibold">
+                    <td class="px-6 py-4 whitespace-nowrap tabular-nums text-emerald-700 font-semibold">
                         Q {{ number_format($pago->monto_pagado, 2) }}
                     </td>
 
-                    <td class="px-6 py-4 font-semibold">
+                    <td class="px-6 py-4 whitespace-nowrap tabular-nums font-semibold">
                         Q {{ number_format($pago->saldo_pendiente, 2) }}
                     </td>
 
@@ -283,7 +278,7 @@
                         <td class="px-6 py-4">
                             @if((float) $pago->monto_total <= 0)
 
-                                <span class="bg-slate-100 text-slate-600
+                                <span class="bg-slate-100 text-slate-600 inline-flex items-center whitespace-nowrap
                                             px-3 py-1 rounded-full
                                             text-xs font-semibold">
                                     Por configurar
@@ -291,7 +286,7 @@
 
                             @elseif($pago->estado_pago === 'Pagado')
 
-                                <span class="bg-emerald-100 text-emerald-700
+                                <span class="bg-emerald-100 text-emerald-700 inline-flex items-center whitespace-nowrap
                                             px-3 py-1 rounded-full
                                             text-xs font-semibold">
                                     Pagado
@@ -299,7 +294,7 @@
 
                             @elseif($pago->estado_pago === 'Parcial')
 
-                                <span class="bg-amber-100 text-amber-700
+                                <span class="bg-amber-100 text-amber-700 inline-flex items-center whitespace-nowrap
                                             px-3 py-1 rounded-full
                                             text-xs font-semibold">
                                     Parcial
@@ -307,7 +302,7 @@
 
                             @else
 
-                                <span class="bg-red-100 text-red-700
+                                <span class="bg-red-100 text-red-700 inline-flex items-center whitespace-nowrap
                                             px-3 py-1 rounded-full
                                             text-xs font-semibold">
                                     Pendiente
@@ -317,8 +312,8 @@
 
                         </td>
 
-                        <td class="px-6 py-4">
-
+                        <td class="px-6 py-4 whitespace-nowrap">
+                            
                             @if($pago->ordenTrabajo)
 
                                 <a
@@ -326,7 +321,7 @@
                                     'orden' => $pago->ordenTrabajo,
                                     'origen' => 'pagos',    
                                     ]) }}"
-                                    class="text-blue-700 font-semibold hover:underline"
+                                    class="text-[#315875] font-semibold hover:underline"
                                 >
                                     Ver pago
                                 </a>
@@ -376,7 +371,7 @@
         @if($pagos->hasPages())
 
             <div class="px-6 py-4 border-t border-slate-200">
-                {{ $pagos->links() }}
+                {{ $pagos->withQueryString()->onEachSide(1)->links() }}
             </div>
 
         @endif

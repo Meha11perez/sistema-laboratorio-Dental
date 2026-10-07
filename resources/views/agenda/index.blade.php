@@ -4,14 +4,14 @@
 
 @section('content')
 
-<div class="max-w-7xl mx-auto">
+<div class="w-full min-w-0">
 
     {{-- =========================================================
          ENCABEZADO
     ========================================================== --}}
     <div class="mb-8">
 
-        <p class="text-sm font-semibold text-teal-700">
+        <p class="text-sm font-semibold text-[#315875]">
             PRODUCCIÓN
         </p>
 
@@ -37,7 +37,7 @@
 
         @if(!($esTecnico ?? false))
 
-            <div class="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-6 gap-4">
+            <div class="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-3 gap-4">
 
                 {{-- FECHA --}}
                 <div>
@@ -50,7 +50,7 @@
                         type="date"
                         name="fecha"
                         value="{{ $fecha }}"
-                        class="w-full border border-slate-300 rounded-lg px-4 py-2.5"
+                        class="w-full min-w-0 border border-slate-200 rounded-lg px-4 py-2.5 text-sm text-slate-800 focus:outline-none focus:ring-2 focus:ring-[#315875] focus:border-[#315875]"
                     >
 
                 </div>
@@ -65,7 +65,7 @@
 
                     <select
                         name="odontologo"
-                        class="w-full border border-slate-300 rounded-lg px-4 py-2.5 bg-white"
+                        class="w-full min-w-0 border border-slate-200 rounded-lg px-4 py-2.5 text-sm text-slate-800 focus:outline-none focus:ring-2 focus:ring-[#315875] focus:border-[#315875] bg-white"
                     >
 
                         <option value="">
@@ -97,7 +97,7 @@
 
                     <select
                         name="paciente"
-                        class="w-full border border-slate-300 rounded-lg px-4 py-2.5 bg-white"
+                        class="w-full min-w-0 border border-slate-200 rounded-lg px-4 py-2.5 text-sm text-slate-800 focus:outline-none focus:ring-2 focus:ring-[#315875] focus:border-[#315875] bg-white"
                     >
 
                         <option value="">
@@ -130,7 +130,7 @@
 
                     <select
                         name="estado"
-                        class="w-full border border-slate-300 rounded-lg px-4 py-2.5 bg-white"
+                        class="w-full min-w-0 border border-slate-200 rounded-lg px-4 py-2.5 text-sm text-slate-800 focus:outline-none focus:ring-2 focus:ring-[#315875] focus:border-[#315875] bg-white"
                     >
 
                         <option value="">
@@ -166,7 +166,7 @@
 
                     <select
                         name="area"
-                        class="w-full border border-slate-300 rounded-lg px-4 py-2.5 bg-white"
+                        class="w-full min-w-0 border border-slate-200 rounded-lg px-4 py-2.5 text-sm text-slate-800 focus:outline-none focus:ring-2 focus:ring-[#315875] focus:border-[#315875] bg-white"
                     >
 
                         <option value="">
@@ -215,7 +215,7 @@
 
                     <select
                         name="prioridad"
-                        class="w-full border border-slate-300 rounded-lg px-4 py-2.5 bg-white"
+                        class="w-full min-w-0 border border-slate-200 rounded-lg px-4 py-2.5 text-sm text-slate-800 focus:outline-none focus:ring-2 focus:ring-[#315875] focus:border-[#315875] bg-white"
                     >
 
                         <option value="">
@@ -245,7 +245,7 @@
         @else
 
             {{-- FILTRO PARA TÉCNICO --}}
-            <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+            <div class="grid grid-cols-1 gap-4 max-w-md">
 
                 <div>
 
@@ -255,7 +255,7 @@
 
                     <select
                         name="prioridad"
-                        class="w-full border border-slate-300 rounded-lg px-4 py-2.5 bg-white"
+                        class="w-full min-w-0 border border-slate-200 rounded-lg px-4 py-2.5 text-sm text-slate-800 focus:outline-none focus:ring-2 focus:ring-[#315875] focus:border-[#315875] bg-white"
                     >
 
                         <option value="">
@@ -285,28 +285,25 @@
         @endif
 
 
-        {{-- BOTONES --}}
-        <div class="flex justify-end gap-3 mt-5">
+    {{-- BOTONES --}}
 
-            <a
-                href="{{ route('agenda.index') }}"
-                class="px-5 py-2.5 border border-slate-300
-                       rounded-lg text-slate-600 font-semibold
-                       hover:bg-slate-50 transition"
-            >
-                Limpiar
-            </a>
+<div class="flex flex-col sm:flex-row sm:justify-end gap-3 mt-5">
 
-            <button
-                type="submit"
-                class="px-6 py-2.5 bg-teal-700
-                       hover:bg-teal-800 text-white
-                       rounded-lg font-semibold transition"
-            >
-                Filtrar
-            </button>
+    <a
+        href="{{ route('agenda.index') }}"
+        class="inline-flex items-center justify-center px-5 py-2.5 border border-slate-200 rounded-lg text-[#315875] text-sm font-semibold hover:bg-[#e7eef8] transition-colors"
+    >
+        Limpiar
+    </a>
 
-        </div>
+    <button
+        type="submit"
+        class="inline-flex items-center justify-center px-6 py-2.5 bg-[#315875] hover:bg-[#182d47] text-white rounded-lg text-sm font-semibold transition-colors"
+    >
+        Filtrar
+    </button>
+
+</div>
 
     </form>
 
@@ -376,9 +373,9 @@
                             ]
                         )
                     ) }}"
-                    class="px-4 py-2 bg-teal-50 text-teal-700
+                    class="px-4 py-2 bg-[#e7eef8] text-[#315875]
                            rounded-lg text-sm font-semibold
-                           hover:bg-teal-100 transition"
+                           hover:bg-[#dce7f3] transition"
                 >
                     Hoy
                 </a>
@@ -408,7 +405,7 @@
 
         @else
 
-            <div class="px-4 py-2 bg-teal-50 text-teal-700
+            <div class="px-4 py-2 bg-[#e7eef8] text-[#315875]
                         rounded-lg text-sm font-semibold">
                 Mis trabajos asignados
             </div>
@@ -423,7 +420,7 @@
     ========================================================== --}}
     <section class="mb-8">
 
-        <div class="bg-teal-800 text-white px-6 py-4 rounded-t-xl">
+        <div class="bg-[#315875] text-white px-6 py-4 rounded-t-xl">
 
             <div class="flex items-center justify-between">
 
@@ -444,7 +441,7 @@
 
             <div class="bg-white border-x border-b border-slate-200">
 
-                <div class="bg-slate-100 px-6 py-3 flex items-center justify-between">
+                <div class="bg-[#eef3ff] px-4 sm:px-6 py-3 flex flex-col gap-2 sm:flex-row sm:items-center sm:justify-between">
 
                     <h3 class="font-bold text-slate-700 uppercase text-sm">
                         {{ $nombreEtapa }}
@@ -481,7 +478,7 @@
     ========================================================== --}}
     <section class="mb-8">
 
-        <div class="bg-blue-900 text-white px-6 py-4 rounded-t-xl">
+        <div class="bg-[#315875] text-white px-6 py-4 rounded-t-xl">
 
             <div class="flex items-center justify-between">
 
@@ -502,7 +499,7 @@
 
             <div class="bg-white border-x border-b border-slate-200">
 
-                <div class="bg-slate-100 px-6 py-3 flex items-center justify-between">
+                <div class="bg-[#eef3ff] px-4 sm:px-6 py-3 flex flex-col gap-2 sm:flex-row sm:items-center sm:justify-between">
 
                     <h3 class="font-bold text-slate-700 uppercase text-sm">
                         {{ $nombreEtapa }}
@@ -539,7 +536,7 @@
     ========================================================== --}}
     <section class="mb-8">
 
-        <div class="bg-indigo-800 text-white px-6 py-4 rounded-t-xl">
+        <div class="bg-[#315875] text-white px-6 py-4 rounded-t-xl">
 
             <div class="flex items-center justify-between">
 
@@ -560,7 +557,7 @@
 
             <div class="bg-white border-x border-b border-slate-200">
 
-                <div class="bg-slate-100 px-6 py-3 flex items-center justify-between">
+                <div class="bg-[#eef3ff] px-4 sm:px-6 py-3 flex flex-col gap-2 sm:flex-row sm:items-center sm:justify-between">
 
                     <h3 class="font-bold text-slate-700 uppercase text-sm">
                         {{ $nombreEtapa }}
@@ -591,13 +588,12 @@
 
     </section>
 
-
     {{-- =========================================================
          APARATOS DE ORTODONCIA
     ========================================================== --}}
     <section class="mb-8">
 
-        <div class="bg-slate-800 text-white px-6 py-4 rounded-t-xl">
+        <div class="bg-[#315875] text-white px-6 py-4 rounded-t-xl">
 
             <div class="flex items-center justify-between">
 
@@ -618,7 +614,7 @@
 
             <div class="bg-white border-x border-b border-slate-200">
 
-                <div class="bg-slate-100 px-6 py-3 flex items-center justify-between">
+                <div class="bg-[#eef3ff] px-4 sm:px-6 py-3 flex flex-col gap-2 sm:flex-row sm:items-center sm:justify-between">
 
                     <h3 class="font-bold text-slate-700 uppercase text-sm">
                         {{ $nombreEtapa }}

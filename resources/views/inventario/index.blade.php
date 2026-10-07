@@ -4,18 +4,18 @@
 
 @section('content')
 
-<div class="max-w-7xl mx-auto">
+<div class="w-full min-w-0">
 
     {{-- ENCABEZADO --}}
     <div class="flex flex-col md:flex-row md:items-center md:justify-between gap-4 mb-8">
 
         <div>
-            <p class="text-sm font-semibold text-blue-800 uppercase tracking-wide">
+            <p class="text-sm font-semibold text-[#315875] uppercase tracking-wide">
                 Inventario
             </p>
 
-            <h1 class="text-3xl font-bold text-slate-900 mt-1">
-                Inventario General
+            <h1 class="text-2xl sm:text-3xl font-bold tracking-tight text-slate-900 mt-1">
+                    Inventario General
             </h1>
 
             <p class="text-slate-500 mt-1">
@@ -25,11 +25,7 @@
 
         <a
             href="{{ route('inventario.create') }}"
-            class="inline-flex items-center justify-center gap-2
-                bg-blue-800 hover:bg-blue-900
-                text-white px-5 py-3 rounded-lg
-                font-semibold text-sm transition"
-        >
+           class="inline-flex w-full md:w-auto shrink-0 items-center justify-center gap-2 bg-[#315875] hover:bg-[#182d47] text-white px-5 py-3 rounded-lg font-semibold text-sm transition-colors">
             + Nuevo Material
         </a>
 
@@ -82,105 +78,114 @@
 
     {{-- FILTROS --}}
     <form
-        method="GET"
-        action="{{ route('inventario.index') }}"
-        class="bg-white border border-slate-200 rounded-xl
-               shadow-sm p-5 mb-6"
-    >
+    method="GET"
+    action="{{ route('inventario.index') }}"
+    class="bg-white border border-slate-200 rounded-xl shadow-sm p-4 sm:p-5 mb-6"
+>
+    <div class="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-4 gap-4">
 
-        <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+        {{-- BUSCADOR --}}
+        <div class="min-w-0 sm:col-span-2">
+            <label
+                for="buscar-material"
+                class="block text-sm font-semibold text-slate-700 mb-2"
+            >
+                Buscar material
+            </label>
 
-            <div>
-                <label class="block text-sm font-semibold text-slate-700 mb-2">
-                    Buscar material
-                </label>
+            <div class="relative">
+                <svg
+                    xmlns="http://www.w3.org/2000/svg"
+                    class="absolute left-3 top-1/2 -translate-y-1/2 w-5 h-5 text-slate-400 pointer-events-none"
+                    viewBox="0 0 24 24"
+                    fill="none"
+                    stroke="currentColor"
+                    stroke-width="1.7"
+                    stroke-linecap="round"
+                    aria-hidden="true"
+                >
+                    <circle cx="10.5" cy="10.5" r="6.5" />
+                    <path d="m16 16 5 5" />
+                </svg>
 
                 <input
-                    type="text"
+                    id="buscar-material"
+                    type="search"
                     name="buscar"
                     value="{{ request('buscar') }}"
-                    placeholder="Código o nombre..."
-                    class="w-full border border-slate-300 rounded-lg
-                           px-4 py-2.5"
+                    placeholder="Código o nombre del material..."
+                    class="w-full min-w-0 border border-slate-200 rounded-lg bg-white pl-10 pr-4 py-2.5 text-sm text-slate-800 focus:outline-none focus:ring-2 focus:ring-[#315875] focus:border-[#315875]"
                 >
             </div>
-
-
-            <div>
-                <label class="block text-sm font-semibold text-slate-700 mb-2">
-                    Estado
-                </label>
-
-                <select
-                    name="estado"
-                    class="w-full border border-slate-300 rounded-lg
-                           px-4 py-2.5 bg-white"
-                >
-
-                    <option value="">
-                        Todos
-                    </option>
-
-                    <option
-                        value="activo"
-                        @selected(request('estado') === 'activo')
-                    >
-                        Activos
-                    </option>
-
-                    <option
-                        value="inactivo"
-                        @selected(request('estado') === 'inactivo')
-                    >
-                        Inactivos
-                    </option>
-
-                    <option
-                        value="bajo"
-                        @selected(request('estado') === 'bajo')
-                    >
-                        Stock bajo
-                    </option>
-
-                </select>
-            </div>
-
-
-            <div class="flex items-end gap-3">
-
-                <a
-                    href="{{ route('inventario.index') }}"
-                    class="px-5 py-2.5 border border-slate-300
-                           rounded-lg text-slate-600 font-semibold"
-                >
-                    Limpiar
-                </a>
-
-                <button
-                    type="submit"
-                    class="px-6 py-2.5 bg-blue-800
-                           hover:bg-blue-900 text-white
-                           rounded-lg font-semibold"
-                >
-                    Filtrar
-                </button>
-
-            </div>
-
         </div>
 
-    </form>
+        {{-- ESTADO --}}
+        <div class="min-w-0">
+            <label
+                for="estado-material"
+                class="block text-sm font-semibold text-slate-700 mb-2"
+            >
+                Estado
+            </label>
 
+            <select
+                id="estado-material"
+                name="estado"
+                class="w-full min-w-0 border border-slate-200 rounded-lg px-4 py-2.5 bg-white text-sm text-slate-800 focus:outline-none focus:ring-2 focus:ring-[#315875] focus:border-[#315875]"
+            >
+                <option value="">Todos</option>
 
+                <option
+                    value="activo"
+                    @selected(request('estado') === 'activo')
+                >
+                    Activos
+                </option>
+
+                <option
+                    value="inactivo"
+                    @selected(request('estado') === 'inactivo')
+                >
+                    Inactivos
+                </option>
+
+                <option
+                    value="bajo"
+                    @selected(request('estado') === 'bajo')
+                >
+                    Stock bajo
+                </option>
+            </select>
+        </div>
+
+        {{-- BOTONES --}}
+        <div class="flex items-end gap-3">
+            <a
+                href="{{ route('inventario.index') }}"
+                class="inline-flex flex-1 items-center justify-center px-4 py-2.5 border border-slate-200 rounded-lg text-[#315875] text-sm font-semibold hover:bg-[#e7eef8] transition-colors"
+            >
+                Limpiar
+            </a>
+
+            <button
+                type="submit"
+                class="inline-flex flex-1 items-center justify-center px-4 py-2.5 bg-[#315875] hover:bg-[#182d47] text-white rounded-lg text-sm font-semibold transition-colors"
+            >
+                Filtrar
+            </button>
+        </div>
+
+    </div>
+</form>
     {{-- TABLA --}}
     <div class="bg-white border border-slate-200 rounded-xl
                 shadow-sm overflow-hidden">
 
-        <div class="overflow-x-auto">
+        <div class="w-full min-w-0 overflow-x-auto" tabindex="0" role="region" aria-label="Listado de materiales">
 
-            <table class="w-full text-sm">
+            <table class="w-full min-w-[900px] text-sm">
 
-                <thead class="bg-slate-50 text-slate-500 uppercase text-xs">
+                <thead class="bg-[#eef3ff] text-slate-500 uppercase text-xs">
 
                     <tr>
                         <th class="text-left px-6 py-4">Código</th>
@@ -202,8 +207,8 @@
 
                         <tr class="hover:bg-slate-50">
 
-                            <td class="px-6 py-4 font-semibold text-blue-900">
-                                {{ $material->codigo ?? '—' }}
+                            <td class="px-6 py-4 whitespace-nowrap">
+                                Q {{ number_format($material->costo_unitario, 2) }}
                             </td>
 
                             <td class="px-6 py-4">
@@ -263,22 +268,22 @@
 
                             <td class="px-6 py-4">
 
-                               <div class="flex items-center gap-3">
-                                <a
-                                    href="{{ route('inventario.show', $material) }}"
-                                    class="text-blue-700 font-semibold hover:underline"
-                                >
-                                    Ver
-                                </a>
+                               <div class="flex items-center gap-3 whitespace-nowrap">
+                                    <a
+                                        href="{{ route('inventario.show', $material) }}"
+                                        class="text-[#315875] font-semibold hover:underline"
+                                    >
+                                        Ver
+                                    </a>
 
-                                <a
-                                    href="{{ route('inventario.asignar', $material) }}"
-                                    class="text-emerald-700 font-semibold hover:underline"
-                                >
-                                    Asignar
-                                </a>
+                                    <a
+                                        href="{{ route('inventario.asignar', $material) }}"
+                                        class="text-emerald-700 font-semibold hover:underline"
+                                    >
+                                        Asignar
+                                    </a>
 
-                            </div>
+                                </div>
 
                             </td>
 
@@ -307,7 +312,7 @@
         @if($materiales->hasPages())
 
             <div class="px-6 py-4 border-t border-slate-200">
-                {{ $materiales->links() }}
+                {{ $materiales->withQueryString()->onEachSide(1)->links() }}
             </div>
 
         @endif

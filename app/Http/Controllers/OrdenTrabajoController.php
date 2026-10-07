@@ -22,59 +22,67 @@ use Illuminate\Http\Request;
 
 class OrdenTrabajoController extends Controller
 { 
-public function index()
-    {
-        $query = OrdenTrabajo::with([
-            'paciente',
-            'odontologo',
-            'tipoProtesis',
-            'estadoOrden',
-            'etapaActual',
-            'tecnicoActual.user',
-        ]);
+public function index(Request $request)
+{
+    $datos = $request->validate([
+        'buscar' => ['nullable', 'string', 'max:120'],
+    ], [
+        'buscar.string' => 'Escriba un texto válido para buscar.',
+        'buscar.max' => 'La búsqueda no puede superar los 120 caracteres.',
+    ]);
 
-        /*
-        |--------------------------------------------------------------------------
-        | TÉCNICO
-        |--------------------------------------------------------------------------
-        | Solo puede ver órdenes actualmente asignadas a él.
-        */
+    $buscar = trim((string) ($datos['buscar'] ?? ''));
 
-       if ($this->esTecnico()) {
+    $query = OrdenTrabajo::with([
+        'paciente',
+        'odontologo',
+        'tipoProtesis',
+        'estadoOrden',
+        'etapaActual',
+        'tecnicoActual.user',
+    ]);
 
-        $tecnico =
-            $this->obtenerTecnicoAutenticado();
+    // Conserva el filtro actual del técnico.
+    if ($this->esTecnico()) {
+        $tecnico = $this->obtenerTecnicoAutenticado();
 
-        $query->where(
-            'tecnico_actual_id',
-            $tecnico->id
-        );
+        $query->where('tecnico_actual_id', $tecnico->id);
 
-        $query->whereHas(
-            'estadoOrden',
-            function ($q) {
-
-                $q->whereNotIn(
-                    'nombre',
-                    [
-                        'Terminado',
-                        'Entregado',
-                        'Cancelado',
-                    ]
-                ); 
-            }
-        );
+        $query->whereHas('estadoOrden', function ($q) {
+            $q->whereNotIn('nombre', [
+                'Terminado',
+                'Entregado',
+                'Cancelado',
+            ]);
+        });
     }
 
-        $ordenes = $query
-            ->latest()
-            ->paginate(10);
+    // Búsqueda dentro de las órdenes que el usuario puede consultar.
+    if ($buscar !== '') {
+        $query->where(function ($q) use ($buscar) {
+            $texto = '%' . $buscar . '%';
 
-        return view(
-            'ordenes.index',
-            compact('ordenes')
-        );
+            $q->where('codigo', 'like', $texto)
+                ->orWhere('codigo_area', 'like', $texto)
+                ->orWhereHas('paciente', function ($paciente) use ($texto) {
+                    $paciente->where(function ($nombre) use ($texto) {
+                        $nombre->where('nombre', 'like', $texto)
+                            ->orWhere('apellido', 'like', $texto);
+                    });
+                })
+                ->orWhereHas('odontologo', function ($odontologo) use ($texto) {
+                    $odontologo->where('nombre', 'like', $texto);
+                });
+        });
     }
+
+    $ordenes = $query
+        ->latest()
+        ->paginate(10)
+        ->withQueryString();
+
+    return view('ordenes.index', compact('ordenes', 'buscar'));
+}
 private function esTecnico(): bool
     {
         return auth()->user()?->role?->nombre === 'Técnico';

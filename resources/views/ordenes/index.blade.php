@@ -4,39 +4,123 @@
 
 @section('content')
 
-<div class="flex items-center justify-between mb-8">
+<div class="flex flex-col gap-4 mb-6 sm:flex-row sm:items-center sm:justify-between">
 
-    <div>
-        <h1 class="text-3xl font-bold text-slate-900">
+    <div class="min-w-0">
+        <h1 class="text-2xl sm:text-3xl font-bold tracking-tight text-slate-900">
             Órdenes de Trabajo
         </h1>
 
-        <p class="text-slate-500 mt-1">
+        <p class="text-sm text-slate-500 mt-1">
             Gestión y seguimiento de los trabajos del laboratorio.
         </p>
     </div>
 
-        @if(in_array(
+    @if(in_array(
         auth()->user()->role?->nombre,
         ['Administrador', 'Recepcion']
     ))
-    
-    <a
-        href="{{ route('ordenes.create') }}"
-        class="inline-flex items-center justify-center gap-2 px-5 py-2.5 rounded-lg bg-blue-800 text-white font-semibold text-sm hover:bg-blue-900 shadow-sm transition"
+        <a
+            href="{{ route('ordenes.create') }}"
+            class="inline-flex w-full sm:w-auto shrink-0 items-center justify-center gap-2 px-5 py-3 rounded-lg bg-[#315875] text-white font-semibold text-sm hover:bg-[#182d47] shadow-sm transition-colors"
+        >
+            <svg
+                xmlns="http://www.w3.org/2000/svg"
+                class="w-4 h-4"
+                viewBox="0 0 24 24"
+                fill="none"
+                stroke="currentColor"
+                stroke-width="2"
+                stroke-linecap="round"
+                aria-hidden="true"
+            >
+                <path d="M12 5v14M5 12h14" />
+            </svg>
+
+            Nueva Orden
+        </a>
+    @endif
+
+</div>
+{{-- BUSCADOR --}}
+<div class="mb-5 bg-white border border-slate-200 rounded-xl p-4 shadow-sm">
+
+    <form
+        method="GET"
+        action="{{ route('ordenes.index') }}"
+        class="flex flex-col gap-3 sm:flex-row sm:items-end"
     >
-        + Nueva Orden
-    </a>
-    
+        <div class="flex-1 min-w-0">
+            <label
+                for="buscar-ordenes"
+                class="block mb-2 text-sm font-semibold text-slate-700"
+            >
+                Buscar órdenes
+            </label>
+
+            <div class="relative">
+                <svg
+                    xmlns="http://www.w3.org/2000/svg"
+                    class="absolute left-3 top-1/2 -translate-y-1/2 w-5 h-5 text-slate-400 pointer-events-none"
+                    viewBox="0 0 24 24"
+                    fill="none"
+                    stroke="currentColor"
+                    stroke-width="1.7"
+                    stroke-linecap="round"
+                    aria-hidden="true"
+                >
+                    <circle cx="10.5" cy="10.5" r="6.5" />
+                    <path d="m16 16 5 5" />
+                </svg>
+
+                <input
+                    id="buscar-ordenes"
+                    type="search"
+                    name="buscar"
+                    value="{{ $buscar ?? '' }}"
+                    maxlength="120"
+                    placeholder="Código, paciente u odontólogo..."
+                    class="w-full min-w-0 rounded-lg border border-slate-200 bg-white pl-10 pr-4 py-3 text-sm text-slate-800 placeholder:text-slate-400 focus:outline-none focus:ring-2 focus:ring-[#315875] focus:border-[#315875]"
+                >
+            </div>
+        </div>
+
+        <button
+            type="submit"
+            class="inline-flex items-center justify-center rounded-lg bg-[#315875] px-5 py-3 text-sm font-semibold text-white hover:bg-[#182d47] transition-colors">
+            Buscar
+        </button>
+
+        @if (($buscar ?? '') !== '')
+            <a
+                href="{{ route('ordenes.index') }}"
+                class="inline-flex items-center justify-center rounded-lg border border-slate-200 bg-white px-5 py-3 text-sm font-semibold text-[#315875] hover:bg-[#e7eef8] transition-colors">
+                Limpiar
+            </a>
+        @endif
+    </form>
+
+    @error('buscar')
+        <p class="mt-2 text-sm text-red-600" role="alert">
+            {{ $message }}
+        </p>
+    @enderror
+
+    @if (($buscar ?? '') !== '')
+        <p class="mt-3 text-sm text-slate-500">
+            Resultados para
+            <span class="font-semibold text-slate-700">
+                “{{ $buscar }}”
+            </span>:
+            {{ number_format($ordenes->total(), 0, '.', ',') }} órdenes.
+        </p>
     @endif
 
 </div>
 
+<div class="w-full min-w-0 bg-white border border-slate-200 rounded-xl shadow-sm overflow-hidden">
 
-<div class="bg-white border border-slate-200 rounded-xl shadow-sm overflow-hidden">
-
-    <div class="overflow-x-auto">
-
+<div class="w-full overflow-x-auto" tabindex="0" role="region" aria-label="Listado de órdenes de trabajo">
         <table class="w-full text-sm">
 
             <thead class="bg-slate-50 text-slate-500 uppercase text-xs">
@@ -64,7 +148,7 @@
             <tr class="hover:bg-slate-50">
 
                 {{-- CÓDIGO --}}
-                <td class="px-6 py-4 font-semibold text-blue-900">
+                <td class="px-6 py-4 whitespace-nowrap font-semibold text-[#315875]">
                     {{ $orden->codigo }}
                 </td>
 
@@ -129,9 +213,7 @@
 
                     @else
 
-                        <span class="inline-flex items-center px-3 py-1
-                                    rounded-full text-xs font-bold
-                                    bg-blue-50 text-blue-700">
+                        <span class="inline-flex items-center px-3 py-1 rounded-full text-xs font-bold bg-blue-50 text-blue-700">
                             Nueva
                         </span>
 
@@ -149,12 +231,12 @@
                 </td>
 
                 {{-- FECHA DE ENTREGA --}}
-                <td class="px-6 py-4">
+                <td class="px-6 py-4 whitespace-nowrap">
                     {{ $orden->fecha_entrega_estimada?->format('d/m/Y') ?? '—' }}
                 </td>
 
                 {{-- ACCIONES --}}
-                <td class="px-6 py-4">
+                <td class="px-6 py-4 whitespace-nowrap">
 
                     <a
                         href="{{ route('ordenes.show', $orden) }}"
@@ -180,14 +262,18 @@
 
         @empty
 
-            <tr>
-                <td
-                    colspan=11"
-                    class="px-6 py-12 text-center text-slate-400"
-                >
+          <tr>
+            <td
+                colspan="11"
+                class="px-6 py-12 text-center text-slate-400">
+
+                @if (($buscar ?? '') !== '')
+                    No se encontraron órdenes que coincidan con la búsqueda.
+                @else
                     No hay órdenes registradas.
-                </td>
-            </tr>
+                @endif
+            </td>
+        </tr>
 
         @endforelse
 
@@ -197,10 +283,9 @@
 
     </div>
 
-
         @if ($ordenes->hasPages())
             <div class="px-6 py-4 border-t border-slate-200">
-                {{ $ordenes->links() }}
+                {{ $ordenes->withQueryString()->onEachSide(1)->links() }}
             </div>
         @endif
 
