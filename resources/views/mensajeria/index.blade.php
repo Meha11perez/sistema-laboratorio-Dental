@@ -4,22 +4,19 @@
 
 @section('content')
 
-<div class="max-w-7xl mx-auto">
+<div class="w-full min-w-0">
 
     {{-- =========================================================
          ENCABEZADO
     ========================================================== --}}
-    <div class="flex flex-col md:flex-row
-                md:items-center md:justify-between
-                gap-4 mb-8">
-
+    <div class="flex flex-col gap-4 mb-6 sm:flex-row sm:items-center sm:justify-between">
         <div>
 
-            <p class="text-sm font-semibold text-blue-800 uppercase">
+            <p class="text-sm font-semibold text-[#315875] uppercase">
                 Logística
             </p>
 
-            <h1 class="text-3xl font-bold text-slate-900">
+            <h1 class="text-2xl sm:text-3xl font-bold tracking-tight text-slate-900">
                 Mensajería
             </h1>
 
@@ -30,13 +27,26 @@
         </div>
 
 
-        <a
-            href="{{ route('mensajeria.create') }}"
-            class="inline-flex items-center justify-center
-                   px-5 py-3 bg-blue-800 hover:bg-blue-900
-                   text-white rounded-lg font-semibold text-sm"
+        <a href="{{ route('mensajeria.create') }}" class="inline-flex w-full sm:w-auto shrink-0 items-center
+                justify-center gap-2 px-5 py-3
+                bg-[#315875] hover:bg-[#182d47]
+                text-white rounded-lg font-semibold text-sm
+                transition-colors"
         >
-            + Nueva Ruta
+            <svg
+                xmlns="http://www.w3.org/2000/svg"
+                class="w-4 h-4"
+                viewBox="0 0 24 24"
+                fill="none"
+                stroke="currentColor"
+                stroke-width="2"
+                stroke-linecap="round"
+                aria-hidden="true"
+            >
+                <path d="M12 5v14M5 12h14" />
+            </svg>
+
+            Nueva Ruta
         </a>
 
     </div>
@@ -69,7 +79,7 @@
                rounded-xl shadow-sm p-5 mb-8"
     >
 
-        <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+        <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
 
             {{-- FECHA --}}
             <div>
@@ -85,9 +95,7 @@
                     type="date"
                     name="fecha"
                     value="{{ request('fecha') }}"
-                    class="w-full border border-slate-300
-                           rounded-lg px-4 py-2.5"
-                >
+                    class="w-full min-w-0 border border-slate-200 rounded-lg bg-white px-4 py-2.5 text-sm text-slate-800 focus:outline-none focus:ring-2 focus:ring-[#315875] focus:border-[#315875]">
 
             </div>
 
@@ -104,9 +112,7 @@
 
                 <select
                     name="estado"
-                    class="w-full border border-slate-300
-                           rounded-lg px-4 py-2.5 bg-white"
-                >
+                    class="w-full min-w-0 border border-slate-200 rounded-lg bg-white px-4 py-2.5 text-sm text-slate-800 focus:outline-none focus:ring-2 focus:ring-[#315875] focus:border-[#315875]">
 
                     <option value="">
                         Todos
@@ -147,24 +153,24 @@
         </div>
 
 
-        <div class="flex justify-end gap-3 mt-5">
+        <div class="flex flex-col sm:flex-row sm:justify-end gap-3 mt-5">
 
             <a
                 href="{{ route('mensajeria.index') }}"
-                class="px-5 py-2.5
-                       border border-slate-300
-                       rounded-lg font-semibold
-                       text-slate-600 hover:bg-slate-50"
+                class="inline-flex items-center justify-center
+                    px-5 py-2.5 border border-slate-200
+                    rounded-lg text-[#315875] text-sm font-semibold
+                    hover:bg-[#e7eef8] transition-colors"
             >
                 Limpiar
             </a>
 
-
             <button
                 type="submit"
-                class="px-6 py-2.5
-                       bg-blue-800 hover:bg-blue-900
-                       text-white rounded-lg font-semibold"
+                class="inline-flex items-center justify-center
+                    px-6 py-2.5 bg-[#315875] hover:bg-[#182d47]
+                    text-white rounded-lg text-sm font-semibold
+                    transition-colors"
             >
                 Filtrar
             </button>
@@ -195,14 +201,11 @@
         </div>
 
 
-        <div class="overflow-x-auto">
+        <div class="w-full min-w-0 overflow-x-auto" tabindex="0" role="region" aria-label="Listado de rutas de mensajería">
+            
+            <table class="w-full min-w-[900px] text-sm">
 
-            <table class="w-full text-sm">
-
-                <thead
-                    class="bg-slate-50
-                           text-slate-500 uppercase text-xs"
-                >
+                <thead class="bg-[#eef3ff] text-slate-500 uppercase text-xs">
 
                     <tr>
 
@@ -290,8 +293,8 @@
 
                                     <span
                                         class="inline-flex
-                                               bg-blue-100
-                                               text-blue-700
+                                               bg-[#e7eef8]
+                                               text-[#315875]
                                                px-3 py-1
                                                rounded-full
                                                text-xs font-semibold"
@@ -378,7 +381,7 @@
 
             <div class="px-6 py-4 border-t border-slate-200">
 
-                {{ $rutas->links() }}
+                {{ $rutas->withQueryString()->onEachSide(1)->links() }}
 
             </div>
 

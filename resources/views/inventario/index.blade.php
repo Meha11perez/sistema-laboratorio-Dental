@@ -183,7 +183,7 @@
 
         <div class="w-full min-w-0 overflow-x-auto" tabindex="0" role="region" aria-label="Listado de materiales">
 
-            <table class="w-full min-w-[900px] text-sm">
+            <table class="w-full min-w-225px text-sm">
 
                 <thead class="bg-[#eef3ff] text-slate-500 uppercase text-xs">
 

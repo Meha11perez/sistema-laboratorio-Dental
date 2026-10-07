@@ -3,7 +3,7 @@
     role="region"
     aria-label="Trabajos programados por etapa">
 
-    <table class="w-full min-w-[1100px] text-sm">
+    <table class="w-full min-w-275px text-sm">
 
         <thead class="bg-[#eef3ff] text-slate-500 text-xs uppercase">
 
@@ -239,8 +239,7 @@
                                    text-[#315875]
                                    rounded-lg
                                    text-xs font-semibold
-                                   transition"
-                        >
+                                   transition">
 
                             Ver orden
 

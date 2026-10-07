@@ -58,24 +58,37 @@ class DevolucionController extends Controller
         ]);
                 DB::transaction(function () use ($datos, $orden) {
 
-                    // Buscar la garantía asociada a la orden
+                    // Buscar la garantía asociada a la orden.
                     $garantia = $orden->garantia;
 
                     $garantiaId = null;
 
-                    // Si existe garantía y todavía está vigente,
-                    // la asociamos automáticamente con la devolución
+                    // Comprobar la cobertura con la fecha de la devolución.
+                    $fechaDevolucion = \Carbon\Carbon::parse(
+                        $datos['fecha_devolucion']
+                    )->startOfDay();
+
                     if (
                         $garantia &&
-                        $garantia->fecha_vencimiento &&
-                        now()->startOfDay()->lte(
-                            $garantia->fecha_vencimiento->copy()->startOfDay()
-                        )
+                        $garantia->fecha_inicio &&
+                        $garantia->fecha_vencimiento
                     ) {
-                        $garantiaId = $garantia->id;
+                        $inicioGarantia = $garantia->fecha_inicio
+                            ->copy()
+                            ->startOfDay();
+
+                        $vencimientoGarantia = $garantia->fecha_vencimiento
+                            ->copy()
+                            ->startOfDay();
+
+                        if (
+                            $fechaDevolucion->gte($inicioGarantia) &&
+                            $fechaDevolucion->lte($vencimientoGarantia)
+                        ) {
+                            $garantiaId = $garantia->id;
+                        }
                     }
-
-
+                    
                     Devolucion::create([
                         'orden_trabajo_id' => $orden->id,
 

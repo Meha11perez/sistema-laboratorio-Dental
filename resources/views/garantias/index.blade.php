@@ -4,18 +4,18 @@
 
 @section('content')
 
-<div class="max-w-7xl mx-auto">
+<div class="w-full min-w-0">
 
     {{-- =========================================================
          ENCABEZADO
     ========================================================== --}}
     <div class="mb-8">
 
-        <p class="text-sm font-semibold text-blue-800 uppercase">
+        <p class="text-sm font-semibold text-[#315875] uppercase">
             Producción
         </p>
 
-        <h1 class="text-3xl font-bold text-slate-900">
+        <h1 class="text-2xl sm:text-3xl font-bold tracking-tight text-slate-900">
             Garantías y Devoluciones
         </h1>
 
@@ -27,105 +27,106 @@
 
 
     {{-- =========================================================
-     TARJETAS DE RESUMEN
-========================================================== --}}
-<div class="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-5 gap-5 mb-8">
+         TARJETAS DE RESUMEN
+    ========================================================== --}}
+    <div class="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-3 2xl:grid-cols-5 gap-4 mb-6">
 
-    {{-- GARANTÍAS VIGENTES --}}
-    <div class="bg-white border-l-4 border-emerald-600
-                rounded-xl shadow-sm p-5">
+        {{-- GARANTÍAS VIGENTES --}}
+        <div class="bg-white border-l-4 border-emerald-600
+                    rounded-xl shadow-sm p-5">
 
-        <p class="text-xs uppercase text-slate-500 font-semibold">
-            Garantías vigentes
-        </p>
+            <p class="text-xs uppercase text-slate-500 font-semibold">
+                Garantías vigentes
+            </p>
 
-        <p class="text-3xl font-bold text-emerald-700 mt-2">
-            {{ $garantiasActivas }}
-        </p>
+            <p class="text-3xl font-bold text-emerald-700 mt-2">
+                {{ $garantiasActivas }}
+            </p>
 
-        <p class="text-xs text-slate-400 mt-2">
-            Más de 15 días antes del vencimiento.
-        </p>
+            <p class="text-xs text-slate-400 mt-2">
+                Más de 15 días antes del vencimiento.
+            </p>
+
+        </div>
+
+
+        {{-- POR VENCER --}}
+        <div class="bg-white border-l-4 border-amber-500
+                    rounded-xl shadow-sm p-5">
+
+            <p class="text-xs uppercase text-slate-500 font-semibold">
+                Por vencer
+            </p>
+
+            <p class="text-3xl font-bold text-amber-700 mt-2">
+                {{ $garantiasPorVencer }}
+            </p>
+
+            <p class="text-xs text-slate-400 mt-2">
+                Vencen dentro de los próximos 15 días.
+            </p>
+
+        </div>
+
+
+        {{-- VENCIDAS --}}
+        <div class="bg-white border-l-4 border-red-600
+                    rounded-xl shadow-sm p-5">
+
+            <p class="text-xs uppercase text-slate-500 font-semibold">
+                Garantías vencidas
+            </p>
+
+            <p class="text-3xl font-bold text-red-700 mt-2">
+                {{ $garantiasVencidas }}
+            </p>
+
+            <p class="text-xs text-slate-400 mt-2">
+                Garantías fuera del período establecido.
+            </p>
+
+        </div>
+
+
+        {{-- DEVOLUCIONES --}}
+        <div class="bg-white border-l-4 border-purple-600
+                    rounded-xl shadow-sm p-5">
+
+            <p class="text-xs uppercase text-slate-500 font-semibold">
+                Devoluciones
+            </p>
+
+            <p class="text-3xl font-bold text-purple-700 mt-2">
+                {{ $totalDevoluciones }}
+            </p>
+
+            <p class="text-xs text-slate-400 mt-2">
+                Incidencias registradas.
+            </p>
+
+        </div>
+
+
+        {{-- REPETICIONES --}}
+        <div class="bg-white border-l-4 border-[#315875]
+                    rounded-xl shadow-sm p-5">
+
+            <p class="text-xs uppercase text-slate-500 font-semibold">
+                Repeticiones
+            </p>
+
+            <p class="text-3xl font-bold text-[#315875] mt-2">
+                {{ $totalRepeticiones }}
+            </p>
+
+            <p class="text-xs text-slate-400 mt-2">
+                Órdenes generadas nuevamente.
+            </p>
+
+        </div>
 
     </div>
 
-
-    {{-- POR VENCER --}}
-    <div class="bg-white border-l-4 border-amber-500
-                rounded-xl shadow-sm p-5">
-
-        <p class="text-xs uppercase text-slate-500 font-semibold">
-            Por vencer
-        </p>
-
-        <p class="text-3xl font-bold text-amber-700 mt-2">
-            {{ $garantiasPorVencer }}
-        </p>
-
-        <p class="text-xs text-slate-400 mt-2">
-            Vencen dentro de los próximos 15 días.
-        </p>
-
-    </div>
-
-
-    {{-- VENCIDAS --}}
-    <div class="bg-white border-l-4 border-red-600
-                rounded-xl shadow-sm p-5">
-
-        <p class="text-xs uppercase text-slate-500 font-semibold">
-            Garantías vencidas
-        </p>
-
-        <p class="text-3xl font-bold text-red-700 mt-2">
-            {{ $garantiasVencidas }}
-        </p>
-
-        <p class="text-xs text-slate-400 mt-2">
-            Garantías fuera del período establecido.
-        </p>
-
-    </div>
-
-
-    {{-- DEVOLUCIONES --}}
-    <div class="bg-white border-l-4 border-purple-600
-                rounded-xl shadow-sm p-5">
-
-        <p class="text-xs uppercase text-slate-500 font-semibold">
-            Devoluciones
-        </p>
-
-        <p class="text-3xl font-bold text-purple-700 mt-2">
-            {{ $totalDevoluciones }}
-        </p>
-
-        <p class="text-xs text-slate-400 mt-2">
-            Incidencias registradas.
-        </p>
-
-    </div>
-
-
-    {{-- REPETICIONES --}}
-    <div class="bg-white border-l-4 border-blue-700
-                rounded-xl shadow-sm p-5">
-
-        <p class="text-xs uppercase text-slate-500 font-semibold">
-            Repeticiones
-        </p>
-
-        <p class="text-3xl font-bold text-blue-700 mt-2">
-            {{ $totalRepeticiones }}
-        </p>
-
-        <p class="text-xs text-slate-400 mt-2">
-            Órdenes generadas nuevamente.
-        </p>
-
-    </div>
-
-</div>
 
     {{-- =========================================================
          FILTROS
@@ -137,7 +138,7 @@
                rounded-xl shadow-sm p-5 mb-8"
     >
 
-        <div class="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-4 gap-4">
+        <div class="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-4 gap-4">
 
             {{-- TIPO --}}
             <div>
@@ -148,8 +149,10 @@
 
                 <select
                     name="tipo"
-                    class="w-full border border-slate-300
-                           rounded-lg px-4 py-2.5 bg-white"
+                    class="w-full min-w-0 border border-slate-200 rounded-lg
+                           bg-white px-4 py-2.5 text-sm text-slate-800
+                           focus:outline-none focus:ring-2
+                           focus:ring-[#315875] focus:border-[#315875]"
                 >
 
                     <option value="">
@@ -191,8 +194,10 @@
 
                 <select
                     name="estado"
-                    class="w-full border border-slate-300
-                           rounded-lg px-4 py-2.5 bg-white"
+                    class="w-full min-w-0 border border-slate-200 rounded-lg
+                           bg-white px-4 py-2.5 text-sm text-slate-800
+                           focus:outline-none focus:ring-2
+                           focus:ring-[#315875] focus:border-[#315875]"
                 >
 
                     <option value="">
@@ -238,8 +243,10 @@
 
                 <select
                     name="garantia"
-                    class="w-full border border-slate-300
-                           rounded-lg px-4 py-2.5 bg-white"
+                    class="w-full min-w-0 border border-slate-200 rounded-lg
+                           bg-white px-4 py-2.5 text-sm text-slate-800
+                           focus:outline-none focus:ring-2
+                           focus:ring-[#315875] focus:border-[#315875]"
                 >
 
                     <option value="">
@@ -276,8 +283,10 @@
                     type="date"
                     name="fecha"
                     value="{{ request('fecha') }}"
-                    class="w-full border border-slate-300
-                           rounded-lg px-4 py-2.5"
+                    class="w-full min-w-0 border border-slate-200 rounded-lg
+                           bg-white px-4 py-2.5 text-sm text-slate-800
+                           focus:outline-none focus:ring-2
+                           focus:ring-[#315875] focus:border-[#315875]"
                 >
 
             </div>
@@ -285,22 +294,23 @@
         </div>
 
 
-        <div class="flex justify-end gap-3 mt-5">
+        <div class="flex flex-col sm:flex-row sm:justify-end gap-3 mt-5">
 
             <a
                 href="{{ route('garantias.index') }}"
-                class="px-5 py-2.5 border border-slate-300
-                       rounded-lg font-semibold text-slate-600
-                       hover:bg-slate-50"
+                class="inline-flex items-center justify-center px-5 py-2.5
+                       border border-slate-200 rounded-lg
+                       text-[#315875] text-sm font-semibold
+                       hover:bg-[#eef3ff] transition-colors"
             >
                 Limpiar
             </a>
 
             <button
                 type="submit"
-                class="px-6 py-2.5 bg-blue-800
-                       hover:bg-blue-900 text-white
-                       rounded-lg font-semibold"
+                class="inline-flex items-center justify-center px-6 py-2.5
+                       bg-[#315875] hover:bg-[#182d47] text-white
+                       rounded-lg text-sm font-semibold transition-colors"
             >
                 Filtrar
             </button>
@@ -329,11 +339,16 @@
         </div>
 
 
-        <div class="overflow-x-auto">
+        <div
+            class="w-full min-w-0 overflow-x-auto"
+            tabindex="0"
+            role="region"
+            aria-label="Registro de garantías y devoluciones"
+        >
 
-            <table class="w-full text-sm">
+            <table class="w-full min-w-[1200px] text-sm">
 
-                <thead class="bg-slate-50 text-slate-500 uppercase text-xs">
+                <thead class="bg-[#eef3ff] text-slate-500 uppercase text-xs">
 
                     <tr>
                         <th class="text-left px-6 py-4">Orden</th>
@@ -357,7 +372,7 @@
                         <tr class="hover:bg-slate-50">
 
                             {{-- ORDEN --}}
-                            <td class="px-6 py-4 font-semibold text-blue-900">
+                            <td class="px-6 py-4 whitespace-nowrap font-semibold text-[#315875]">
                                 {{ $devolucion->ordenTrabajo?->codigo ?? '—' }}
                             </td>
 
@@ -376,7 +391,7 @@
 
 
                             {{-- TIPO --}}
-                            <td class="px-6 py-4">
+                            <td class="px-6 py-4 whitespace-nowrap">
 
                                 @if($devolucion->tipo === 'Devolución')
 
@@ -391,12 +406,12 @@
                                     <span class="bg-amber-100 text-amber-700
                                                  px-3 py-1 rounded-full
                                                  text-xs font-semibold">
-                                        ↻ Repetición
+                                        Repetición
                                     </span>
 
                                 @else
 
-                                    <span class="bg-blue-100 text-blue-700
+                                    <span class="bg-[#e7eef8] text-[#315875]
                                                  px-3 py-1 rounded-full
                                                  text-xs font-semibold">
                                         Corrección
@@ -418,8 +433,9 @@
                                 {{ $devolucion->fecha_devolucion?->format('d/m/Y') ?? '—' }}
                             </td>
 
+
                             {{-- GARANTÍA --}}
-                            <td class="px-6 py-4">
+                            <td class="px-6 py-4 whitespace-nowrap">
 
                                 @if($devolucion->garantia)
 
@@ -470,17 +486,19 @@
 
 
                             {{-- ESTADO --}}
-                            <td class="px-6 py-4">
+                            <td class="px-6 py-4 whitespace-nowrap">
+
                                 <span class="bg-slate-100 text-slate-700
                                              px-3 py-1 rounded-full
                                              text-xs font-semibold">
                                     {{ $devolucion->estado }}
                                 </span>
+
                             </td>
 
 
                             {{-- ACCIÓN --}}
-                            <td class="px-6 py-4">
+                            <td class="px-6 py-4 whitespace-nowrap">
 
                                 @if($devolucion->ordenTrabajo)
 
@@ -489,7 +507,7 @@
                                             'ordenes.show',
                                             $devolucion->ordenTrabajo
                                         ) }}"
-                                        class="text-blue-700 font-semibold hover:underline"
+                                        class="text-[#315875] font-semibold hover:underline"
                                     >
                                         Ver orden
                                     </a>
@@ -526,7 +544,7 @@
         @if($devoluciones->hasPages())
 
             <div class="px-6 py-4 border-t border-slate-200">
-                {{ $devoluciones->links() }}
+                {{ $devoluciones->withQueryString()->onEachSide(1)->links() }}
             </div>
 
         @endif

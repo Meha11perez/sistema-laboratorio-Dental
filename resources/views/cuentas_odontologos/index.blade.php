@@ -4,12 +4,12 @@
 
 @section('content')
 
-<div class="max-w-7xl mx-auto">
+<div class="w-full min-w-0">
 
     {{-- ENCABEZADO --}}
     <div class="mb-8">
 
-        <h1 class="text-2xl font-bold text-slate-900">
+        <h1 class="text-2xl sm:text-3xl font-bold tracking-tight text-slate-900">
             Cuentas de Odontólogos
         </h1>
 
@@ -53,15 +53,12 @@
         </div>
 
 
-        <div class="overflow-x-auto">
+        <div class="w-full min-w-0 overflow-x-auto" tabindex="0" role="region" aria-label="Cuentas de odontólogos">
 
-            <table class="w-full text-sm">
+            <table class="w-full min-w-[1000px] text-sm">
 
-                <thead
-                    class="bg-slate-50 text-slate-500
-                           uppercase text-xs"
-                >
-
+                <thead class="bg-[#eef3ff] text-slate-500 uppercase text-xs">
+                    
                     <tr>
 
                         <th class="text-left px-6 py-4">
@@ -128,7 +125,7 @@
 
                                 @if(!$cuenta)
 
-                                    <span class="inline-flex px-3 py-1
+                                    <span class="inline-flex items-center whitespace-nowrap px-3 py-1
                                                 rounded-full text-xs font-semibold
                                                 bg-slate-100 text-slate-500">
                                         Sin configurar
@@ -136,15 +133,15 @@
 
                                 @elseif($cuenta->modalidad_pago === 'Crédito')
 
-                                    <span class="inline-flex px-3 py-1
+                                    <span class="inline-flex items-center whitespace-nowrap px-3 py-1
                                                 rounded-full text-xs font-semibold
-                                                bg-blue-50 text-blue-700">
+                                                bg-[#e7eef8] text-[#315875]">
                                         Crédito
                                     </span>
 
                                 @elseif($cuenta->modalidad_pago === 'Semanal')
 
-                                    <span class="inline-flex px-3 py-1
+                                    <span class="inline-flex items-center whitespace-nowrap px-3 py-1
                                                 rounded-full text-xs font-semibold
                                                 bg-amber-50 text-amber-700">
                                         Semanal
@@ -152,7 +149,7 @@
 
                                 @else
 
-                                    <span class="inline-flex px-3 py-1
+                                    <span class="inline-flex items-center whitespace-nowrap px-3 py-1
                                                 rounded-full text-xs font-semibold
                                                 bg-slate-100 text-slate-700">
                                         Contado
@@ -164,7 +161,7 @@
 
 
                             {{-- LÍMITE --}}
-                            <td class="px-6 py-4 text-right font-semibold text-slate-700">
+                            <td class="px-6 py-4 text-right whitespace-nowrap tabular-nums font-semibold text-slate-700">
 
                                 @if(
                                     $cuenta &&
@@ -186,7 +183,7 @@
 
 
                             {{-- SALDO --}}
-                            <td class="px-6 py-4 text-right">
+                            <td class="px-6 py-4 text-right whitespace-nowrap tabular-nums">
 
                                 @if($cuenta)
 
@@ -216,7 +213,7 @@
 
 
                             {{-- DISPONIBLE --}}
-                            <td class="px-6 py-4 text-right">
+                            <td class="px-6 py-4 text-right whitespace-nowrap tabular-nums">
 
                                 @if(
                                     $cuenta &&
@@ -256,7 +253,7 @@
 
                                 @if(!$cuenta)
 
-                                    <span class="inline-flex px-3 py-1
+                                    <span class="inline-flex items-center whitespace-nowrap px-3 py-1
                                                 rounded-full text-xs font-semibold
                                                 bg-slate-100 text-slate-500">
                                         Sin configurar
@@ -264,7 +261,7 @@
 
                                 @elseif($cuenta->estado)
 
-                                    <span class="inline-flex px-3 py-1
+                                    <span class="inline-flex items-center whitespace-nowrap px-3 py-1
                                                 rounded-full text-xs font-semibold
                                                 bg-green-50 text-green-700">
                                         Activa
@@ -272,7 +269,7 @@
 
                                 @else
 
-                                    <span class="inline-flex px-3 py-1
+                                    <span class="inline-flex items-center whitespace-nowrap px-3 py-1
                                                 rounded-full text-xs font-semibold
                                                 bg-red-50 text-red-700">
                                         Inactiva
@@ -282,8 +279,8 @@
 
                             </td>
 
-                            {{-- ACCIÓN --}}
-                    <td class="px-6 py-4 text-right">
+                    {{-- ACCIÓN --}}
+                    <td class="px-6 py-4 text-right whitespace-nowrap">
 
                         <div class="flex items-center justify-end gap-2">
 
@@ -292,30 +289,30 @@
                                     'cuentas-odontologos.show',
                                     $odontologo
                                 ) }}"
-                                class="inline-flex items-center justify-center
-                                    px-4 py-2
-                                    bg-blue-800
-                                    hover:bg-blue-900
-                                    text-white
-                                    rounded-lg font-semibold text-xs
-                                    transition"
+                                class="inline-flex items-center justify-center whitespace-nowrap
+                                    px-4 py-2.5
+                                    bg-[#315875] hover:bg-[#182d47]
+                                    text-white rounded-lg font-semibold text-xs
+                                    transition-colors
+                                    focus-visible:outline-2 focus-visible:outline-offset-2
+                                    focus-visible:outline-[#315875]"
                             >
                                 Ver detalle
                             </a>
-
 
                             <a
                                 href="{{ route(
                                     'cuentas-odontologos.edit',
                                     $odontologo
                                 ) }}"
-                                class="inline-flex items-center justify-center
-                                    px-4 py-2
-                                    border border-blue-700
-                                    text-blue-700
-                                    hover:bg-blue-50
+                                class="inline-flex items-center justify-center whitespace-nowrap
+                                    px-4 py-2.5
+                                    border border-[#315875]
+                                    text-[#315875] hover:bg-[#e7eef8]
                                     rounded-lg font-semibold text-xs
-                                    transition"
+                                    transition-colors
+                                    focus-visible:outline-2 focus-visible:outline-offset-2
+                                    focus-visible:outline-[#315875]"
                             >
                                 {{ $cuenta ? 'Configurar' : 'Crear cuenta' }}
                             </a>
@@ -351,7 +348,7 @@
         @if($odontologos->hasPages())
 
             <div class="px-6 py-4 border-t border-slate-200">
-                {{ $odontologos->links() }}
+                {{ $odontologos->withQueryString()->onEachSide(1)->links() }}
             </div>
 
         @endif  

@@ -4,21 +4,17 @@
 
 @section('content')
 
-<div class="max-w-7xl mx-auto">
+<div class="w-full min-w-0">
 
-    {{-- =========================================================
-         ENCABEZADO
-    ========================================================== --}}
-    <div class="flex flex-col md:flex-row md:items-center
-                md:justify-between gap-4 mb-8">
+    {{-- ENCABEZADO --}}
+    <div class="flex flex-col gap-4 mb-6 sm:flex-row sm:items-center sm:justify-between">
 
         <div>
-
-            <p class="text-sm font-semibold text-blue-800 uppercase">
+            <p class="text-sm font-semibold text-[#315875] uppercase">
                 Producción
             </p>
 
-            <h1 class="text-3xl font-bold text-slate-900">
+            <h1 class="text-2xl sm:text-3xl font-bold tracking-tight text-slate-900">
                 Control de Producción
             </h1>
 
@@ -26,17 +22,12 @@
                 Supervisión de trabajos activos por área, etapa,
                 técnico y fecha de entrega.
             </p>
-
         </div>
 
     </div>
 
-
-    {{-- =========================================================
-         INDICADORES OPERATIVOS
-    ========================================================== --}}
-    <div class="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-4
-                gap-5 mb-8">
+    {{-- INDICADORES OPERATIVOS --}}
+    <div class="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-4 gap-4 mb-6">
 
         {{-- SIN ASIGNAR --}}
         <a
@@ -48,7 +39,6 @@
                    rounded-xl shadow-sm p-5
                    hover:shadow-md transition"
         >
-
             <p class="text-xs uppercase font-semibold text-slate-500">
                 Sin asignar
             </p>
@@ -60,31 +50,26 @@
             <p class="text-xs text-slate-400 mt-1">
                 Trabajos sin técnico responsable
             </p>
-
         </a>
-
 
         {{-- EN PRODUCCIÓN --}}
         <div
             class="bg-white border border-slate-200
-                   border-l-4 border-l-blue-600
+                   border-l-4 border-l-[#315875]
                    rounded-xl shadow-sm p-5"
         >
-
             <p class="text-xs uppercase font-semibold text-slate-500">
                 En producción
             </p>
 
-            <p class="text-3xl font-bold text-blue-700 mt-2">
+            <p class="text-3xl font-bold text-[#315875] mt-2">
                 {{ $enProduccion }}
             </p>
 
             <p class="text-xs text-slate-400 mt-1">
                 Trabajos actualmente activos
             </p>
-
         </div>
-
 
         {{-- PRÓXIMAS A ENTREGAR --}}
         <div
@@ -92,7 +77,6 @@
                    border-l-4 border-l-violet-500
                    rounded-xl shadow-sm p-5"
         >
-
             <p class="text-xs uppercase font-semibold text-slate-500">
                 Próximas a entregar
             </p>
@@ -104,9 +88,7 @@
             <p class="text-xs text-slate-400 mt-1">
                 Dentro de los próximos 2 días
             </p>
-
         </div>
-
 
         {{-- ATRASADAS --}}
         <a
@@ -118,7 +100,6 @@
                    rounded-xl shadow-sm p-5
                    hover:shadow-md transition"
         >
-
             <p class="text-xs uppercase font-semibold text-slate-500">
                 Atrasadas
             </p>
@@ -130,15 +111,11 @@
             <p class="text-xs text-slate-400 mt-1">
                 Fecha estimada ya vencida
             </p>
-
         </a>
 
     </div>
 
-
-    {{-- =========================================================
-         FILTROS
-    ========================================================== --}}
+    {{-- FILTROS --}}
     <form
         method="GET"
         action="{{ route('produccion.index') }}"
@@ -146,11 +123,10 @@
                rounded-xl shadow-sm p-5 mb-8"
     >
 
-        <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+        <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
 
             {{-- BUSCAR --}}
             <div>
-
                 <label
                     class="block text-xs font-semibold
                            text-slate-600 mb-1"
@@ -163,16 +139,15 @@
                     name="buscar"
                     value="{{ request('buscar') }}"
                     placeholder="Orden, código o paciente..."
-                    class="w-full border border-slate-300
-                           rounded-lg px-3 py-2"
+                    class="w-full min-w-0 border border-slate-200 rounded-lg
+                           bg-white px-4 py-2.5 text-sm text-slate-800
+                           focus:outline-none focus:ring-2
+                           focus:ring-[#315875] focus:border-[#315875]"
                 >
-
             </div>
-
 
             {{-- ÁREA --}}
             <div>
-
                 <label
                     class="block text-xs font-semibold
                            text-slate-600 mb-1"
@@ -182,10 +157,11 @@
 
                 <select
                     name="area"
-                    class="w-full border border-slate-300
-                           rounded-lg px-3 py-2 bg-white"
+                    class="w-full min-w-0 border border-slate-200 rounded-lg
+                           bg-white px-4 py-2.5 text-sm text-slate-800
+                           focus:outline-none focus:ring-2
+                           focus:ring-[#315875] focus:border-[#315875]"
                 >
-
                     <option value="">
                         Todas las áreas
                     </option>
@@ -217,36 +193,30 @@
                     >
                         Aparatos de Ortodoncia
                     </option>
-
                 </select>
-
             </div>
 
         </div>
 
-
         {{-- BOTONES --}}
-        <div class="flex justify-end gap-3 mt-5">
+        <div class="flex flex-col sm:flex-row sm:justify-end gap-3 mt-5">
 
             <a
                 href="{{ route('produccion.index') }}"
-                class="px-5 py-2
-                       border border-slate-300
-                       rounded-lg
-                       text-slate-600
-                       hover:bg-slate-50"
+                class="inline-flex items-center justify-center
+                       px-5 py-2.5 border border-slate-200
+                       rounded-lg text-[#315875] text-sm font-semibold
+                       hover:bg-[#e7eef8] transition-colors"
             >
                 Limpiar
             </a>
 
             <button
                 type="submit"
-                class="px-5 py-2
-                       bg-blue-800
-                       text-white
-                       rounded-lg
-                       font-semibold
-                       hover:bg-blue-900"
+                class="inline-flex items-center justify-center
+                       px-6 py-2.5 bg-[#315875] hover:bg-[#182d47]
+                       text-white rounded-lg text-sm font-semibold
+                       transition-colors"
             >
                 Filtrar
             </button>
@@ -255,10 +225,7 @@
 
     </form>
 
-
-    {{-- =========================================================
-         TABLA DE PRODUCCIÓN ACTIVA
-    ========================================================== --}}
+    {{-- TABLA DE PRODUCCIÓN ACTIVA --}}
     <section
         class="bg-white border border-slate-200
                rounded-xl shadow-sm overflow-hidden"
@@ -277,20 +244,17 @@
 
         </div>
 
+        <div
+            class="w-full min-w-0 overflow-x-auto"
+            tabindex="0"
+            role="region"
+            aria-label="Listado de producción activa"
+        >
 
-        <div class="overflow-x-auto">
+            <table class="w-full min-w-[1100px] text-sm">
 
-            <table class="w-full text-sm">
-
-                <thead
-                    class="bg-slate-50
-                           text-slate-500
-                           uppercase
-                           text-xs"
-                >
-
+                <thead class="bg-[#eef3ff] text-slate-500 uppercase text-xs">
                     <tr>
-
                         <th class="text-left px-5 py-4">
                             Orden
                         </th>
@@ -322,20 +286,15 @@
                         <th class="text-right px-5 py-4">
                             Acción
                         </th>
-
                     </tr>
-
                 </thead>
-
 
                 <tbody class="divide-y divide-slate-100">
 
                     @forelse($ordenes as $orden)
 
                         @php
-
-                            $estado =
-                                $orden->estadoOrden?->nombre;
+                            $estado = $orden->estadoOrden?->nombre;
 
                             $atrasada =
                                 $orden->fecha_entrega_estimada
@@ -348,83 +307,43 @@
                                     now()->startOfDay()
                                 );
 
-                            $nombreArea = match(
-                                $orden->area_trabajo
-                            ) {
-
-                                'removible' =>
-                                    'Prótesis Removibles',
-
-                                'fija' =>
-                                    'Prótesis Fijas',
-
-                                'cromo_cobalto' =>
-                                    'Cromo Cobalto',
-
-                                'ortodoncia' =>
-                                    'Aparatos de Ortodoncia',
-
-                                default =>
-                                    'Sin área',
-
+                            $nombreArea = match($orden->area_trabajo) {
+                                'removible' => 'Prótesis Removibles',
+                                'fija' => 'Prótesis Fijas',
+                                'cromo_cobalto' => 'Cromo Cobalto',
+                                'ortodoncia' => 'Aparatos de Ortodoncia',
+                                default => 'Sin área',
                             };
-
                         @endphp
 
-
                         <tr
-                            class="
-                                hover:bg-slate-50
-                                {{ $atrasada
-                                    ? 'bg-red-50/40'
-                                    : ''
-                                }}
-                            "
+                            class="hover:bg-slate-50
+                                   {{ $atrasada ? 'bg-red-50/40' : '' }}"
                         >
 
-                            {{-- =====================================
-                                 ORDEN
-                            ====================================== --}}
+                            {{-- ORDEN --}}
                             <td class="px-5 py-4 align-top">
 
-                                <p
-                                    class="font-bold
-                                           text-blue-900
-                                           whitespace-nowrap"
-                                >
+                                <p class="font-bold text-[#315875] whitespace-nowrap">
                                     {{ $orden->codigo }}
                                 </p>
 
-                                <p
-                                    class="text-xs
-                                           text-slate-500
-                                           mt-1"
-                                >
-                                    {{ $orden->paciente?->nombre
-                                        ?? 'Sin paciente'
-                                    }}
+                                <p class="text-xs text-slate-500 mt-1">
+                                    {{ $orden->paciente?->nombre ?? 'Sin paciente' }}
                                 </p>
 
                                 @if($orden->prioridad === 'Urgente')
-
                                     <span
-                                        class="inline-block
-                                               mt-1
-                                               text-xs
-                                               font-bold
-                                               text-red-600"
+                                        class="inline-block mt-1
+                                               text-xs font-bold text-red-600"
                                     >
                                         Urgente
                                     </span>
-
                                 @endif
 
                             </td>
 
-
-                            {{-- =====================================
-                                 ÁREA / CÓDIGO
-                            ====================================== --}}
+                            {{-- ÁREA / CÓDIGO --}}
                             <td class="px-5 py-4 align-top">
 
                                 <p class="font-semibold text-slate-800">
@@ -432,21 +351,15 @@
                                 </p>
 
                                 <p
-                                    class="text-xs
-                                           text-blue-700
-                                           font-semibold
-                                           mt-1
-                                           whitespace-nowrap"
+                                    class="text-xs text-[#315875]
+                                           font-semibold mt-1 whitespace-nowrap"
                                 >
                                     {{ $orden->codigo_area ?? '—' }}
                                 </p>
 
                             </td>
 
-
-                            {{-- =====================================
-                                 TIPO DE TRABAJO
-                            ====================================== --}}
+                            {{-- TIPO DE TRABAJO --}}
                             <td class="px-5 py-4 align-top">
 
                                 <p class="font-medium text-slate-800">
@@ -455,32 +368,22 @@
 
                             </td>
 
-
-                            {{-- =====================================
-                                 ETAPA
-                            ====================================== --}}
+                            {{-- ETAPA --}}
                             <td class="px-5 py-4 align-top">
 
                                 @if($orden->etapaActual)
 
                                     <span
-                                        class="inline-flex
-                                               px-3 py-1
-                                               rounded-full
-                                               bg-violet-50
-                                               text-violet-700
-                                               text-xs
-                                               font-semibold"
+                                        class="inline-flex px-3 py-1 rounded-full
+                                               bg-violet-50 text-violet-700
+                                               text-xs font-semibold"
                                     >
                                         {{ $orden->etapaActual->nombre }}
                                     </span>
 
                                 @else
 
-                                    <span
-                                        class="text-amber-600
-                                               font-semibold"
-                                    >
+                                    <span class="text-amber-600 font-semibold">
                                         Sin etapa
                                     </span>
 
@@ -488,32 +391,22 @@
 
                             </td>
 
-
-                            {{-- =====================================
-                                 TÉCNICO
-                            ====================================== --}}
+                            {{-- TÉCNICO --}}
                             <td class="px-5 py-4 align-top">
 
                                 @if($orden->tecnicoActual)
 
                                     <p class="font-medium text-slate-800">
-
                                         {{
-                                            $orden->tecnicoActual
-                                                ->user?->name
+                                            $orden->tecnicoActual->user?->name
                                             ??
-                                            'Técnico #' .
-                                            $orden->tecnicoActual->id
+                                            'Técnico #' . $orden->tecnicoActual->id
                                         }}
-
                                     </p>
 
                                 @else
 
-                                    <span
-                                        class="text-amber-600
-                                               font-semibold"
-                                    >
+                                    <span class="text-amber-600 font-semibold">
                                         Sin asignar
                                     </span>
 
@@ -521,22 +414,15 @@
 
                             </td>
 
-
-                            {{-- =====================================
-                                 ESTADO
-                            ====================================== --}}
-                            <td class="px-5 py-4 align-top">
+                            {{-- ESTADO --}}
+                            <td class="px-5 py-4 align-top whitespace-nowrap">
 
                                 @if($estado === 'En proceso')
 
                                     <span
-                                        class="inline-flex
-                                               bg-blue-100
-                                               text-blue-700
-                                               px-3 py-1
-                                               rounded-full
-                                               text-xs
-                                               font-semibold"
+                                        class="inline-flex bg-[#e7eef8]
+                                               text-[#315875] px-3 py-1
+                                               rounded-full text-xs font-semibold"
                                     >
                                         En proceso
                                     </span>
@@ -544,13 +430,9 @@
                                 @else
 
                                     <span
-                                        class="inline-flex
-                                               bg-amber-100
-                                               text-amber-700
-                                               px-3 py-1
-                                               rounded-full
-                                               text-xs
-                                               font-semibold"
+                                        class="inline-flex bg-amber-100
+                                               text-amber-700 px-3 py-1
+                                               rounded-full text-xs font-semibold"
                                     >
                                         {{ $estado ?? 'Pendiente' }}
                                     </span>
@@ -559,45 +441,28 @@
 
                             </td>
 
-
-                            {{-- =====================================
-                                 ENTREGA
-                            ====================================== --}}
+                            {{-- ENTREGA --}}
                             <td class="px-5 py-4 align-top">
 
                                 @if($orden->fecha_entrega_estimada)
 
                                     <p
-                                        class="
-                                            font-semibold
-                                            whitespace-nowrap
-                                            {{
-                                                $atrasada
-                                                    ? 'text-red-700'
-                                                    : 'text-slate-700'
-                                            }}
-                                        "
+                                        class="font-semibold whitespace-nowrap
+                                               {{ $atrasada
+                                                   ? 'text-red-700'
+                                                   : 'text-slate-700' }}"
                                     >
-
                                         {{
                                             \Carbon\Carbon::parse(
-                                                $orden
-                                                    ->fecha_entrega_estimada
+                                                $orden->fecha_entrega_estimada
                                             )->format('d/m/Y')
                                         }}
-
                                     </p>
 
                                     @if($atrasada)
-
-                                        <span
-                                            class="text-xs
-                                                   font-bold
-                                                   text-red-600"
-                                        >
+                                        <span class="text-xs font-bold text-red-600">
                                             Atrasada
                                         </span>
-
                                     @endif
 
                                 @else
@@ -610,15 +475,8 @@
 
                             </td>
 
-
-                            {{-- =====================================
-                                 ACCIÓN
-                            ====================================== --}}
-                            <td
-                                class="px-5 py-4
-                                       text-right
-                                       align-top"
-                            >
+                            {{-- ACCIÓN --}}
+                            <td class="px-5 py-4 text-right align-top">
 
                                 <a
                                     href="{{ route(
@@ -628,10 +486,8 @@
                                             'origen' => 'produccion',
                                         ]
                                     ) }}"
-                                    class="text-blue-700
-                                           font-semibold
-                                           hover:underline
-                                           whitespace-nowrap"
+                                    class="text-[#315875] font-semibold
+                                           hover:underline whitespace-nowrap"
                                 >
                                     Gestionar
                                 </a>
@@ -640,34 +496,22 @@
 
                         </tr>
 
-
                     @empty
 
                         <tr>
-
                             <td
                                 colspan="8"
                                 class="px-6 py-12 text-center"
                             >
-
-                                <p
-                                    class="font-semibold
-                                           text-slate-600"
-                                >
+                                <p class="font-semibold text-slate-600">
                                     No hay trabajos activos.
                                 </p>
 
-                                <p
-                                    class="text-sm
-                                           text-slate-400
-                                           mt-1"
-                                >
+                                <p class="text-sm text-slate-400 mt-1">
                                     No se encontraron órdenes que
                                     requieran seguimiento de producción.
                                 </p>
-
                             </td>
-
                         </tr>
 
                     @endforelse
@@ -678,14 +522,11 @@
 
         </div>
 
-
         {{-- PAGINACIÓN --}}
         @if($ordenes->hasPages())
-
             <div class="px-6 py-4 border-t border-slate-200">
-                {{ $ordenes->links() }}
+                {{ $ordenes->withQueryString()->onEachSide(1)->links() }}
             </div>
-
         @endif
 
     </section>

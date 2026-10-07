@@ -1352,34 +1352,8 @@
             @if($orden->garantia)
 
                 @php
-                    $hoy = now()->startOfDay();
-
-                    $vencimiento =
-                        $orden
-                            ->garantia
-                            ->fecha_vencimiento
-                            ?->startOfDay();
-
-                    if (!$vencimiento) {
-
-                        $estadoGarantia = 'Sin fecha';
-
-                    } elseif($vencimiento->lt($hoy)) {
-
-                        $estadoGarantia = 'Vencida';
-
-                    } elseif(
-                        $vencimiento->diffInDays($hoy) <= 15
-                    ) {
-
-                        $estadoGarantia = 'Por vencer';
-
-                    } else {
-
-                        $estadoGarantia = 'Vigente';
-                    }
+                    $estadoGarantia = $orden->garantia->estado_actual;
                 @endphp
-
 
                 <div class="grid grid-cols-1
                             md:grid-cols-3 gap-6">

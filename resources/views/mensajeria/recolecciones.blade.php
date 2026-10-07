@@ -4,11 +4,11 @@
 
 @section('content')
 
-<div class="max-w-7xl mx-auto space-y-6">
+<div class="w-full min-w-0 space-y-6">
 
     {{-- ENCABEZADO --}}
     <div>
-        <h1 class="text-3xl font-bold text-slate-900">
+        <h1 class="text-2xl sm:text-3xl font-bold tracking-tight text-slate-900">
             Recolecciones
         </h1>
 
@@ -25,7 +25,7 @@
         <form
             method="GET"
             action="{{ route('mensajeria.recolecciones') }}"
-            class="grid grid-cols-1 md:grid-cols-5 gap-4 items-end"
+            class="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-4 gap-4 items-end"
         >
 
             {{-- FECHA --}}
@@ -143,22 +143,23 @@
 
 
             {{-- BOTONES --}}
-            <div class="flex gap-2">
+            <div class="col-span-full flex flex-col sm:flex-row sm:justify-end gap-3">
 
                 <button
                     type="submit"
-                    class="px-4 py-2 bg-blue-700 text-white
-                           rounded-lg text-sm font-semibold
-                           hover:bg-blue-800"
-                >
+                    class="inline-flex items-center justify-center px-6 py-2.5
+                    bg-[#315875] hover:bg-[#182d47]
+                    text-white rounded-lg text-sm font-semibold
+                    transition-colors">
                     Filtrar
                 </button>
 
                 <a
                     href="{{ route('mensajeria.recolecciones') }}"
-                    class="px-4 py-2 border border-slate-300
-                           rounded-lg text-sm font-semibold
-                           text-slate-600 hover:bg-slate-50"
+                    class="inline-flex items-center justify-center px-5 py-2.5
+                    border border-slate-200 rounded-lg
+                    text-[#315875] text-sm font-semibold
+                    hover:bg-[#e7eef8] transition-colors"
                 >
                     Limpiar
                 </a>
@@ -192,9 +193,9 @@
 
         </div>
 
-        <div class="overflow-x-auto">
+        <div class="w-full min-w-0 overflow-x-auto" tabindex="0" role="region" aria-label="Historial de recolecciones">
 
-            <table class="w-full text-sm">
+            <table class="w-full min-w-[1000px] text-sm">
 
                 <thead class="bg-slate-50 text-slate-500 uppercase text-xs">
 
@@ -301,9 +302,9 @@
                                     };
                                 @endphp
 
-                                <span
-                                    class="inline-flex px-3 py-1 rounded-full
-                                           text-xs font-semibold {{ $clasesEstado }}"
+                                <span class="inline-flex items-center whitespace-nowrap
+                                        px-3 py-1 rounded-full
+                                        text-xs font-semibold {{ $clasesEstado }}"
                                 >
                                     {{ $detalle->estado }}
                                 </span>
@@ -327,8 +328,7 @@
                                         'mensajeria.recolecciones.show',
                                         $detalle
                                     ) }}"
-                                    class="text-blue-700 font-semibold hover:underline"
-                                >
+                                    class="text-[#315875] font-semibold hover:underline">
                                     Ver detalle
                                 </a>
 
@@ -362,13 +362,13 @@
 
             <div class="px-6 py-4 border-t border-slate-200">
 
-                {{ $recolecciones->links() }}
+                {{ $recolecciones->withQueryString()->onEachSide(1)->links() }}
 
             </div>
 
         @endif
 
-    </div>
+    </div> 
 
 </div>
 

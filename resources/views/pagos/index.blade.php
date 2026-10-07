@@ -23,7 +23,6 @@
 
     </div>
 
-
     {{-- TARJETAS --}}
     <div class="grid grid-cols-1 sm:grid-cols-2 2xl:grid-cols-4 gap-4 mb-6">
 
@@ -76,14 +75,13 @@
                 Saldo pendiente total
             </p>
 
-            <p class="text-2xl font-bold text-[#315875] mt-2 tabular-nums break-words"></p>
+            <p class="text-2xl font-bold text-[#315875] mt-2 tabular-nums break-word"></p>
                 Q {{ number_format($saldoPendienteTotal, 2) }}
             </p>
 
         </div>
 
     </div>
-
 
     {{-- FILTROS --}}
     <form
@@ -193,7 +191,6 @@
 
     </form>
 
-
     {{-- TABLA --}}
     <section class="bg-white border border-slate-200
                     rounded-xl shadow-sm overflow-hidden">
@@ -210,13 +207,12 @@
 
         </div>
 
-
         <div class="w-full min-w-0 overflow-x-auto"
             tabindex="0"
             role="region"
             aria-label="Registro de pagos">
 
-            <table class="w-full min-w-[1100px] text-sm">
+            <table class="w-full min-w-275px text-sm">
 
                 <thead class="bg-[#eef3ff] text-slate-500 uppercase text-xs">
 

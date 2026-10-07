@@ -11,7 +11,7 @@
 
         <a
             href="{{ route('ordenes.show', $orden) }}"
-            class="text-sm font-semibold text-blue-700 hover:underline"
+            class="text-sm font-semibold text-[#315875] hover:underline"
         >
             ← Volver a la orden
         </a>
@@ -28,7 +28,7 @@
 
 
     {{-- DATOS DE LA ORDEN --}}
-    <div class="bg-blue-50 border border-blue-200
+    <div class="bg-[#e7eef8] border border-[#d2dfeb]
                 rounded-xl p-5 mb-6">
 
         <div class="grid grid-cols-1 md:grid-cols-4 gap-4">
@@ -104,59 +104,62 @@
 
     @endif
 
+
     {{-- FORMULARIO --}}
-        <form
-            method="POST"
-            action="{{ route('devoluciones.store', $orden) }}"
-            class="bg-white border border-slate-200
-                rounded-xl shadow-sm overflow-hidden"
-            >
-            @csrf
+    <form
+        method="POST"
+        action="{{ route('devoluciones.store', $orden) }}"
+        class="bg-white border border-slate-200
+               rounded-xl shadow-sm overflow-hidden"
+    >
+        @csrf
 
-            <div class="p-6 grid grid-cols-1 md:grid-cols-2 gap-6">
+        <div class="p-6 grid grid-cols-1 md:grid-cols-2 gap-6">
 
-                {{-- TIPO --}}
-                <div>
+            {{-- TIPO --}}
+            <div>
 
-                    <label class="block text-sm font-semibold text-slate-700 mb-2">
-                        Tipo *
-                    </label>
+                <label class="block text-sm font-semibold text-slate-700 mb-2">
+                    Tipo *
+                </label>
 
-                    <select
-                        name="tipo"
-                        required
-                        class="w-full border border-slate-300
-                            rounded-lg px-4 py-3 bg-white"
-                        >
+                <select
+                    name="tipo"
+                    required
+                    class="w-full border border-slate-300
+                           rounded-lg px-4 py-3 bg-white
+                           focus:outline-none focus:ring-2
+                           focus:ring-[#315875] focus:border-[#315875]"
+                >
 
-                        <option value="">
-                            Seleccione...
-                        </option>
+                    <option value="">
+                        Seleccione...
+                    </option>
 
-                        <option
-                            value="Devolución"
-                            @selected(old('tipo') === 'Devolución')
-                        >
-                            Devolución
-                        </option>
+                    <option
+                        value="Devolución"
+                        @selected(old('tipo') === 'Devolución')
+                    >
+                        Devolución
+                    </option>
 
-                        <option
-                            value="Repetición"
-                            @selected(old('tipo') === 'Repetición')
-                        >
-                            Repetición
-                        </option>
+                    <option
+                        value="Repetición"
+                        @selected(old('tipo') === 'Repetición')
+                    >
+                        Repetición
+                    </option>
 
-                        <option
-                            value="Corrección"
-                            @selected(old('tipo') === 'Corrección')
-                        >
-                            Corrección
-                        </option>
+                    <option
+                        value="Corrección"
+                        @selected(old('tipo') === 'Corrección')
+                    >
+                        Corrección
+                    </option>
 
-                    </select>
+                </select>
 
-                </div>
+            </div>
 
 
             {{-- FECHA --}}
@@ -175,7 +178,9 @@
                     ) }}"
                     required
                     class="w-full border border-slate-300
-                           rounded-lg px-4 py-3"
+                           rounded-lg px-4 py-3
+                           focus:outline-none focus:ring-2
+                           focus:ring-[#315875] focus:border-[#315875]"
                 >
 
             </div>
@@ -195,7 +200,9 @@
                     required
                     placeholder="Ej. Paciente no conforme con prueba de dientes"
                     class="w-full border border-slate-300
-                           rounded-lg px-4 py-3"
+                           rounded-lg px-4 py-3
+                           focus:outline-none focus:ring-2
+                           focus:ring-[#315875] focus:border-[#315875]"
                 >
 
             </div>
@@ -211,7 +218,9 @@
                 <select
                     name="tecnico_responsable_id"
                     class="w-full border border-slate-300
-                           rounded-lg px-4 py-3 bg-white"
+                           rounded-lg px-4 py-3 bg-white
+                           focus:outline-none focus:ring-2
+                           focus:ring-[#315875] focus:border-[#315875]"
                 >
 
                     <option value="">
@@ -236,6 +245,7 @@
 
             </div>
 
+
             {{-- ESTADO --}}
             <div>
 
@@ -247,7 +257,9 @@
                     name="estado"
                     required
                     class="w-full border border-slate-300
-                        rounded-lg px-4 py-3 bg-white"
+                           rounded-lg px-4 py-3 bg-white
+                           focus:outline-none focus:ring-2
+                           focus:ring-[#315875] focus:border-[#315875]"
                 >
 
                     <option
@@ -301,7 +313,9 @@
                     name="requiere_repeticion"
                     required
                     class="w-full border border-slate-300
-                           rounded-lg px-4 py-3 bg-white"
+                           rounded-lg px-4 py-3 bg-white
+                           focus:outline-none focus:ring-2
+                           focus:ring-[#315875] focus:border-[#315875]"
                 >
 
                     <option value="0"
@@ -339,7 +353,9 @@
                         min="0"
                         step="0.01"
                         class="w-full border border-slate-300
-                               rounded-lg pl-9 pr-4 py-3"
+                               rounded-lg pl-9 pr-4 py-3
+                               focus:outline-none focus:ring-2
+                               focus:ring-[#315875] focus:border-[#315875]"
                     >
 
                 </div>
@@ -358,7 +374,9 @@
                     name="observaciones"
                     rows="4"
                     class="w-full border border-slate-300
-                           rounded-lg px-4 py-3 resize-none"
+                           rounded-lg px-4 py-3 resize-none
+                           focus:outline-none focus:ring-2
+                           focus:ring-[#315875] focus:border-[#315875]"
                     placeholder="Información adicional..."
                 >{{ old('observaciones') }}</textarea>
 
@@ -375,15 +393,16 @@
             <a
                 href="{{ route('ordenes.show', $orden) }}"
                 class="px-5 py-3 border border-slate-300
-                       rounded-lg font-semibold text-slate-600"
+                       rounded-lg font-semibold text-[#315875]
+                       hover:bg-[#eef3ff]"
             >
                 Cancelar
             </a>
 
             <button
                 type="submit"
-                class="px-6 py-3 bg-blue-800
-                       hover:bg-blue-900 text-white
+                class="px-6 py-3 bg-[#315875]
+                       hover:bg-[#182d47] text-white
                        rounded-lg font-semibold"
             >
                 Registrar Devolución

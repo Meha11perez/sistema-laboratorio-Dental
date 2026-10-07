@@ -4,10 +4,10 @@
 
 @section('content')
 
-<div class="max-w-7xl mx-auto space-y-6">
+<div class="w-full min-w-0 space-y-6">
 
     <div>
-        <h1 class="text-3xl font-bold text-slate-900">
+        <h1 class="text-2xl sm:text-3xl font-bold tracking-tight text-slate-900">
             Entregas
         </h1>
 
@@ -22,7 +22,7 @@
         <form
             method="GET"
             action="{{ route('mensajeria.entregas') }}"
-            class="grid grid-cols-1 md:grid-cols-5 gap-4 items-end"
+            class="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-4 gap-4 items-end"
         >
 
             <div>
@@ -93,7 +93,7 @@
 
             <div>
                 <label class="block text-xs font-semibold text-slate-600 mb-1">
-                    Clínica
+                    Clínica 
                 </label>
 
                 <select
@@ -115,21 +115,23 @@
                 </select>
             </div>
 
-            <div class="flex gap-2">
+            <div class="col-span-full flex flex-col sm:flex-row sm:justify-end gap-3">
                 <button
                     type="submit"
-                    class="px-4 py-2 bg-blue-700 text-white
-                           rounded-lg text-sm font-semibold
-                           hover:bg-blue-800"
-                >
+                    class="inline-flex items-center justify-center px-6 py-2.5
+                    bg-[#315875] hover:bg-[#182d47]
+                    text-white rounded-lg text-sm font-semibold
+                    transition-colors">
+
                     Filtrar
                 </button>
 
                 <a
                     href="{{ route('mensajeria.entregas') }}"
-                    class="px-4 py-2 border border-slate-300
-                           rounded-lg text-sm font-semibold
-                           text-slate-600 hover:bg-slate-50"
+                    class="inline-flex items-center justify-center px-5 py-2.5
+                    border border-slate-200 rounded-lg
+                    text-[#315875] text-sm font-semibold
+                    hover:bg-[#e7eef8] transition-colors"
                 >
                     Limpiar
                 </a>
@@ -155,9 +157,9 @@
 
         </div>
 
-        <div class="overflow-x-auto">
+        <div class="w-full min-w-0 overflow-x-auto" tabindex="0" role="region" aria-label="Historial de entregas">
 
-            <table class="w-full text-sm">
+            <table class="w-full min-w-[1100px] text-sm">
 
                 <thead class="bg-slate-50 text-slate-500 uppercase text-xs">
                     <tr>
@@ -179,19 +181,19 @@
 
                         <tr class="hover:bg-slate-50">
 
-                            <td class="px-6 py-4">
+                            <td class="px-6 py-4 whitespace-nowrap font-semibold">
                                 {{ $detalle->rutaMensajeria?->fecha?->format('d/m/Y') ?? '—' }}
                             </td>
 
-                            <td class="px-6 py-4 font-semibold">
+                            <td class="px-6 py-4 whitespace-nowrap font-semibold">
                                 Ruta #{{ $detalle->ruta_mensajeria_id }}
                             </td>
 
-                            <td class="px-6 py-4">
+                            <td class="px-6 py-4 whitespace-nowrap">
                                 {{ $detalle->ordenTrabajo?->codigo ?? '—' }}
                             </td>
 
-                            <td class="px-6 py-4">
+                            <td class="px-6 py-4 whitespace-nowrap">
                                 {{ $detalle->ordenTrabajo?->paciente?->nombre ?? '—' }}
                             </td>
 
@@ -203,7 +205,7 @@
                                 {{ $detalle->clinica?->nombre ?? '—' }}
                             </td>
 
-                        <td class="px-6 py-4">
+                        <td class="px-6 py-4 text-right whitespace-nowrap">
 
                         @php
                             $atrasada =
@@ -235,20 +237,22 @@
                             }
                         @endphp
 
-                        <span
-                            class="inline-flex px-3 py-1 rounded-full
-                                text-xs font-semibold {{ $estadoClase }}"
-                        >
-                            {{ $estadoTexto }}
-                        </span>
-                            </td>
+                            <span class="inline-flex items-center whitespace-nowrap
+                                    px-3 py-1 rounded-full
+                                    text-xs font-semibold {{ $estadoClase }}"
+                            >
+                                {{ $estadoTexto }}
+                            </span>
 
-                            <td class="px-6 py-4">
+                        </td>
+
+                        <td class="px-6 py-4">
                                 {{ $detalle->hora_realizada ?? '—' }}
-                            </td>
+                        </td>
 
                     <td class="px-6 py-4 text-right">
-                        <div class="flex items-center justify-end gap-3">
+                        
+                        <div class="flex items-center justify-end gap-3 whitespace-nowrap">
 
                             @if($atrasada)
                                 <a
@@ -267,8 +271,8 @@
                                     'mensajeria.entregas.show',
                                     $detalle->id
                                 ) }}"
-                                class="text-blue-700 font-semibold hover:underline"
-                            >
+                                class="text-[#315875] font-semibold hover:underline">
+
                                 Ver detalle
                             </a>
 
@@ -297,7 +301,7 @@
 
         @if($entregas->hasPages())
             <div class="px-6 py-4 border-t border-slate-200">
-                {{ $entregas->links() }}
+                {{ $entregas->withQueryString()->onEachSide(1)->links() }}
             </div>
         @endif
 
