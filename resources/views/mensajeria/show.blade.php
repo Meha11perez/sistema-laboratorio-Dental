@@ -113,6 +113,16 @@
 
 
     {{-- MENSAJES --}}
+    @if($errors->any())
+        <div class="mb-6 rounded-xl border border-red-200 bg-red-50 px-5 py-4 text-sm text-red-700" role="alert">
+            <ul class="list-disc pl-5">
+                @foreach($errors->all() as $error)
+                    <li>{{ $error }}</li>
+                @endforeach
+            </ul>
+        </div>
+    @endif
+
     @if(session('success'))
 
         <div class="mb-6 bg-emerald-50 border border-emerald-200

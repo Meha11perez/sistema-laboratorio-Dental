@@ -320,7 +320,7 @@
                         </th>
 
                         <th class="text-left px-5 py-4">
-                            Técnico
+                            Origen / destino
                         </th>
 
                         <th class="text-left px-5 py-4">
@@ -471,26 +471,10 @@
                             </td>
 
 
-                            {{-- TÉCNICO --}}
+                            {{-- ORIGEN / DESTINO --}}
                             <td class="px-5 py-4">
-
-                                @if($movimiento->tecnico)
-
-                                    {{ $movimiento
-                                        ->tecnico
-                                        ?->user
-                                        ?->name ?? 'Técnico' }}
-
-                                @else
-
-                                    <span class="text-slate-400">
-                                        —
-                                    </span>
-
-                                @endif
-
+                                @include('inventario.partials.contexto-movimiento')
                             </td>
-
 
                             {{-- ORDEN --}}
                             <td class="px-5 py-4">

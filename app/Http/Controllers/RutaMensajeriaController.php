@@ -28,21 +28,16 @@ class RutaMensajeriaController extends Controller{
     }
     public function index(Request $request)
     {
+        $request->validate(['fecha' => ['nullable', 'date_format:Y-m-d']]);
+        if ($this->esMensajero() && !$request->filled('fecha')) {
+            $request->merge(['fecha' => Carbon::today('America/Guatemala')->toDateString()]);
+        }
+
         $query = RutaMensajeria::with('mensajero')
             ->withCount('detalles');
 
        if ($this->esMensajero()) {
-            $query->where('mensajero_id', auth()->id())
-                ->whereDate(
-                    'fecha',
-                    '>=',
-                    Carbon::today('America/Guatemala')->subMonths(3)
-                )
-                ->whereDate(
-                    'fecha',
-                    '<=',
-                    Carbon::today('America/Guatemala')
-                );
+            $query->where('mensajero_id', auth()->id());
         }
 
         if ($request->filled('fecha')) {
@@ -70,6 +65,7 @@ class RutaMensajeriaController extends Controller{
             $query->where('nombre', 'Mensajero')
                 ->where('estado', true);
         })
+        ->where('estado', true)
         ->orderBy('name')
         ->get();
 
@@ -85,7 +81,7 @@ class RutaMensajeriaController extends Controller{
              'mensajero_id' => [
                 'required',
                     Rule::exists('users', 'id')->where(function ($query) {
-                        $query->whereIn('role_id', function ($subquery) {
+                        $query->where('estado', true)->whereIn('role_id', function ($subquery) {
                         $subquery->select('id')
                             ->from('roles')
                             ->where('nombre', 'Mensajero')
@@ -227,6 +223,11 @@ class RutaMensajeriaController extends Controller{
     }
     public function recolecciones(Request $request)
     {
+        $request->validate(['fecha' => ['nullable', 'date_format:Y-m-d']]);
+        if ($this->esMensajero() && !$request->filled('fecha')) {
+            $request->merge(['fecha' => Carbon::today('America/Guatemala')->toDateString()]);
+        }
+
         $query = DetalleMensajeria::with([
             'rutaMensajeria.mensajero',
             'ordenTrabajo',
@@ -238,17 +239,7 @@ class RutaMensajeriaController extends Controller{
        
         if ($this->esMensajero()) {
             $query->whereHas('rutaMensajeria', function ($q) {
-                $q->where('mensajero_id', auth()->id())
-                    ->whereDate(
-                        'fecha',
-                        '>=',
-                        Carbon::today('America/Guatemala')->subMonths(3)
-                    )
-                    ->whereDate(
-                        'fecha',
-                        '<=',
-                        Carbon::today('America/Guatemala')
-                    );
+                $q->where('mensajero_id', auth()->id());
             });
         }
         // FILTRO POR FECHA
@@ -340,6 +331,11 @@ class RutaMensajeriaController extends Controller{
     }
     public function entregas(Request $request)
     {
+        $request->validate(['fecha' => ['nullable', 'date_format:Y-m-d']]);
+        if ($this->esMensajero() && !$request->filled('fecha')) {
+            $request->merge(['fecha' => Carbon::today('America/Guatemala')->toDateString()]);
+        }
+
         $query = DetalleMensajeria::with([
             'rutaMensajeria.mensajero',
             'ordenTrabajo.paciente',
@@ -351,17 +347,7 @@ class RutaMensajeriaController extends Controller{
             
        if ($this->esMensajero()) {
             $query->whereHas('rutaMensajeria', function ($q) {
-                $q->where('mensajero_id', auth()->id())
-                    ->whereDate(
-                        'fecha',
-                        '>=',
-                        Carbon::today('America/Guatemala')->subMonths(3)
-                    )
-                    ->whereDate(
-                        'fecha',
-                        '<=',
-                        Carbon::today('America/Guatemala')
-                    );
+                $q->where('mensajero_id', auth()->id());
             });
         }
 

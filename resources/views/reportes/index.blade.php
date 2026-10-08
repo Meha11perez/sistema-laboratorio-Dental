@@ -77,6 +77,7 @@
         </div>
         <div class="rm-grid">
             @foreach([
+                ['Pacientes', 'Pacientes y sus órdenes', 'Resumen por paciente y detalle de trabajos, con filtros por ingreso, odontólogo y estado.', 'reportes.pacientes', 'M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2M9 11a4 4 0 1 0 0-8 4 4 0 0 0 0 8M16 11h6M19 8v6'],
                 ['Producción', 'Producción y trazabilidad', 'Órdenes por período, área, prótesis, odontólogo y estado, con el historial de etapas.', 'reportes.produccion', 'M9 4H6a2 2 0 0 0-2 2v14h16V6a2 2 0 0 0-2-2h-3M9 3h6v4H9zM8 12h8M8 16h5'],
                 ['Técnicos', 'Producción por técnico', 'Participación de cada técnico, órdenes trabajadas y etapas registradas.', 'reportes.tecnicos', 'M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2M9 11a4 4 0 1 0 0-8 4 4 0 0 0 0 8M22 21v-2a4 4 0 0 0-3-3.87M16 3.13a4 4 0 0 1 0 7.75'],
                 ['Inventario', 'Materiales e inventario', 'Existencias actuales, materiales por reponer, asignaciones y movimientos del período.', 'reportes.inventario', 'M12 3 3 7.5v9L12 21l9-4.5v-9L12 3zM3 7.5l9 4.5 9-4.5M12 12v9M7.5 5.25l9 4.5'],

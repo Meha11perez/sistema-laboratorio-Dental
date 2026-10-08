@@ -11,6 +11,8 @@ use App\Models\InventarioTecnico;
 use App\Models\Material;
 use App\Models\MovimientoInventario;
 use App\Models\Odontologo;
+use App\Models\Paciente;
+use App\Models\EstadoOrden;
 use App\Models\OrdenTrabajo;
 use App\Models\Tecnico;
 use App\Models\TipoProtesis;
@@ -74,6 +76,7 @@ class ReporteAdicionalController extends Controller
             'pagos' => $this->pagos($request),
             'mensajeria' => $this->mensajeria($request),
             'odontologos' => $this->odontologos($request),
+            'pacientes' => $this->pacientes($request),
             default => abort(404),
         };
     }
@@ -599,6 +602,134 @@ class ReporteAdicionalController extends Controller
         return $datos;
     }
 
+
+    private function pacientes(Request $request): array
+    {
+        $vistas = ['resumen' => 'Resumen por paciente', 'ordenes' => 'Detalle de órdenes por paciente', 'directorio' => 'Listado actual de pacientes'];
+        $vista = $this->vista($request, $vistas, 'resumen');
+        if ($vista === 'directorio') {
+            return $this->directorioPacientes($request, $vistas);
+        }
+        $filtros = $this->filtros($request, $this->reglasClientes() + [
+            'vista' => ['required', Rule::in(array_keys($vistas))],
+            'paciente_id' => $this->existe(Paciente::class),
+            'estado_orden_id' => $this->existe(EstadoOrden::class),
+        ]);
+        $campos = [
+            $this->select('vista', 'Consulta', $vistas, false),
+            ...$this->camposPeriodo('Ingreso de orden'),
+            $this->select('paciente_id', 'Paciente', Paciente::orderBy('nombre')->orderBy('apellido')->get()
+                ->mapWithKeys(fn ($p) => [$p->id => trim($p->nombre.' '.$p->apellido).' (#'.$p->id.')'])->all()),
+            ...$this->camposClientes(),
+            $this->select('estado_orden_id', 'Estado actual de la orden', EstadoOrden::orderBy('nombre')->pluck('nombre', 'id')->all()),
+        ];
+
+        $filtrarOrden = function ($q) use ($filtros) {
+            $this->fechas($q, 'fecha_ingreso', $filtros);
+            $this->filtrarCliente($q, $filtros);
+            foreach (['paciente_id', 'estado_orden_id'] as $campo) {
+                if (!empty($filtros[$campo])) {
+                    $q->where($campo, $filtros[$campo]);
+                }
+            }
+        };
+        $ordenes = OrdenTrabajo::query()->whereHas('paciente');
+        $filtrarOrden($ordenes);
+        $metricas = [
+            $this->metrica('Pacientes con órdenes en el período', (clone $ordenes)->distinct()->count('paciente_id')),
+            $this->metrica('Órdenes registradas en el período', (clone $ordenes)->count()),
+            $this->metrica('De ellas, entregadas actualmente', (clone $ordenes)->whereHas('estadoOrden', fn ($e) => $e->where('nombre', 'Entregado'))->count()),
+        ];
+
+        if ($vista === 'ordenes') {
+            $query = $ordenes->with(['paciente', 'odontologo', 'tipoProtesis', 'estadoOrden'])
+                ->orderBy('paciente_id')->orderByDesc('fecha_ingreso')->orderByDesc('id');
+            $columnas = $this->columnas([
+                'paciente' => 'Paciente', 'doctor' => 'Odontólogo de la orden', 'orden' => 'Orden',
+                'ingreso' => 'Ingreso', 'trabajo' => 'Trabajo', 'estado' => 'Estado actual',
+                'estimada' => 'Entrega estimada', 'real' => 'Entrega real',
+            ]);
+            $mapear = fn ($o) => [
+                'paciente' => trim($o->paciente?->nombre.' '.$o->paciente?->apellido),
+                'doctor' => $o->odontologo?->nombre, 'orden' => $this->codigoOrden($o),
+                'ingreso' => $o->fecha_ingreso?->format('d/m/Y'), 'trabajo' => $o->tipoProtesis?->nombre,
+                'estado' => $o->estadoOrden?->nombre, 'estimada' => $o->fecha_entrega_estimada?->format('d/m/Y'),
+                'real' => $o->fecha_entrega_real?->format('d/m/Y'),
+            ];
+        } else {
+            $query = Paciente::with('odontologo')->whereHas('ordenesTrabajo', $filtrarOrden)
+                ->withCount([
+                    'ordenesTrabajo as ordenes_periodo' => $filtrarOrden,
+                    'ordenesTrabajo as entregadas_periodo' => function ($q) use ($filtrarOrden) {
+                        $filtrarOrden($q);
+                        $q->whereHas('estadoOrden', fn ($e) => $e->where('nombre', 'Entregado'));
+                    },
+                    'ordenesTrabajo as canceladas_periodo' => function ($q) use ($filtrarOrden) {
+                        $filtrarOrden($q);
+                        $q->whereHas('estadoOrden', fn ($e) => $e->where('nombre', 'Cancelado'));
+                    },
+                ])->orderBy('nombre')->orderBy('apellido')->orderBy('id');
+            $columnas = $this->columnas([
+                'paciente' => 'Paciente', 'doctor' => 'Odontólogo actual del paciente',
+                'telefono' => 'Teléfono', 'estado' => 'Estado del paciente', 'ordenes' => 'Órdenes del período',
+                'entregadas' => 'De ellas, entregadas', 'canceladas' => 'De ellas, canceladas',
+            ]);
+            $mapear = fn ($p) => [
+                'paciente' => trim($p->nombre.' '.$p->apellido).' (#'.$p->id.')',
+                'doctor' => $p->odontologo?->nombre, 'telefono' => $p->telefono,
+                'estado' => $p->estado ? 'Activo' : 'Inactivo', 'ordenes' => $p->ordenes_periodo,
+                'entregadas' => $p->entregadas_periodo, 'canceladas' => $p->canceladas_periodo,
+            ];
+        }
+
+        return $this->base('Reporte de pacientes', $vistas[$vista], $filtros, $campos,
+            $query, $columnas, $mapear, $metricas, [
+                '',
+            ]);
+    }
+
+    private function directorioPacientes(Request $request, array $vistas): array
+    {
+        $filtros = $this->filtros($request, $this->reglasClientes() + [
+            'vista' => ['required', Rule::in(['directorio'])],
+            'paciente_id' => $this->existe(Paciente::class),
+            'estado_paciente' => ['nullable', Rule::in(['activo', 'inactivo'])],
+        ], 'ninguno');
+        $campos = [
+            $this->select('vista', 'Consulta', $vistas, false),
+            $this->select('paciente_id', 'Paciente', Paciente::orderBy('nombre')->orderBy('apellido')->get()
+                ->mapWithKeys(fn ($p) => [$p->id => trim($p->nombre.' '.$p->apellido).' (#'.$p->id.')'])->all()),
+            ...$this->camposClientes(),
+            $this->select('estado_paciente', 'Estado del paciente', ['activo' => 'Activo', 'inactivo' => 'Inactivo']),
+        ];
+        $query = $this->filtrarCliente(Paciente::query(), $filtros);
+        if (!empty($filtros['paciente_id'])) {
+            $query->whereKey($filtros['paciente_id']);
+        }
+        if (!empty($filtros['estado_paciente'])) {
+            $query->where('estado', $filtros['estado_paciente'] === 'activo');
+        }
+        $metricas = [
+            $this->metrica('Pacientes encontrados', (clone $query)->count()),
+            $this->metrica('Activos', (clone $query)->where('estado', true)->count()),
+            $this->metrica('Inactivos', (clone $query)->where('estado', false)->count()),
+        ];
+        $query->with('odontologo')->orderBy('nombre')->orderBy('apellido')->orderBy('id');
+        $columnas = $this->columnas([
+            'paciente' => 'Paciente', 'doctor' => 'Odontólogo actual', 'telefono' => 'Teléfono',
+            'estado' => 'Estado', 'registro' => 'Fecha de registro',
+        ]);
+        $mapear = fn ($p) => [
+            'paciente' => trim($p->nombre.' '.$p->apellido).' (#'.$p->id.')', 'doctor' => $p->odontologo?->nombre,
+            'telefono' => $p->telefono, 'estado' => $p->estado ? 'Activo' : 'Inactivo',
+            'registro' => $p->created_at?->format('d/m/Y'),
+        ];
+        return $this->base('Reporte de pacientes', 'Listado actual de pacientes', $filtros, $campos,
+            $query, $columnas, $mapear, $metricas, [
+                'Incluye pacientes con o sin órdenes. Es el directorio actual y no utiliza un período de órdenes.',
+                'Los filtros de odontólogo y clínica corresponden al odontólogo actual del paciente.',
+            ]);
+    }
 
     private function mensajeria(Request $request): array
     {

@@ -295,7 +295,7 @@ class DetalleMensajeriaController extends Controller
 
         if (
             $datos['estado'] === 'Realizada' &&
-            $detalle->tipo_movimiento === 'Recolección'
+            in_array($detalle->tipo_movimiento, ['Recolección', 'Entrega'], true)
         ) {
 
             if (empty($datos['recibido_por'])) {
@@ -303,7 +303,9 @@ class DetalleMensajeriaController extends Controller
                 return back()
                     ->withErrors([
                         'recibido_por' =>
-                            'Debe ingresar el nombre de quien entrega.',
+                            $detalle->tipo_movimiento === 'Entrega'
+                                ? 'Debe ingresar el nombre de quien recibe.'
+                                : 'Debe ingresar el nombre de quien entrega.',
                     ])
                     ->withInput();
             }
@@ -313,7 +315,9 @@ class DetalleMensajeriaController extends Controller
                 return back()
                     ->withErrors([
                         'firma_recibido' =>
-                            'Debe capturar la firma de quien entrega.',
+                            $detalle->tipo_movimiento === 'Entrega'
+                                ? 'Debe capturar la firma de quien recibe.'
+                                : 'Debe capturar la firma de quien entrega.',
                     ])
                     ->withInput();
             }
@@ -456,6 +460,7 @@ class DetalleMensajeriaController extends Controller
                     'estadoOrden',
                     'garantia',
                 ])
+                    ->lockForUpdate()
                     ->findOrFail(
                         $detalle->orden_trabajo_id
                     );
@@ -484,7 +489,7 @@ class DetalleMensajeriaController extends Controller
                             $estadoEntregado->id,
 
                         'fecha_entrega_real' =>
-                            now(),
+                            $orden->fecha_entrega_real ?? now('America/Guatemala'),
                     ]);
 
 
@@ -512,30 +517,35 @@ class DetalleMensajeriaController extends Controller
                     ]);
 
 
-                    // ==================================
-                    // GARANTÍA
-                    // ==================================
-                    if (!$orden->garantia) {
+                }
 
-                        Garantia::create([
-                            'orden_trabajo_id' =>
-                                $orden->id,
+                if (!$orden->fecha_entrega_real) {
+                    $orden->update(['fecha_entrega_real' => now('America/Guatemala')]);
+                }
 
-                            'fecha_inicio' =>
-                                now()->toDateString(),
+                // ==================================
+                // GARANTÍA
+                // ==================================
+                if (!$orden->garantia) {
 
-                            'fecha_vencimiento' =>
-                                now()
-                                    ->addMonths(3)
-                                    ->toDateString(),
+                    Garantia::create([
+                        'orden_trabajo_id' =>
+                            $orden->id,
 
-                            'estado' =>
-                                'Vigente',
+                        'fecha_inicio' =>
+                            $orden->fecha_entrega_real->toDateString(),
 
-                            'observaciones' =>
-                                'Garantía generada automáticamente por entrega realizada mediante mensajería.',
-                        ]);
-                    }
+                        'fecha_vencimiento' =>
+                            $orden->fecha_entrega_real->copy()
+                                ->addMonths(3)
+                                ->toDateString(),
+
+                        'estado' =>
+                            'Vigente',
+
+                        'observaciones' =>
+                            'Garantía generada automáticamente por entrega realizada mediante mensajería.',
+                    ]);
                 }
             }
         });

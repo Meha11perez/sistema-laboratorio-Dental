@@ -111,6 +111,15 @@ class UserController extends Controller
         )->count();
 
 
+        $tecnicosSinPerfil = User::where('estado', true)
+            ->whereHas('role', fn ($rol) => $rol->where('nombre', 'Técnico'))
+            ->whereDoesntHave('tecnico')
+            ->count();
+        $perfilesTecnicosInactivos = User::where('estado', true)
+            ->whereHas('role', fn ($rol) => $rol->where('nombre', 'Técnico'))
+            ->whereHas('tecnico', fn ($tecnico) => $tecnico->where('estado', false))
+            ->count();
+
         return view(
             'administracion.usuarios.index',
             compact(
@@ -119,7 +128,9 @@ class UserController extends Controller
                 'totalUsuarios',
                 'usuariosActivos',
                 'usuariosInactivos',
-                'rolesActivos'
+                'rolesActivos',
+                'tecnicosSinPerfil',
+                'perfilesTecnicosInactivos'
             )
         );
     }

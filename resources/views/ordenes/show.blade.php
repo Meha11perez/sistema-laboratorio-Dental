@@ -305,6 +305,14 @@
     </div>
 
 
+    @if($orden->estadoOrden?->nombre === 'Entregado')
+        <div class="mb-6 rounded-xl border border-emerald-200 bg-emerald-50 px-5 py-4 text-sm text-emerald-800">
+            <strong>Orden entregada.</strong>
+            Fecha real: {{ $orden->fecha_entrega_real?->format('d/m/Y') ?? 'No registrada' }}.
+            Puede consultar la entrega y su responsable en el historial de estados.
+        </div>
+    @endif
+
     {{-- =========================================================
          ACCIONES DE PRODUCCIÓN DEL TÉCNICO
     ========================================================== --}}

@@ -19,7 +19,18 @@
     {{-- FILTROS --}}
     <div class="bg-white border border-slate-200 rounded-xl shadow-sm p-5">
 
-        <form
+        @if(auth()->user()?->role?->nombre === 'Mensajero')
+        <div class="mb-5 flex flex-wrap items-center gap-2">
+            <span class="text-sm text-slate-500">Mis entregas del {{ \Carbon\Carbon::parse(request('fecha'))->format('d/m/Y') }}</span>
+            @foreach(['Ayer' => -1, 'Hoy' => 0, 'Mañana' => 1] as $etiqueta => $dias)
+                <a class="rounded-lg border border-slate-200 px-3 py-2 text-sm font-semibold text-[#315875] hover:bg-slate-50"
+                    href="{{ route('mensajeria.entregas', ['fecha' => now('America/Guatemala')->addDays($dias)->toDateString()]) }}">{{ $etiqueta }}</a>
+            @endforeach
+            <span class="text-xs text-slate-500">Para otra fecha, utilice el filtro.</span>
+        </div>
+    @endif
+
+    <form
             method="GET"
             action="{{ route('mensajeria.entregas') }}"
             class="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-4 gap-4 items-end"

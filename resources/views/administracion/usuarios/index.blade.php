@@ -4,6 +4,22 @@
 
 @section('content')
 
+@if($tecnicosSinPerfil > 0)
+    <div class="mb-6 rounded-xl border border-amber-200 bg-amber-50 px-5 py-4 text-sm text-amber-800">
+        {{ $tecnicosSinPerfil }} usuario(s) activo(s) con rol Técnico todavía no tienen perfil de técnico.
+        <a href="{{ route('administracion.tecnicos.create') }}" class="font-semibold underline">Completar registro de técnico</a>.
+        Al guardar el perfil podrá seleccionarlos en las órdenes y asignarles materiales.
+    </div>
+@endif
+
+@if($perfilesTecnicosInactivos > 0)
+    <div class="mb-6 rounded-xl border border-amber-200 bg-amber-50 px-5 py-4 text-sm text-amber-800">
+        {{ $perfilesTecnicosInactivos }} usuario(s) activo(s) con rol Técnico tienen su perfil de técnico inactivo.
+        <a href="{{ route('administracion.tecnicos.index') }}" class="font-semibold underline">Revisar perfiles de técnicos</a>.
+    </div>
+@endif
+
+
 <div class="max-w-7xl mx-auto">
 
     {{-- =====================================================

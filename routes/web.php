@@ -187,6 +187,7 @@ Route::middleware('auth')->group(function () {
                 'pagos',
                 'mensajeria',
                 'odontologos',
+                'pacientes',
             ] as $reporte) {
 
                 Route::get('/' . $reporte, [ReporteAdicionalController::class,'index',

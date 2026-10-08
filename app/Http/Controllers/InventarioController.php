@@ -8,6 +8,9 @@ use App\Models\InventarioTecnico;
 use App\Models\Tecnico;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Http\Request;
+use Illuminate\Validation\Rule;
+use Illuminate\Validation\ValidationException;
+use Illuminate\Database\UniqueConstraintViolationException;
  
 class InventarioController extends Controller
 {
@@ -163,17 +166,37 @@ class InventarioController extends Controller
     {
         $datos = $request->validate([
             'codigo' => 'required|string|max:50|unique:materiales,codigo',
-            'nombre' => 'required|string|max:150',
+            'nombre' => ['required', 'string', 'max:150', Rule::unique('materiales', 'nombre')],
             'descripcion' => 'nullable|string',
             'unidad_medida' => 'required|string|max:50',
             'stock_actual' => 'required|numeric|min:0',
             'stock_minimo' => 'required|numeric|min:0',
             'costo_unitario' => 'required|numeric|min:0',
+        ], [
+            'nombre.unique' => 'Ya existe un material con este nombre. Registre una entrada para agregar existencias.',
+            'codigo.unique' => 'Este código de material ya está registrado.',
         ]);
 
         $datos['estado'] = true;
 
-        Material::create($datos);
+        try {
+            Material::create($datos);
+        } catch (UniqueConstraintViolationException $exception) {
+            // Si dos formularios guardan el mismo nombre/código a la vez,
+            // convertimos únicamente esos duplicados en un error del formulario.
+            $errores = [];
+            foreach (['nombre', 'codigo'] as $campo) {
+                $consulta = Material::where($campo, $datos[$campo]);
+                
+                if ($consulta->exists()) {
+                    $errores[$campo] = 'Ya existe un material con este '.$campo.'.';
+                }
+            }
+            if ($errores === []) {
+                throw $exception;
+            }
+            throw ValidationException::withMessages($errores);
+        }
 
         return redirect()
             ->route('inventario.index')
@@ -182,7 +205,9 @@ class InventarioController extends Controller
    public function show(Material $material)
     {
         $material->load([
-            'movimientosInventario.usuarioRegistro'
+            'movimientosInventario.usuarioRegistro',
+            'movimientosInventario.tecnico.user',
+            'movimientosInventario.ordenTrabajo'
         ]);
 
         return view('inventario.show', compact('material'));
@@ -368,64 +393,106 @@ class InventarioController extends Controller
 
     public function createMovimiento(Material $material)
     {
-        return view('inventario.movimiento', compact('material'));
-    }
+        // Incluye técnicos inactivos que todavía conservan material para devolver.
+        $inventarios = InventarioTecnico::with('tecnico.user')
+                ->where('material_id', $material->id)
+                ->where('cantidad', '>', 0)
+                ->orderBy('tecnico_id')
+                ->get();
 
-    public function storeMovimiento(Request $request, Material $material)
-    {
+            return view('inventario.movimiento', compact('material', 'inventarios'));
+        }
+
+        public function storeMovimiento(Request $request, Material $material)
+        {
+            if ($request->input('tipo_movimiento') === 'Devolución') {
+        if (!$request->filled('tecnico_id')) {
+            throw \Illuminate\Validation\ValidationException::withMessages([
+                'tecnico_id' =>
+                    'Seleccione el técnico que devuelve el material o indique que la devolución es externa.',
+            ]);
+        }
+
+        if ($request->input('tecnico_id') === 'externa') {
+            $request->merge([
+                'tecnico_id' => null,
+            ]);
+        }
+    }
         $datos = $request->validate([
             'tipo_movimiento' => 'required|in:Entrada,Salida,Ajuste,Devolución',
-            'cantidad' => 'required|numeric|min:0.01',
+            'cantidad' => ['required', 'numeric', $request->input('tipo_movimiento') === 'Ajuste' ? 'min:0' : 'min:0.01'],
+            'tecnico_id' => [
+                'nullable',
+                'prohibited_unless:tipo_movimiento,Devolución',
+                'integer',
+                Rule::exists('tecnicos', 'id'),
+            ],
             'observaciones' => 'nullable|string|max:1000',
         ]);
 
         DB::transaction(function () use ($datos, $material) {
+            // Leer y bloquear el saldo actual evita perder cambios de otro usuario.
+            $materialActual = Material::whereKey($material->id)->lockForUpdate()->firstOrFail();
+            $stockAnterior = (float) $materialActual->stock_actual;
+            $cantidad = (float) $datos['cantidad'];
+            $observaciones = $datos['observaciones'] ?? null;
 
-            $stockAnterior = $material->stock_actual;
+            if ($datos['tipo_movimiento'] === 'Devolución' && !empty($datos['tecnico_id'])) {
+                $inventario = InventarioTecnico::where('material_id', $materialActual->id)
+                    ->where('tecnico_id', $datos['tecnico_id'])
+                    ->lockForUpdate()->first();
+
+                if (!$inventario || $cantidad > (float) $inventario->cantidad) {
+                    throw ValidationException::withMessages([
+                        'cantidad' => 'El técnico no tiene suficiente material disponible para devolver.',
+                    ]);
+                }
+                $saldoTecnico = (float) $inventario->cantidad;
+                $inventario->update(['cantidad' => $saldoTecnico - $cantidad]);
+                $observaciones = trim(($observaciones ? $observaciones.' ' : '').
+                    'Devolución de técnico a bodega. Existencia del técnico: '.
+                    number_format($saldoTecnico, 2).' → '.number_format($saldoTecnico - $cantidad, 2).'.');
+            }
 
             switch ($datos['tipo_movimiento']) {
-
                 case 'Entrada':
                 case 'Devolución':
-                    $stockNuevo = $stockAnterior + $datos['cantidad'];
+                    $stockNuevo = $stockAnterior + $cantidad;
                     break;
-
                 case 'Salida':
-
-                    if ($datos['cantidad'] > $stockAnterior) {
-                        abort(422, 'No hay suficiente stock disponible.');
+                    if ($cantidad > $stockAnterior) {
+                        throw ValidationException::withMessages([
+                            'cantidad' => 'No hay suficiente stock disponible en bodega.',
+                        ]);
                     }
-
-                    $stockNuevo = $stockAnterior - $datos['cantidad'];
+                    $stockNuevo = $stockAnterior - $cantidad;
                     break;
-
                 case 'Ajuste':
-                    $stockNuevo = $datos['cantidad'];
+                    $stockNuevo = $cantidad;
                     break;
             }
 
-            $material->update([
-                'stock_actual' => $stockNuevo,
-            ]);
+            $materialActual->update(['stock_actual' => $stockNuevo]);
 
             MovimientoInventario::create([
-                'material_id' => $material->id,
-                'tecnico_id' => null,
+                'material_id' => $materialActual->id,
+                'tecnico_id' => $datos['tecnico_id'] ?? null,
                 'orden_trabajo_id' => null,
                 'registrado_por' => auth()->id(),
                 'tipo_movimiento' => $datos['tipo_movimiento'],
-                'cantidad' => $datos['cantidad'],
+                'cantidad' => $cantidad,
                 'stock_anterior' => $stockAnterior,
                 'stock_nuevo' => $stockNuevo,
                 'fecha_movimiento' => now(),
-                'observaciones' => $datos['observaciones'] ?? null,
+                'observaciones' => $observaciones,
             ]);
         });
 
-            return redirect()
-                ->route('inventario.show', $material)
-                ->with('success', 'Movimiento registrado correctamente.');
-        }
+        return redirect()
+            ->route('inventario.show', $material)
+            ->with('success', 'Movimiento registrado correctamente.');
+    }
                     public function edit(Material $material)
         {
             return view('inventario.edit', compact('material'));
@@ -436,15 +503,35 @@ class InventarioController extends Controller
     {
         $datos = $request->validate([
             'codigo' => 'required|string|max:50|unique:materiales,codigo,' . $material->id,
-            'nombre' => 'required|string|max:150',
+            'nombre' => ['required', 'string', 'max:150', Rule::unique('materiales', 'nombre')->ignore($material)],
             'descripcion' => 'nullable|string',
             'unidad_medida' => 'required|string|max:50',
             'stock_minimo' => 'required|numeric|min:0',
             'costo_unitario' => 'required|numeric|min:0',
             'estado' => 'required|boolean',
+        ], [
+            'nombre.unique' => 'Ya existe un material con este nombre. Registre una entrada para agregar existencias.',
+            'codigo.unique' => 'Este código de material ya está registrado.',
         ]);
 
-        $material->update($datos);
+        try {
+            $material->update($datos);
+        } catch (UniqueConstraintViolationException $exception) {
+            // Si dos formularios guardan el mismo nombre/código a la vez,
+            // convertimos únicamente esos duplicados en un error del formulario.
+            $errores = [];
+            foreach (['nombre', 'codigo'] as $campo) {
+                $consulta = Material::where($campo, $datos[$campo]);
+                $consulta->where('id', '!=', $material->id);
+                if ($consulta->exists()) {
+                    $errores[$campo] = 'Ya existe un material con este '.$campo.'.';
+                }
+            }
+            if ($errores === []) {
+                throw $exception;
+            }
+            throw ValidationException::withMessages($errores);
+        }
 
         return redirect()
             ->route('inventario.show', $material)
@@ -938,4 +1025,3 @@ class InventarioController extends Controller
         );
     }
 }
-

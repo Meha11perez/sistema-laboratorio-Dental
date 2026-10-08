@@ -208,7 +208,7 @@
                         <tr class="hover:bg-slate-50">
 
                             <td class="px-6 py-4 whitespace-nowrap">
-                                Q {{ number_format($material->costo_unitario, 2) }}
+                                {{ $material->codigo ?? '—' }}
                             </td>
 
                             <td class="px-6 py-4">

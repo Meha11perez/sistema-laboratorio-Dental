@@ -240,6 +240,7 @@
                     <th class="text-left px-6 py-4">Cantidad</th>
                     <th class="text-left px-6 py-4">Stock anterior</th>
                     <th class="text-left px-6 py-4">Stock nuevo</th>
+                    <th class="text-left px-6 py-4">Origen / destino</th>
                     <th class="text-left px-6 py-4">Registrado por</th>
                     <th class="text-left px-6 py-4">Observaciones</th>
                 </tr>
@@ -338,6 +339,10 @@
 
 
                         {{-- USUARIO --}}
+                        <td class="px-6 py-4 text-sm">
+                            @include('inventario.partials.contexto-movimiento')
+                        </td>
+
                         <td class="px-6 py-4">
 
                             {{ $movimiento->usuarioRegistro?->name ?? '—' }}
@@ -359,7 +364,7 @@
                     <tr>
 
                         <td
-                            colspan="7"
+                            colspan="8"
                             class="px-6 py-10 text-center text-slate-400"
                         >
                             Todavía no hay movimientos registrados.

@@ -18,7 +18,7 @@
         .filters { padding:10px; background:#f1f6f8; margin-bottom:15px; line-height:1.7; }
         table { width:100%; border-collapse:collapse; font-size:11px; }
         th { background:#edf5f8; color:#365b7c; text-align:left; }
-        th,td { border:1px solid #dce5ec; padding:8px; vertical-align:top; overflow-wrap:anywhere; }
+        th,td { border:1px solid #dce5ec; padding:8px; vertical-align:top; overflow-wrap:break-word; word-break:normal; }
         td small { display:block; color:#627386; margin-top:3px; }
         .filters span { display:inline-block; margin-right:14px; }
         .ra-importe { white-space:nowrap; }

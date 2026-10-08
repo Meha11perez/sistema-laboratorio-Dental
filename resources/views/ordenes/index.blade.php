@@ -223,8 +223,8 @@
 
                 {{-- ESTADO --}}
                 <td class="px-6 py-4">
-                    <span class="bg-blue-50 text-blue-800
-                                px-3 py-1 rounded-full
+                    <span class="{{ $orden->estadoOrden?->nombre === 'Entregado' ? 'bg-emerald-100 text-emerald-700' : 'bg-blue-50 text-blue-800' }}
+                                inline-flex whitespace-nowrap px-3 py-1 rounded-full
                                 text-xs font-semibold">
                         {{ $orden->estadoOrden?->nombre }}
                     </span>
@@ -232,7 +232,13 @@
 
                 {{-- FECHA DE ENTREGA --}}
                 <td class="px-6 py-4 whitespace-nowrap">
-                    {{ $orden->fecha_entrega_estimada?->format('d/m/Y') ?? '—' }}
+                    @if($orden->estadoOrden?->nombre === 'Entregado')
+                        <p class="font-semibold text-emerald-700">Entrega real</p>
+                        <p>{{ $orden->fecha_entrega_real?->format('d/m/Y') ?? 'Fecha no registrada' }}</p>
+                    @else
+                        <p class="text-xs text-slate-500">Estimada</p>
+                        <p>{{ $orden->fecha_entrega_estimada?->format('d/m/Y') ?? '—' }}</p>
+                    @endif
                 </td>
 
                 {{-- ACCIONES --}}

@@ -55,7 +55,7 @@
 
         <div class="w-full min-w-0 overflow-x-auto" tabindex="0" role="region" aria-label="Cuentas de odontólogos">
 
-            <table class="w-full min-w-[1000px] text-sm">
+            <table class="w-full sd text-sm">
 
                 <thead class="bg-[#eef3ff] text-slate-500 uppercase text-xs">
                     

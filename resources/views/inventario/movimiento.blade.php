@@ -11,7 +11,7 @@
         <a
             href="{{ route('inventario.show', $material) }}"
             class="text-sm font-semibold text-blue-700 hover:underline"
-        >
+        > 
             ← Volver al material
         </a>
 
@@ -74,6 +74,14 @@
 
         @csrf
 
+        <div class="mb-6 rounded-lg bg-slate-50 p-4 text-sm text-slate-600">
+            <p><strong>Entrada:</strong> agrega material comprado o recibido a bodega.</p>
+            <p><strong>Salida:</strong> retira material de bodega por otro motivo; detalle el destino en observaciones.</p>
+            <p><strong>Devolución:</strong> devuelve material sin usar a bodega. Seleccione el técnico si proviene de su inventario.</p>
+            <p><strong>Ajuste:</strong> fija la existencia real después de un conteo físico, incluso cero.</p>
+            <p class="mt-2">Para entregar material a un técnico, use «Asignar material». El consumo en una orden se registra desde esa orden.</p>
+        </div>
+
         <div class="space-y-6">
 
             <div>
@@ -83,6 +91,7 @@
                 </label>
 
                 <select
+                    id="tipo-movimiento"
                     name="tipo_movimiento"
                     required
                     class="w-full border border-slate-300 rounded-lg px-4 py-3 bg-white"
@@ -113,6 +122,30 @@
             </div>
 
 
+            <div id="origen-devolucion" @if(old('tipo_movimiento') !== 'Devolución') hidden @endif>
+                <label for="tecnico-devolucion" class="block text-sm font-semibold text-slate-700 mb-2">
+                    Origen de la devolución
+                </label>
+                <select id="tecnico-devolucion" name="tecnico_id"
+                    @disabled(old('tipo_movimiento') !== 'Devolución')
+                    class="w-full border border-slate-300 rounded-lg px-4 py-3 bg-white">
+                    <option value="" disabled @selected(!old('tecnico_id'))>
+                        Seleccione el origen de la devolución...
+                    </option>
+
+                    <option value="externa" @selected(old('tecnico_id') === 'externa')>
+                        Devolución externa a bodega (no proviene de un técnico)
+                    </option>
+                    @foreach($inventarios as $inventario)
+                        <option value="{{ $inventario->tecnico_id }}" @selected(old('tecnico_id') == $inventario->tecnico_id)>
+                            {{ $inventario->tecnico?->user?->name ?? 'Técnico #'.$inventario->tecnico_id }}
+                            — Disponible: {{ number_format($inventario->cantidad, 2) }} {{ $material->unidad_medida }}
+                        </option>
+                    @endforeach
+                </select>
+                <p class="mt-2 text-xs text-slate-500">Al seleccionar un técnico, se descuenta su existencia y se devuelve la misma cantidad a bodega.</p>
+            </div>
+
             <div>
 
                 <label class="block text-sm font-semibold text-slate-700 mb-2">
@@ -121,9 +154,10 @@
 
                 <input
                     type="number"
+                    id="cantidad-movimiento"
                     name="cantidad"
                     value="{{ old('cantidad') }}"
-                    min="0.01"
+                    min="{{ old('tipo_movimiento') === 'Ajuste' ? '0' : '0.01' }}"
                     step="0.01"
                     required
                     class="w-full border border-slate-300 rounded-lg px-4 py-3"
@@ -176,4 +210,22 @@
 
 </div>
 
+<script>
+    (() => {
+        const tipo = document.getElementById('tipo-movimiento');
+        const origen = document.getElementById('origen-devolucion');
+        const tecnico = document.getElementById('tecnico-devolucion');
+        const cantidad = document.getElementById('cantidad-movimiento');
+        const actualizar = () => {
+            const devolucion = tipo.value === 'Devolución';
+            origen.hidden = !devolucion;
+            tecnico.disabled = !devolucion;
+            tecnico.required = devolucion;
+            if (!devolucion) tecnico.value = '';
+            cantidad.min = tipo.value === 'Ajuste' ? '0' : '0.01';
+        };
+        tipo.addEventListener('change', actualizar);
+        actualizar();
+    })();
+</script>
 @endsection
