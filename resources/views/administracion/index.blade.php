@@ -3,62 +3,37 @@
 @section('title', 'Administración')
 
 @section('content')
-
-<div class="max-w-7xl mx-auto">
-
-    <div class="mb-8">
-
-        <p class="text-sm font-semibold text-blue-800 uppercase">
-            Configuración
-        </p>
-
-        <h1 class="text-3xl font-bold text-slate-900">
-            Administración
-        </h1>
-
-        <p class="text-slate-500 mt-1">
-            Gestión de información general del sistema.
-        </p>
-
+<div class="w-full max-w-7xl mx-auto min-w-0">
+    <div class="mb-6">
+        <p class="text-xs font-semibold uppercase tracking-widest text-[#315875]">Laboratorio</p>
+        <h1 class="mt-1 text-2xl sm:text-3xl font-bold tracking-tight text-slate-900">Administración</h1>
+        <p class="mt-2 text-sm text-slate-500">Gestión del personal técnico y los registros del laboratorio.</p>
     </div>
 
-
-    <div class="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-3 gap-5">
-
+    <div class="grid grid-cols-1 gap-4 sm:grid-cols-2 xl:grid-cols-4">
         @foreach([
-            ['Usuarios', 'Gestión de cuentas y accesos.', '👥'],
-            ['Roles', 'Permisos y perfiles del sistema.', '🔐'],
-            ['Técnicos', 'Personal técnico del laboratorio.', '👨‍🔧'],
-            ['Odontólogos', 'Registro de odontólogos.', '🦷'],
-            ['Clínicas', 'Clínicas asociadas al laboratorio.', '🏥'],
-            ['Pacientes', 'Registro de pacientes.', '👤']
-        ] as [$titulo, $descripcion, $icono])
-
-            <div class="bg-white border border-slate-200 rounded-xl
-                        shadow-sm p-6 hover:shadow-md transition">
-
-                <div class="text-3xl mb-4">
-                    {{ $icono }}
-                </div>
-
-                <h2 class="font-bold text-lg">
-                    {{ $titulo }}
-                </h2>
-
-                <p class="text-sm text-slate-500 mt-2">
-                    {{ $descripcion }}
-                </p>
-
-                <button class="text-blue-800 font-semibold text-sm mt-5">
-                    Administrar →
-                </button>
-
-            </div>
-
+            ['Técnicos', 'Personal técnico del laboratorio.', 'administracion.tecnicos.index'],
+            ['Odontólogos', 'Registro de odontólogos.', 'administracion.odontologos.index'],
+            ['Clínicas', 'Clínicas asociadas al laboratorio.', 'administracion.clinicas.index'],
+            ['Pacientes', 'Registro de pacientes.', 'administracion.pacientes.index'],
+        ] as [$titulo, $descripcion, $ruta])
+            <a href="{{ route($ruta) }}" class="block min-w-0 rounded-xl border border-slate-200 bg-white p-5 shadow-sm transition hover:border-[#315875] hover:shadow-md focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#315875]">
+                <span class="inline-flex h-10 w-10 items-center justify-center rounded-lg bg-[#e7eef8] text-[#315875]">
+                    @include('layouts.partials.icono', ['icono' => 'administracion'])
+                </span>
+                <h2 class="mt-3 font-semibold text-slate-900">{{ $titulo }}</h2>
+                <p class="mt-2 text-sm text-slate-500">{{ $descripcion }}</p>
+                <span class="mt-4 inline-flex items-center gap-2 text-sm font-semibold text-[#315875]">
+                    Administrar
+                    <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 12h14m-6-6 6 6-6 6" /></svg>
+                </span>
+            </a>
         @endforeach
-
     </div>
 
+    <p class="mt-6 text-sm text-slate-500">
+        La gestión de Usuarios y Roles está disponible en
+        <a href="{{ route('ajustes.index') }}" class="font-semibold text-[#315875] hover:underline">Ajustes</a>.
+    </p>
 </div>
-
 @endsection

@@ -199,7 +199,7 @@
                     type="text"
                     name="buscar"
                     value="{{ request('buscar') }}"
-                    placeholder="Nombre, correo o rol..."
+                    placeholder="Nombre, usuario, correo o rol..."
                     class="w-full
                            border border-slate-300
                            rounded-lg
@@ -399,7 +399,7 @@
                                 <p class="text-xs
                                           text-slate-400
                                           mt-1">
-                                    {{ $user->email }}
+                                    {{ $user->username ?? $user->email ?? 'Sin usuario' }}
                                 </p>
 
                             </td>

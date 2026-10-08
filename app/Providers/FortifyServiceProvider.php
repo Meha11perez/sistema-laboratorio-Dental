@@ -45,9 +45,12 @@ class FortifyServiceProvider extends ServiceProvider
 
         // Comprobar las credenciales y el estado de la cuenta.
         Fortify::authenticateUsing(function (Request $request) {
+            $identificador = trim((string) $request->input(Fortify::username()));
+            $esCorreo = str_contains($identificador, '@');
+
             $usuario = User::where(
-                Fortify::username(),
-                $request->input(Fortify::username())
+                $esCorreo ? 'email' : 'username',
+                $esCorreo ? Str::lower($identificador) : Str::upper($identificador)
             )->first();
 
             if (

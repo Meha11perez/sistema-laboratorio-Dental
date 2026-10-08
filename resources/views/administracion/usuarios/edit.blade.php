@@ -95,6 +95,23 @@
         </div>
 
 
+        <div class="mb-5">
+            <label for="username" class="block text-sm font-semibold text-slate-700 mb-2">
+                Nombre de usuario
+            </label>
+            <input type="text" name="username" id="username"
+                value="{{ old('username', $user->username) }}" maxlength="50" autocomplete="username"
+                placeholder="EDWIN.VASQUEZ"
+                class="w-full border border-slate-300 rounded-lg px-4 py-2.5">
+            <p class="text-xs text-slate-500 mt-2">
+                Use letras sin tildes, números, puntos, guiones o guiones bajos.
+                Indique un nombre de usuario o un correo para permitir el acceso.
+            </p>
+            @error('username')
+                <p class="text-red-600 text-sm mt-1">{{ $message }}</p>
+            @enderror
+        </div>
+
         {{-- =================================================
              CORREO
         ================================================== --}}
@@ -106,7 +123,7 @@
                        font-semibold
                        text-slate-700 mb-2"
             >
-                Correo electrónico *
+                Correo electrónico (opcional)
             </label>
 
             <input
@@ -122,7 +139,6 @@
                        focus:ring-2
                        focus:ring-blue-200
                        focus:border-blue-500"
-                required
             >
 
             @error('email')

@@ -382,21 +382,21 @@
                 {{-- USUARIO --}}
                 <div class="field">
 
-                    <label class="field-label" for="email">
+                    <label class="field-label" for="username">
                         Usuario
                     </label>
 
                     <input
                         class="field-input"
-                        type="email"
-                        name="email"
-                        id="email"
-                        value="{{ old('email') }}"
-                        placeholder="usuario@laboratorio.com"
+                        type="text"
+                        name="username"
+                        id="username"
+                        value="{{ old('username') }}"
+                        placeholder="EDWIN.VASQUEZ"
                         required
                         autofocus
-                        autocomplete="email"
-                        aria-invalid="{{ $errors->has('email') ? 'true' : 'false' }}"
+                        autocomplete="username"
+                        aria-invalid="{{ $errors->has('username') ? 'true' : 'false' }}"
                     >
 
                 </div>

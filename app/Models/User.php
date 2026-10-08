@@ -25,6 +25,7 @@ class User extends Authenticatable
         'role_id',
         'estado',
         'name',
+        'username',
         'email',
         'password',
     ];
@@ -51,6 +52,13 @@ class User extends Authenticatable
             'password' => 'hashed',
             'estado' => 'boolean',
         ];
+    }
+
+    public function setUsernameAttribute($value): void
+    {
+        $this->attributes['username'] = $value === null || trim((string) $value) === ''
+            ? null
+            : strtoupper(trim((string) $value));
     }
 
     public function role(): BelongsTo

@@ -786,21 +786,7 @@
 
                 {{-- REPORTES --}}
 
-                <a
-
-                    href="{{ route('reportes.index') }}"
-
-                    class="
-
-                        flex
-
-                        items-center
-
-                        gap-3
-
-                        px-6
-
-                        py-4
+                <a href="{{ route('reportes.index') }}" class="flex items-center gap-3 px-6 py-4
 
                         {{ request()->routeIs('reportes.*')
 
@@ -808,13 +794,7 @@
 
                             : 'text-slate-600 border-l-4 border-transparent hover:bg-slate-50 hover:text-[#182d47]'
 
-                        }}
-
-                        transition
-
-                    "
-
-                >
+                        }} transition" >
 
                     @include('layouts.partials.icono', ['icono' => 'reportes'])
 
@@ -822,205 +802,13 @@
 
                 </a>
 
-                {{-- =================================================
+            {{-- =================================================
 
-                     SOLO ADMINISTRADOR
+                SOLO ADMINISTRADOR
 
-                ================================================== --}}
+            ================================================== --}}
 
-                @if($rol === 'Administrador')
-
-                    <div
-
-                        class="
-
-                            mt-4
-
-                            pt-4
-
-                            border-t
-
-                            border-slate-200
-
-                        "
-
-                    >
-
-                        <p
-
-                            class="
-
-                                px-6
-
-                                mb-2
-
-                                text-xs
-
-                                font-semibold
-
-                                text-slate-400
-
-                                uppercase
-
-                                tracking-widest
-
-                            "
-
-                        >
-
-                            Administración
-
-                        </p>
-
-                        <details
-
-                            class="group"
-
-                            {{ request()->routeIs('administracion.*') ? 'open' : '' }}
-
-                        >
-
-                            <summary
-
-                                class="
-
-                                    flex
-
-                                    items-center
-
-                                    justify-between
-
-                                    px-6
-
-                                    py-4
-
-                                    text-slate-600
-
-                                    hover:bg-slate-50
-
-                                    hover:text-[#182d47]
-
-                                    transition
-
-                                    cursor-pointer
-
-                                "
-
-                            >
-
-                                <div class="flex items-center gap-3">
-
-                                    @include('layouts.partials.icono', ['icono' => 'administracion'])
-
-                                    Administración
-
-                                </div>
-
-                                <span
-
-                                    class="
-
-                                        group-open:rotate-180
-
-                                        transition-transform
-
-                                    "
-
-                                >
-
-                                    ▾
-
-                                </span>
-
-                            </summary>
-
-                            <div
-
-                                class="
-
-                                    bg-slate-50
-
-                                    border-y
-
-                                    border-slate-100
-
-                                "
-
-                            >
-
-                            <a
-
-                                href="{{ route('administracion.usuarios.index') }}"
-
-                                class="
-
-                                    block
-
-                                    pl-14
-
-                                    pr-6
-
-                                    py-3
-
-                                    text-sm
-
-                                    text-slate-600
-
-                                    hover:text-[#182d47]
-
-                                    hover:bg-slate-100
-
-                                "
-
-                            >
-
-                                Usuarios
-
-                            </a>
-
-                                <a href="{{ route('administracion.roles.index') }}" class="block pl-14 pr-6 py-3 text-sm text-slate-600 hover:text-[#182d47]  hover:bg-slate-100">
-
-                                    Roles
-
-                                </a>
-
-                                <a href="{{ route('administracion.tecnicos.index') }}"
-
-                                    class="block pl-14 pr-6 py-3 text-sm text-slate-600 hover:text-[#182d47] hover:bg-slate-100">
-
-                                    Técnicos
-
-                                </a>
-
-                                <a href="{{ route('administracion.odontologos.index') }}" class="block pl-14 pr-6 py-3 text-sm text-slate-600 hover:text-[#182d47] hover:bg-slate-100">
-
-                                    Odontólogos
-
-                                </a>
-
-                                <a
-
-                                    href="{{ route('administracion.clinicas.index') }}" class=" block pl-14 pr-6 py-3 text-sm text-slate-600hover:text-[#182d47] hover:bg-slate-100" >
-
-                                    Clínicas
-
-                                </a>
-
-                                <a
-
-                                    href="{{ route('administracion.pacientes.index') }}" class="block pl-14 pr-6 py-3 text-sm text-slate-600hover:text-[#182d47]hover:bg-slate-100">
-
-                                    Pacientes
-
-                                </a>
-
-                            </div>
-
-                        </details>
-
-                    </div>
-
-                @endif
+                @include('layouts.partials.administracion')
 
             {{-- =================================================
 
@@ -1094,7 +882,7 @@
                     Mis rutas
 
                 </a>
-
+ 
                 {{-- MIS ENTREGAS --}}
 
                 <a href="{{ route('mensajeria.entregas') }}"
@@ -1314,73 +1102,15 @@
         </nav>
 
         {{-- =================================================
-
              AJUSTES
-
-             SOLO ADMINISTRADOR / RECEPCIÓN
-
         ================================================== --}}
-
-        @if(in_array($rol, ['Administrador', 'Recepcion']))
-
-            <div
-
-                class="
-
-                    border-t
-
-                    border-slate-200
-
-                    shrink-0
-
-                "
-
-            >
-
-                <a
-
-                    href="#"
-
-                    class="
-
-                        flex
-
-                        items-center
-
-                        gap-3
-
-                        px-6
-
-                        py-4
-
-                        text-slate-600
-
-                        hover:bg-slate-50
-
-                        hover:text-[#182d47]
-
-                        transition
-
-                    "
-
-                >
-
-                    @include('layouts.partials.icono', ['icono' => 'ajustes'])
-
-                    Ajustes
-
-                </a>
-
-            </div>
-
-        @endif
+      
+        @include('layouts.partials.ajustes')
 
     </aside>
 
     {{-- =====================================================
-
          CONTENIDO PRINCIPAL
-
     ====================================================== --}}
 
     <div class="flex-1 min-w-0 w-full lg:ml-64">
@@ -1667,123 +1397,167 @@
 
 </div>
 
-{{-- =========================================================
+    {{-- =========================================================
 
-     JAVASCRIPT SIDEBAR RESPONSIVE
+        JAVASCRIPT SIDEBAR RESPONSIVE
 
-========================================================= --}}
+    ========================================================= --}}
 
-<script>
+        <script>
 
-    document.addEventListener(
+            document.addEventListener(
 
-        'DOMContentLoaded',
+                'DOMContentLoaded',
 
-        function () {
+                function () {
 
-            const sidebar =
+                    const sidebar =
 
-                document.getElementById('sidebar');
+                        document.getElementById('sidebar');
 
-            const overlay =
+                    const overlay =
 
-                document.getElementById('sidebarOverlay');
+                        document.getElementById('sidebarOverlay');
 
-            const openButton =
+                    const openButton =
 
-                document.getElementById('openSidebar');
+                        document.getElementById('openSidebar');
 
-            const closeButton =
+                    const closeButton =
 
-                document.getElementById('closeSidebar');
+                        document.getElementById('closeSidebar');
 
-            function abrirSidebar() {
+                    function abrirSidebar() {
 
-                sidebar?.classList.remove(
+                        sidebar?.classList.remove(
 
-                    '-translate-x-full'
+                            '-translate-x-full'
 
-                );
+                        );
 
-                overlay?.classList.remove(
+                        overlay?.classList.remove(
 
-                    'hidden'
+                            'hidden'
 
-                );
+                        );
 
-                document.body.classList.add(
+                        document.body.classList.add(
 
-                    'overflow-hidden'
+                            'overflow-hidden'
 
-                );
+                        );
 
-            }
+                    }
 
-            function cerrarSidebar() {
+                    function cerrarSidebar() {
 
-                sidebar?.classList.add(
+                        sidebar?.classList.add(
 
-                    '-translate-x-full'
+                            '-translate-x-full'
 
-                );
+                        );
 
-                overlay?.classList.add(
+                        overlay?.classList.add(
 
-                    'hidden'
+                            'hidden'
 
-                );
+                        );
 
-                document.body.classList.remove(
+                        document.body.classList.remove(
 
-                    'overflow-hidden'
+                            'overflow-hidden'
 
-                );
+                        );
 
-            }
+                    }
 
-            openButton?.addEventListener(
-
-                'click',
-
-                abrirSidebar
-
-            );
-
-            closeButton?.addEventListener(
-
-                'click',
-
-                cerrarSidebar
-
-            );
-
-            overlay?.addEventListener(
-                'click',
-                cerrarSidebar
-
-            );
-
-            /*
-
-             * En móvil, al seleccionar una opción,
-
-             * cerramos automáticamente el menú.
-
-             */
-
-            sidebar
-
-                ?.querySelectorAll('a')
-
-                .forEach(function (link) {
-
-                    link.addEventListener(
+                    openButton?.addEventListener(
 
                         'click',
 
-                        function () {
+                        abrirSidebar
+
+                    );
+
+                    closeButton?.addEventListener(
+
+                        'click',
+
+                        cerrarSidebar
+
+                    );
+
+                    overlay?.addEventListener(
+                        'click',
+                        cerrarSidebar
+
+                    );
+
+                    /*
+
+                    * En móvil, al seleccionar una opción,
+
+                    * cerramos automáticamente el menú.
+
+                    */
+
+                    sidebar
+
+                        ?.querySelectorAll('a')
+
+                        .forEach(function (link) {
+
+                            link.addEventListener(
+
+                                'click',
+
+                                function () {
+
+                                    if (
+
+                                        window.innerWidth < 1024
+
+                                    ) {
+
+                                        cerrarSidebar();
+
+                                    }
+
+                                }
+
+                            );
+
+                        });
+
+                    /*
+
+                    * Si el usuario cambia nuevamente
+
+                    * a tamaño escritorio.
+
+                    */
+
+                    window.addEventListener('resize', function () {
+                        if (window.innerWidth >= 1024) {
+                            cerrarSidebar();
+                        }
+                    });
+
+                    /*
+
+                    * ESC también cierra el menú.
+
+                    */
+
+                    document.addEventListener(
+
+                        'keydown',
+
+                        function (event) {
 
                             if (
+
+                                event.key === 'Escape' &&
 
                                 window.innerWidth < 1024
 
@@ -1797,56 +1571,18 @@
 
                     );
 
-                });
-
-            /*
-
-             * Si el usuario cambia nuevamente
-
-             * a tamaño escritorio.
-
-             */
-
-            window.addEventListener('resize', function () {
-                if (window.innerWidth >= 1024) {
-                    cerrarSidebar();
-                }
-            });
-
-            /*
-
-             * ESC también cierra el menú.
-
-             */
-
-            document.addEventListener(
-
-                'keydown',
-
-                function (event) {
-
-                    if (
-
-                        event.key === 'Escape' &&
-
-                        window.innerWidth < 1024
-
-                    ) {
-
-                        cerrarSidebar();
-
-                    }
-
                 }
 
             );
+            window.addEventListener('pageshow', function (event) {
+                if (event.persisted) {
+                    document.documentElement.style.visibility = 'hidden';
+                    window.location.reload();
+                }
+            });
 
-        }
+        </script>
 
-    );
-
-</script>
-
-</body>
+    </body>
 
 </html>

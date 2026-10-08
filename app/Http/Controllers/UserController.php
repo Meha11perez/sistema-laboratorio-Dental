@@ -29,6 +29,11 @@ class UserController extends Controller
                     '%' . $buscar . '%'
                 )
                 ->orWhere(
+                    'username',
+                    'like',
+                    '%' . $buscar . '%'
+                )
+                ->orWhere(
                     'email',
                     'like',
                     '%' . $buscar . '%'
@@ -149,6 +154,10 @@ class UserController extends Controller
 
 public function update(Request $request, User $user)
 {
+    if (is_string($request->input('username'))) {
+        $request->merge(['username' => strtoupper(trim($request->input('username')))]);
+    }
+
     $datos = $request->validate([
         'name' => [
             'required',
@@ -156,8 +165,19 @@ public function update(Request $request, User $user)
             'max:255',
         ],
 
+        'username' => [
+            'nullable',
+            'required_without:email',
+            'string',
+            'min:3',
+            'max:50',
+            'regex:/^[A-Z0-9][A-Z0-9._-]*$/',
+            \Illuminate\Validation\Rule::unique('users', 'username')->ignore($user->id),
+        ],
+
         'email' => [
-            'required',
+            'nullable',
+            'required_without:username',
             'email',
             'max:255',
 
@@ -200,10 +220,14 @@ public function update(Request $request, User $user)
 
     $actualizacion = [
         'name' => $datos['name'],
-        'email' => $datos['email'],
+        'email' => $datos['email'] ?? null,
         'role_id' => $datos['role_id'],
     ];
 
+
+    if (array_key_exists('username', $datos)) {
+        $actualizacion['username'] = $datos['username'];
+    }
 
     // Solo cambia la contraseña
     // cuando el administrador escribe una nueva.
@@ -262,6 +286,10 @@ public function toggleEstado(User $user)
 }
 public function store(Request $request)
     {
+    if (is_string($request->input('username'))) {
+        $request->merge(['username' => strtoupper(trim($request->input('username')))]);
+    }
+
         $datos = $request->validate([ 
             'name' => [
                 'required',
@@ -269,8 +297,19 @@ public function store(Request $request)
                 'max:255',
             ],
 
+            'username' => [
+                'nullable',
+                'required_without:email',
+                'string',
+                'min:3',
+                'max:50',
+                'regex:/^[A-Z0-9][A-Z0-9._-]*$/',
+                \Illuminate\Validation\Rule::unique('users', 'username'),
+            ],
+
             'email' => [
-                'required',
+                'nullable',
+                'required_without:username',
                 'email',
                 'max:255',
                 'unique:users,email',
@@ -292,7 +331,8 @@ public function store(Request $request)
 
         User::create([
             'name' => $datos['name'],
-            'email' => $datos['email'],
+            'username' => $datos['username'] ?? null,
+            'email' => $datos['email'] ?? null,
             'role_id' => $datos['role_id'],
             'password' => $datos['password'],
             'estado' => true,

@@ -16,9 +16,9 @@ return Application::configure(basePath: dirname(__DIR__))
     ]);
 
     $middleware->appendToGroup('web', [
-    \App\Http\Middleware\VerificarUsuarioActivo::class,
+        \App\Http\Middleware\VerificarUsuarioActivo::class,
+        \App\Http\Middleware\EvitarCachePaginas::class,
     ]);
-
     })
     ->withExceptions(function (Exceptions $exceptions) {
         //
