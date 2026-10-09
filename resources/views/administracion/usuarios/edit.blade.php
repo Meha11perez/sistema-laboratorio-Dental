@@ -101,7 +101,7 @@
             </label>
             <input type="text" name="username" id="username"
                 value="{{ old('username', $user->username) }}" maxlength="50" autocomplete="username"
-                placeholder="EDWIN.VASQUEZ"
+                placeholder="Ingresar usuario"
                 class="w-full border border-slate-300 rounded-lg px-4 py-2.5">
             <p class="text-xs text-slate-500 mt-2">
                 Use letras sin tildes, números, puntos, guiones o guiones bajos.

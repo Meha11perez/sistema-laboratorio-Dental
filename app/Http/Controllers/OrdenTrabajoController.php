@@ -153,6 +153,77 @@ private function verificarOrdenTecnico(
         }
     }
 
+
+    private function resolverTipoTrabajo(array $datos, ?OrdenTrabajo $orden = null): int
+    {
+        $area = (string) $datos['area_trabajo'];
+        $etapa = EtapaProduccion::findOrFail($datos['etapa_actual_id']);
+
+        if (!$etapa->estado || !$etapa->permiteArea($area)) {
+            throw \Illuminate\Validation\ValidationException::withMessages([
+                'etapa_actual_id' =>
+                    'La etapa debe estar activa y corresponder al área seleccionada.',
+            ]);
+        }
+
+        // Mantener la clasificación histórica al editar dentro de la misma área.
+        if ($orden && $orden->area_trabajo === $area) {
+            $tipoAnterior = $orden->tipoProtesis;
+            if ($tipoAnterior && $tipoAnterior->estado && $tipoAnterior->permiteArea($area)) {
+                return (int) $tipoAnterior->id;
+            }
+        }
+
+        $tipos = TipoProtesis::where('estado', true)
+            ->where('area_trabajo', $area)
+            ->get();
+
+        $normalizar = static fn ($nombre) =>
+            \Illuminate\Support\Str::lower(
+                \Illuminate\Support\Str::ascii(trim((string) $nombre))
+            );
+
+        // Se buscan nombres, no IDs: los IDs pueden variar entre local y hosting.
+        $nombresGenerales = match ($area) {
+            'removible' => ['Prótesis Removible', 'Prótesis Removibles'],
+            'fija' => ['Prótesis Fija', 'Prótesis Fijas'],
+            'cromo_cobalto' => ['CROMOS', 'Cromo Cobalto', 'Cromos Cobalto'],
+            'ortodoncia' => ['Aparato de Ortodoncia', 'Aparatos de Ortodoncia', 'Ortodoncia'],
+        };
+
+        $permitidos = array_map($normalizar, $nombresGenerales);
+        $coincidencias = $tipos->filter(
+            fn ($tipo) => in_array($normalizar($tipo->nombre), $permitidos, true)
+        );
+
+        // Compatibilidad con el catálogo removible que ya utiliza el sistema.
+        if ($coincidencias->isEmpty() && $area === 'removible') {
+            $nombres = match ($normalizar($etapa->nombre)) {
+                'rodetes y cubetas individuales', 'prueba de rodetes o cubetas individuales' =>
+                    ['PRUEBAS DE RODETES Y CUBETAS INDIVIDUALES'],
+                'prueba de dientes', 'pruebas de dientes' =>
+                    ['PROTESIS REMOVIBLE PRUEBA DE DIENTES'],
+                'terminados', 'terminado' =>
+                    ['PROTESIS REMOVIBLES TERMINADOS'],
+                default => [],
+            };
+            $permitidos = array_map($normalizar, $nombres);
+            $coincidencias = $tipos->filter(
+                fn ($tipo) => in_array($normalizar($tipo->nombre), $permitidos, true)
+            );
+        }
+
+        if ($coincidencias->count() === 1) {
+            return (int) $coincidencias->first()->id;
+        }
+
+        throw \Illuminate\Validation\ValidationException::withMessages([
+            'area_trabajo' => $tipos->isEmpty()
+                ? 'No hay un tipo de trabajo activo configurado para esta área.'
+                : 'La clasificación de esta área requiere revisión del administrador.',
+        ]);
+    }
+
 public function create()
     {
         $odontologos = Odontologo::where('estado', true)
@@ -203,9 +274,8 @@ public function store(Request $request)
 
             'odontologo_id' => 'required|exists:odontologos,id',
             'paciente_id' => 'required|exists:pacientes,id',
-            'tipo_protesis_id' => 'required|exists:tipos_protesis,id',
 
-            'etapa_actual_id' => 'nullable|exists:etapas_produccion,id',
+            'etapa_actual_id' => 'required|exists:etapas_produccion,id',
             'tecnico_actual_id' => 'nullable|exists:tecnicos,id',
 
             'fecha_ingreso' => [
@@ -244,6 +314,7 @@ public function store(Request $request)
                 'exists:devoluciones,id',
             ],
         ]);
+        $datos['tipo_protesis_id'] = $this->resolverTipoTrabajo($datos);
         $this->validarProduccion($datos);
 
         $estadoInicial = EstadoOrden::where('nombre', 'Pendiente')
@@ -558,11 +629,10 @@ public function store(Request $request)
 
                 'odontologo_id' => 'required|exists:odontologos,id',
                 'paciente_id' => 'required|exists:pacientes,id',
-                'tipo_protesis_id' => 'required|exists:tipos_protesis,id',
 
                 'estado_orden_id' => 'required|exists:estados_orden,id',
 
-                'etapa_actual_id' => 'nullable|exists:etapas_produccion,id',
+                'etapa_actual_id' => 'required|exists:etapas_produccion,id',
                 'tecnico_actual_id' => 'nullable|exists:tecnicos,id',
 
                 'fecha_ingreso' => 'required|date',
@@ -585,6 +655,7 @@ public function store(Request $request)
                 'total' => 'nullable|numeric|min:0',
             ]);
 
+            $datos['tipo_protesis_id'] = $this->resolverTipoTrabajo($datos, $orden);
             $this->validarProduccion($datos);
 
                 $pago = Pago::where(

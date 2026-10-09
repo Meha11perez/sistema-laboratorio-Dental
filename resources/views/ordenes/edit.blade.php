@@ -113,7 +113,7 @@
                 {{-- PRIORIDAD --}}
                 <div>
                     <label class="block text-sm font-semibold text-slate-700 mb-2">
-                        Prioridad *
+                        Prioridad 
                     </label>
 
                     <select
@@ -142,7 +142,7 @@
                 {{-- ODONTÓLOGO --}}
                 <div>
                     <label class="block text-sm font-semibold text-slate-700 mb-2">
-                        Odontólogo *
+                        Odontólogo 
                     </label>
 
                     <select
@@ -171,7 +171,7 @@
                 {{-- PACIENTE --}}
                 <div>
                     <label class="block text-sm font-semibold text-slate-700 mb-2">
-                        Paciente *
+                        Paciente 
                     </label>
 
                     <select
@@ -217,7 +217,7 @@
                 <div>
 
                     <label class="block text-sm font-semibold text-slate-700 mb-2">
-                        Estado *
+                        Estado 
                     </label>
 
                     <select
@@ -294,7 +294,7 @@
                 <div>
 
                     <label class="block text-sm font-semibold text-slate-700 mb-2">
-                        Fecha de ingreso *
+                        Fecha de ingreso 
                     </label>
 
                     <input
@@ -360,7 +360,7 @@
                 <div>
 
                     <label class="block text-sm font-semibold text-slate-700 mb-2">
-                        Cantidad *
+                        Cantidad 
                     </label>
 
                     <input
@@ -413,7 +413,7 @@
             <div class="px-6 pb-6">
 
                 <label class="block text-sm font-semibold text-slate-700 mb-2">
-                    Especificaciones *
+                    Especificaciones 
                 </label>
 
                 <textarea

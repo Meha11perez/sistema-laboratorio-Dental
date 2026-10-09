@@ -392,7 +392,7 @@
                         name="username"
                         id="username"
                         value="{{ old('username') }}"
-                        placeholder="EDWIN.VASQUEZ"
+                        placeholder="Ingrese su usuario"
                         required
                         autofocus
                         autocomplete="username"

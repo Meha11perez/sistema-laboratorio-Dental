@@ -217,7 +217,7 @@
                         <p class="font-bold
                                 text-slate-900
                                 mt-4">
-                            Prótesis Removibles
+                            Prótesis removibles
                         </p>
 
                         <p class="text-xs
@@ -285,7 +285,7 @@
                         <p class="font-bold
                                 text-slate-900
                                 mt-4">
-                            Prótesis Fijas
+                            Prótesis fijas
                         </p>
 
                         <p class="text-xs
@@ -353,7 +353,7 @@
                         <p class="font-bold
                                 text-slate-900
                                 mt-4">
-                            Cromo Cobalto
+                            Cromo cobalto
                         </p>
 
                         <p class="text-xs
@@ -421,7 +421,7 @@
                         <p class="font-bold
                                 text-slate-900
                                 mt-4">
-                            Aparatos de Ortodoncia
+                            Aparatos de ortodoncia
                         </p>
 
                         <p class="text-xs
@@ -480,11 +480,11 @@
 
 
             <div class="p-6 grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-                
+
                 {{-- FECHA INGRESO --}}
                 <div>
                     <label class="block text-sm font-semibold text-slate-700 mb-2">
-                        Fecha de ingreso *
+                        Fecha de ingreso 
                     </label>
 
                     <input
@@ -514,7 +514,7 @@
                 {{-- ODONTÓLOGO --}}
                 <div>
                     <label class="block text-sm font-semibold text-slate-700 mb-2">
-                        Odontólogo *
+                        Odontólogo 
                     </label>
 
                     <select
@@ -552,7 +552,7 @@
                 {{-- PACIENTE --}}
                 <div>
                     <label class="block text-sm font-semibold text-slate-700 mb-2">
-                        Paciente *
+                        Paciente 
                     </label>
 
                     <select
@@ -591,7 +591,7 @@
                 {{-- PRIORIDAD --}}
                 <div>
                     <label class="block text-sm font-semibold text-slate-700 mb-2">
-                        Prioridad *
+                        Prioridad 
                     </label>
 
                     <select
@@ -628,85 +628,8 @@
 
 
             <div class="p-6 grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-                {{-- ===================================================== --}}
-                {{-- TIPO DE TRABAJO --}}
-                {{-- ===================================================== --}}
-
-                <div>
-
-                    <label
-                        for="tipo_protesis_id"
-                        class="block
-                            text-sm
-                            font-semibold
-                            text-slate-700
-                            mb-2"
-                    >
-                        Tipo de trabajo
-                        <span class="text-red-500">*</span>
-                    </label>
-
-
-                    <select
-                        name="tipo_protesis_id"
-                        id="tipo_protesis_id"
-                        required
-                        class="w-full
-                            border border-slate-300
-                            rounded-lg
-                            px-4 py-3
-                            bg-white
-                            focus:ring-2
-                            focus:ring-blue-100
-                            focus:border-blue-800
-                            outline-none"
-                    >
-
-                        <option value="">
-                            Seleccione primero un área
-                        </option>
-
-                        @foreach($tiposProtesis as $tipo)
-
-                            <option
-                                value="{{ $tipo->id }}"
-                                data-categoria="{{ $tipo->area_trabajo }}"
-                        
-                                data-nombre="{{
-                                    \Illuminate\Support\Str::lower(
-                                        $tipo->nombre
-                                    )
-                                }}"
-
-                                @selected(
-                                    old(
-                                        'tipo_protesis_id',
-                                        isset($orden)
-                                            ? $orden->tipo_protesis_id
-                                            : null
-                                    ) == $tipo->id
-                                )
-                            >
-
-                                {{ $tipo->nombre }}
-
-                            </option>
-
-                        @endforeach
-
-                    </select>
-
-
-                    <p
-                        id="ayudaTipoTrabajo"
-                        class="text-xs
-                            text-slate-400
-                            mt-2"
-                    >
-                        Seleccione un área para mostrar los trabajos correspondientes.
-                    </p>
-
-                </div>
+                {{-- CLASIFICACIÓN: LA ETAPA DEPENDE DEL ÁREA SELECCIONADA --}}
+                @include('ordenes.partials.produccion', ['mostrarArea' => false])
 
             {{-- TIPO DE ORDEN --}}
             <div>
@@ -772,7 +695,7 @@
         <div class="md:col-span-2 lg:col-span-3">
 
             <label class="block text-sm font-semibold text-slate-700 mb-2">
-                Motivo de repetición *
+                Motivo de repetición 
             </label>
 
             <select
@@ -825,7 +748,7 @@
             {{-- CANTIDAD --}}
                 <div>
                     <label class="block text-sm font-semibold text-slate-700 mb-2">
-                        Cantidad *
+                        Cantidad 
                     </label>
 
                     <input
@@ -858,79 +781,6 @@
                         placeholder="Ej. A2, Chromascop 130..."
                         class="w-full border border-slate-300 rounded-lg px-4 py-3"
                     >
-                </div>
-                
-                {{-- ===================================================== --}}
-                {{-- ETAPA DEL TRABAJO --}}
-                {{-- ===================================================== --}}
-
-                <div>
-
-                    <label
-                        for="etapa_actual_id"
-                        class="block
-                            text-sm
-                            font-semibold
-                            text-slate-700
-                            mb-2"
-                    >
-                        Etapa del trabajo
-                    </label>
-
-
-                    <select
-                        name="etapa_actual_id"
-                        id="etapa_actual_id"
-                        class="w-full
-                            border border-slate-300
-                            rounded-lg
-                            px-4 py-3
-                            bg-white
-                            focus:ring-2
-                            focus:ring-blue-100
-                            focus:border-blue-800
-                            outline-none"
-                    >
-
-                        <option value="">
-                            Seleccione una etapa
-                        </option>
-
-                        @foreach($etapas as $etapa)
-
-                            <option
-                                value="{{ $etapa->id }}"
-
-                                data-nombre="{{ $etapa->nombre }}"
-
-                                @selected(
-                                    old(
-                                        'etapa_actual_id',
-                                        isset($orden)
-                                            ? $orden->etapa_actual_id
-                                            : null
-                                    ) == $etapa->id
-                                )
-                            >
-
-                                {{ $etapa->nombre }}
-
-                            </option>
-
-                        @endforeach
-
-                    </select>
-
-
-                    <p
-                        id="ayudaEtapa"
-                        class="text-xs
-                            text-slate-400
-                            mt-2"
-                    >
-                        Las etapas disponibles dependen del área seleccionada.
-                    </p>
-
                 </div>
 
                 {{-- TÉCNICO --}}
@@ -969,7 +819,7 @@
             <div class="px-6 pb-6">
 
                 <label class="block text-sm font-semibold text-slate-700 mb-2">
-                    Especificaciones *
+                    Especificaciones 
                 </label>
 
                 <textarea
@@ -1024,7 +874,7 @@
             </div>
 
         </div>
-        
+
     </form>
 
 </div>
@@ -1040,18 +890,6 @@
 
         const mensaje =
             document.getElementById('mensajeArea');
-
-        const tipoSelect =
-            document.getElementById('tipo_protesis_id');
-
-        const etapaSelect =
-            document.getElementById('etapa_actual_id');
-
-        const ayudaTipo =
-            document.getElementById('ayudaTipoTrabajo');
-
-        const ayudaEtapa =
-            document.getElementById('ayudaEtapa');
 
 
         /*
@@ -1069,7 +907,7 @@
                 fondo: 'bg-blue-50',
 
                 mensaje:
-                    'Prótesis Removibles seleccionada — código PR.',
+                    'Prótesis removibles seleccionada — código PR.',
 
                 etapas: [
                     'Rodetes y cubetas individuales',
@@ -1087,7 +925,7 @@
                 fondo: 'bg-violet-50',
 
                 mensaje:
-                    'Prótesis Fijas seleccionada — código PF.',
+                    'Prótesis fijas seleccionada — código PF.',
 
                 etapas: [
                     'Prueba de metal',
@@ -1105,7 +943,7 @@
                 fondo: 'bg-amber-50',
 
                 mensaje:
-                    'Cromo Cobalto seleccionado — código CC.',
+                    'Cromo cobalto seleccionado — código CC.',
 
                 etapas: [
                     'Cromos'
@@ -1121,7 +959,7 @@
                 fondo: 'bg-emerald-50',
 
                 mensaje:
-                    'Aparatos de Ortodoncia seleccionada — código AO.',
+                    'Aparatos de ortodoncia seleccionada — código AO.',
 
                 etapas: [
                     'Ortodoncia'
@@ -1130,7 +968,6 @@
             }
 
         };
-
 
         /*
         |--------------------------------------------------------------------------
@@ -1180,361 +1017,6 @@
 
         /*
         |--------------------------------------------------------------------------
-        | FILTRAR TIPOS DE TRABAJO
-        |--------------------------------------------------------------------------
-        */
-
-        function filtrarTipos(area) {
-
-            if (!tipoSelect) {
-                return;
-            }
-
-
-            const valorActual =
-                tipoSelect.value;
-
-
-            let valorActualValido = false;
-
-
-            Array.from(tipoSelect.options).forEach(
-                function (option, index) {
-
-                    /*
-                    | Primera opción:
-                    | "Seleccione..."
-                    */
-
-                    if (index === 0) {
-
-                        option.hidden = false;
-                        option.disabled = false;
-
-                        if (area === 'removible') {
-                            option.textContent =
-                                'Seleccione el tipo de prótesis removible';
-                        }
-
-                        else if (area === 'fija') {
-                            option.textContent =
-                                'Seleccione el tipo de prótesis fija';
-                        }
-
-                        else if (area === 'cromo_cobalto') {
-                            option.textContent =
-                                'Seleccione el trabajo de Cromo Cobalto';
-                        }
-
-                        else if (area === 'ortodoncia') {
-                            option.textContent =
-                                'Seleccione el aparato de ortodoncia';
-                        }
-
-                        return;
-                    }
-
-                    const categoria =
-                        option.dataset.categoria || '';
-
-                    const nombre =
-                        option.dataset.nombre || '';
-
-
-                    let mostrar = false;
-
-
-                    /*
-                    |--------------------------------------------------------------------------
-                    | REMOVIBLES
-                    |--------------------------------------------------------------------------
-                    |
-                    | Mostramos categoría removible,
-                    | excepto Cromo Cobalto porque ahora
-                    | tiene su propia área.
-                    |
-                    */
-
-                    if (area === 'removible') {
-
-                        mostrar =
-                            categoria === 'removible'
-                            &&
-                            !nombre.includes('cromo');
-
-                    }
-
-
-                    /*
-                    |--------------------------------------------------------------------------
-                    | FIJAS
-                    |--------------------------------------------------------------------------
-                    */
-
-                    if (area === 'fija') {
-
-                        mostrar =
-                            categoria === 'fija';
-
-                    }
-
-
-                    /*
-                    |--------------------------------------------------------------------------
-                    | CROMO COBALTO
-                    |--------------------------------------------------------------------------
-                    */
-
-                    if (area === 'cromo_cobalto') {
-
-                        mostrar =
-                            nombre.includes('cromo');
-
-                    }
-
-
-                    /*
-                    |--------------------------------------------------------------------------
-                    | ORTODONCIA
-                    |--------------------------------------------------------------------------
-                    */
-
-                    if (area === 'ortodoncia') {
-
-                        mostrar =
-                            categoria === 'ortodoncia';
-
-                    }
-
-
-                    option.hidden =
-                        !mostrar;
-
-                    option.disabled =
-                        !mostrar;
-
-
-                    if (
-                        mostrar
-                        &&
-                        option.value === valorActual
-                    ) {
-
-                        valorActualValido = true;
-
-                    }
-
-                }
-            );
-
-
-            /*
-            | Si el tipo seleccionado anteriormente
-            | ya no pertenece al área nueva,
-            | lo limpiamos.
-            */
-
-            if (!valorActualValido) {
-
-                tipoSelect.value = '';
-
-            }
-
-
-            if (ayudaTipo) {
-
-                if (area === 'removible') {
-
-                    ayudaTipo.textContent =
-                        'Mostrando únicamente trabajos de Prótesis Removibles.';
-
-                }
-
-                else if (area === 'fija') {
-
-                    ayudaTipo.textContent =
-                        'Mostrando únicamente trabajos de Prótesis Fijas.';
-
-                }
-
-                else if (area === 'cromo_cobalto') {
-
-                    ayudaTipo.textContent =
-                        'Mostrando únicamente trabajos de Cromo Cobalto.';
-
-                }
-
-                else if (area === 'ortodoncia') {
-
-                    ayudaTipo.textContent =
-                        'Mostrando únicamente Aparatos de Ortodoncia.';
-
-                }
-
-            }
-
-        }
-
-
-        /*
-        |--------------------------------------------------------------------------
-        | FILTRAR ETAPAS
-        |--------------------------------------------------------------------------
-        */
-
-        function filtrarEtapas(area) {
-
-            if (
-                !etapaSelect
-                ||
-                !configuracion[area]
-            ) {
-                return;
-            }
-
-
-            const etapasPermitidas =
-                configuracion[area].etapas;
-
-
-            const valorActual =
-                etapaSelect.value;
-
-
-            let valorActualValido = false;
-
-            let unicaOpcion = null;
-
-            let cantidadDisponibles = 0;
-
-
-            Array.from(etapaSelect.options).forEach(
-                function (option, index) {
-
-                    /*
-                    | Primera opción vacía
-                    */
-
-                    if (index === 0) {
-
-                        option.hidden = false;
-                        option.disabled = false;
-
-                        return;
-                    }
-
-
-                    const nombre =
-                        option.dataset.nombre || '';
-
-
-                    const mostrar =
-                        etapasPermitidas.includes(nombre);
-
-
-                    option.hidden =
-                        !mostrar;
-
-                    option.disabled =
-                        !mostrar;
-
-
-                    if (mostrar) {
-
-                        cantidadDisponibles++;
-
-                        unicaOpcion = option;
-
-                    }
-
-
-                    if (
-                        mostrar
-                        &&
-                        option.value === valorActual
-                    ) {
-
-                        valorActualValido = true;
-
-                    }
-
-                }
-            );
-
-
-            /*
-            | Si la etapa anterior no pertenece al área,
-            | se limpia.
-            */
-
-            if (!valorActualValido) {
-
-                etapaSelect.value = '';
-
-            }
-
-
-            /*
-            |--------------------------------------------------------------------------
-            | CROMO Y ORTODONCIA
-            |--------------------------------------------------------------------------
-            |
-            | Como solamente tienen una etapa,
-            | se selecciona automáticamente.
-            |
-            */
-
-            if (
-                cantidadDisponibles === 1
-                &&
-                !etapaSelect.value
-                &&
-                unicaOpcion
-            ) {
-
-                etapaSelect.value =
-                    unicaOpcion.value;
-
-            }
-
-
-            if (ayudaEtapa) {
-
-                if (area === 'removible') {
-
-                    ayudaEtapa.textContent =
-                        'Etapas disponibles: Rodetes/Cubetas, Prueba de dientes o Terminados.';
-
-                }
-
-                else if (area === 'fija') {
-
-                    ayudaEtapa.textContent =
-                        'Etapas disponibles: Prueba de metal, Biscochos o Terminados.';
-
-                }
-
-                else if (area === 'cromo_cobalto') {
-
-                    ayudaEtapa.textContent =
-                        'Cromo Cobalto utiliza una sola etapa: Cromos.';
-
-                }
-
-                else if (area === 'ortodoncia') {
-
-                    ayudaEtapa.textContent =
-                        'Ortodoncia utiliza una sola etapa: Ortodoncia.';
-
-                }
-
-            }
-
-        }
-
-
-        /*
-        |--------------------------------------------------------------------------
         | SELECCIONAR ÁREA
         |--------------------------------------------------------------------------
         */
@@ -1563,23 +1045,17 @@
             | Guardar área
             */
 
-            areaInput.value =
-                area;
-
+            areaInput.value =area;
 
             /*
             | Estilo tarjeta seleccionada
             */
 
-            card.classList.remove(
-                'border-slate-200',
-                'bg-white'
+            card.classList.remove('border-slate-200', 'bg-white'
             );
 
 
-            card.classList.add(
-                configuracion[area].borde,
-                configuracion[area].fondo
+            card.classList.add( configuracion[area].borde, configuracion[area].fondo
             );
 
 
@@ -1602,10 +1078,7 @@
             | Mensaje
             */
 
-            if (mensaje) {
-
-                mensaje.textContent =
-                    configuracion[area].mensaje;
+            if (mensaje) { mensaje.textContent = configuracion[area].mensaje;
 
             }
 
@@ -1614,12 +1087,9 @@
             | Filtrar campos dependientes
             */
 
-            filtrarTipos(area);
-
-            filtrarEtapas(area);
+            areaInput.dispatchEvent(new Event('change', { bubbles: true }));
 
         }
-
 
         /*
         |--------------------------------------------------------------------------

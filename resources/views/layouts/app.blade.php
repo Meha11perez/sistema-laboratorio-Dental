@@ -80,7 +80,7 @@
 
             fixed inset-y-0 left-0 z-50
 
-            w-64 max-w-[85vw] h-[100dvh]
+            w-64 max-w-[85vw] h-275dvh
           bg-[#eff4ff]
             border-r border-slate-200
 
