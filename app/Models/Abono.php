@@ -15,6 +15,8 @@ class Abono extends Model
         'fecha_abono',
         'referencia',
         'observaciones',
+        'comprobante_path',
+
     ];
 
     protected $casts = [

@@ -264,7 +264,8 @@ Route::middleware('auth')->group(function () {
 
     Route::put('/pagos/{pago}/monto', [PagoController::class, 'actualizarMonto'])->middleware('role:Administrador,Recepcion')->name('pagos.monto.update');
     // ABONOS
-    Route::post('/pagos/{pago}/abonos', [AbonoController::class, 'store'])->middleware('role:Administrador,Recepcion')->name('abonos.store');
+    Route::post('/pagos/{pago}/abonos', [AbonoController::class, 'store'])->middleware(['auth', 'role:Administrador,Recepcion'])->name('abonos.store');
+    Route::get('/abonos/{abono}/comprobante', [AbonoController::class, 'comprobante'])->middleware(['auth', 'role:Administrador,Recepcion'])->name('abonos.comprobante');
     // PAGOS A CRÉDITO
     Route::get('/pagos', [PagoCreditoController::class, 'index'])->middleware('role:Administrador,Recepcion')->name('pagos.index');
     // =================================================

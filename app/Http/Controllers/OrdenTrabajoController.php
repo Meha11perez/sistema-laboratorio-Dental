@@ -17,6 +17,7 @@ use App\Models\Material;
 use App\Models\InventarioTecnico;
 use App\Models\OrdenMaterial;
 use App\Models\MovimientoInventario;
+use App\Models\CuentaOdontologo;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Http\Request;
 
@@ -468,6 +469,34 @@ public function store(Request $request)
             'fecha' =>
                 now(),
         ]);
+
+        // Crear el registro financiero de la orden, sin registrar un cobro.
+        $cuenta = CuentaOdontologo::where('odontologo_id', $orden->odontologo_id)
+            ->lockForUpdate()
+            ->first();
+
+        $pago = Pago::firstOrCreate(
+            ['orden_trabajo_id' => $orden->id],
+            [
+                'odontologo_id' => $orden->odontologo_id,
+                'cuenta_odontologo_id' => $cuenta?->id,
+                'registrado_por' => auth()->id(),
+                'monto_total' => $orden->total ?? 0,
+                'monto_pagado' => 0,
+                'saldo_pendiente' => $orden->total ?? 0,
+                'estado_pago' => 'Pendiente',
+                'fecha_registro' => now()->toDateString(),
+                'fecha_vencimiento' => $orden->fecha_entrega_estimada,
+                'observaciones' => null,
+            ]
+        );
+
+        if ($cuenta && $pago->wasRecentlyCreated) {
+            $cuenta->update([
+                'saldo_pendiente' => Pago::where('cuenta_odontologo_id', $cuenta->id)
+                    ->sum('saldo_pendiente'),
+            ]);
+        }
     });
 
         return redirect()
