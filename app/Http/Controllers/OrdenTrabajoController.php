@@ -713,6 +713,8 @@ public function store(Request $request)
 
             DB::transaction(function () use ($datos, $orden) {
 
+                $orden = OrdenTrabajo::whereKey($orden->id)->lockForUpdate()->firstOrFail();
+
                 $etapaAnterior = $orden->etapa_actual_id;
                 $tecnicoAnterior = $orden->tecnico_actual_id;
                 $estadoAnterior = $orden->estado_orden_id;
@@ -749,6 +751,65 @@ public function store(Request $request)
                 }
 
                 $orden->update($datos);
+
+                // Sincronizar el pago cuando se edita el precio de la orden.
+                $pago = Pago::firstOrCreate(
+                    ['orden_trabajo_id' => $orden->id],
+                    [
+                        'odontologo_id' => $orden->odontologo_id,
+                        'cuenta_odontologo_id' => null,
+                        'registrado_por' => auth()->id(),
+                        'monto_total' => $orden->total ?? 0,
+                        'monto_pagado' => 0,
+                        'saldo_pendiente' => $orden->total ?? 0,
+                        'estado_pago' => 'Pendiente',
+                        'fecha_registro' => now()->toDateString(),
+                        'fecha_vencimiento' => $orden->fecha_entrega_estimada,
+                        'observaciones' => null,
+                    ]
+                );
+
+                $pago = Pago::whereKey($pago->id)->lockForUpdate()->firstOrFail();
+                $totalAbonado = (float) $pago->abonos()->sum('monto');
+                $montoTotal = (float) ($orden->total ?? 0);
+
+                if ($montoTotal < $totalAbonado) {
+                    throw \Illuminate\Validation\ValidationException::withMessages([
+                        'total' => 'El precio de la orden no puede ser menor al monto ya abonado.',
+                    ]);
+                }
+
+                $saldoPendiente = max(0, $montoTotal - $totalAbonado);
+                $estadoPago = $montoTotal <= 0
+                    ? 'Pendiente'
+                    : ($saldoPendiente <= 0
+                        ? 'Pagado'
+                        : ($totalAbonado > 0 ? 'Parcial' : 'Pendiente'));
+
+                $consultaCuenta = CuentaOdontologo::query();
+
+                if ($pago->cuenta_odontologo_id) {
+                    $consultaCuenta->whereKey($pago->cuenta_odontologo_id);
+                } else {
+                    $consultaCuenta->where('odontologo_id', $orden->odontologo_id);
+                }
+
+                $cuenta = $consultaCuenta->lockForUpdate()->first();
+
+                $pago->update([
+                    'monto_total' => $montoTotal,
+                    'monto_pagado' => $totalAbonado,
+                    'saldo_pendiente' => $saldoPendiente,
+                    'estado_pago' => $estadoPago,
+                    'cuenta_odontologo_id' => $cuenta?->id,
+                ]);
+
+                if ($cuenta) {
+                    $cuenta->update([
+                        'saldo_pendiente' => Pago::where('cuenta_odontologo_id', $cuenta->id)
+                            ->sum('saldo_pendiente'),
+                    ]);
+                }
 
                 // Recarga el estado después de cambiar su ID para evaluar la garantía.
                 $orden->unsetRelation('estadoOrden');
