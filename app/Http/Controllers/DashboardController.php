@@ -11,6 +11,10 @@ class DashboardController extends Controller
         $usuario = auth()->user();
         $rol = $usuario?->role?->nombre;
 
+        if (in_array($rol, ['Recepcion', 'Contabilidad'], true)) {
+            return redirect()->route('agenda.index');
+        }
+
         if ($rol === 'Mensajero') {
             return redirect()->route('mensajeria.index');
         }
@@ -18,6 +22,12 @@ class DashboardController extends Controller
         if ($rol === 'Técnico') {
             return redirect()->route('agenda.index');
         }
+
+        abort_unless(
+            $rol === 'Administrador',
+            403,
+            'No tiene permisos para realizar esta acción.'
+        );
 
         $hoy = now('America/Guatemala');
         $fechaHoy = $hoy->toDateString();

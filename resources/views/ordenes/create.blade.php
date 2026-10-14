@@ -917,7 +917,6 @@
 
             },
 
-
             fija: {
 
                 borde: 'border-violet-700',
@@ -935,7 +934,6 @@
 
             },
 
-
             cromo_cobalto: {
 
                 borde: 'border-amber-600',
@@ -950,7 +948,6 @@
                 ]
 
             },
-
 
             ortodoncia: {
 
@@ -993,27 +990,22 @@
                     'bg-emerald-50'
                 );
 
-
                 card.classList.add(
                     'border-slate-200',
                     'bg-white'
                 );
 
-
                 const check =
                     card.querySelector('.area-check');
-
 
                 if (check) {
 
                     check.classList.add('hidden');
-
                 }
 
             });
 
         }
-
 
         /*
         |--------------------------------------------------------------------------
@@ -1029,17 +1021,12 @@
                 );
 
 
-            if (
-                !card
-                ||
-                !configuracion[area]
+            if (!card || !configuracion[area]
             ) {
                 return;
             }
 
-
             limpiarTarjetas();
-
 
             /*
             | Guardar área
@@ -1054,24 +1041,12 @@
             card.classList.remove('border-slate-200', 'bg-white'
             );
 
-
             card.classList.add( configuracion[area].borde, configuracion[area].fondo
             );
 
+            const check =  card.querySelector( '.area-check');
 
-            const check =
-                card.querySelector(
-                    '.area-check'
-                );
-
-
-            if (check) {
-
-                check.classList.remove(
-                    'hidden'
-                );
-
-            }
+            if (check) {check.classList.remove('hidden');}
 
 
             /*

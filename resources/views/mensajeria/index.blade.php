@@ -222,33 +222,14 @@
 
                     <tr>
 
-                        <th class="text-left px-6 py-4">
-                            Fecha
-                        </th>
-
-                        <th class="text-left px-6 py-4">
-                            Mensajero
-                        </th>
-
-                        <th class="text-center px-6 py-4">
-                            Visitas
-                        </th>
-
-                        <th class="text-left px-6 py-4">
-                            Salida
-                        </th>
-
-                        <th class="text-left px-6 py-4">
-                            Regreso
-                        </th>
-
-                        <th class="text-left px-6 py-4">
-                            Estado
-                        </th>
-
-                        <th class="text-right px-6 py-4">
-                            Acción
-                        </th>
+                        <th class="text-left px-6 py-4"> Fecha</th>
+                        <th class="text-left px-6 py-4">Mensajero </th>
+                        <th class="text-left px-6 py-4">Creada por</th>
+                        <th class="text-center px-6 py-4"> Visitas</th>
+                        <th class="text-left px-6 py-4"> Salida</th>
+                        <th class="text-left px-6 py-4">Regreso</th>
+                        <th class="text-left px-6 py-4">Estado</th>
+                        <th class="text-right px-6 py-4"> Acción</th>
 
                     </tr>
 
@@ -271,7 +252,15 @@
                             <td class="px-6 py-4">
                                 {{ $ruta->mensajero?->name ?? 'Sin asignar' }}
                             </td>
-
+                            {{-- CREADA POR --}}
+                            <td class="px-6 py-4">
+                            <p class="font-semibold text-slate-800">
+                                {{ $ruta->usuarioRegistro?->name ?? 'No registrado' }}
+                            </p>
+                            <p class="mt-1 text-xs text-slate-500">
+                                {{ $ruta->created_at?->copy()->timezone('America/Guatemala')->format('d/m/Y H:i') ?? '—' }}
+                            </p>
+                        </td>
                             {{-- VISITAS --}}
                             <td class="px-6 py-4 text-center font-semibold">
                                 {{ $ruta->detalles_count }}
@@ -363,13 +352,12 @@
 
                         </tr>
 
-
                     @empty
 
                         <tr>
 
                             <td
-                                colspan="7"
+                                colspan="8"
                                 class="px-6 py-12
                                        text-center text-slate-400"
                             >

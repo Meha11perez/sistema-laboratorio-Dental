@@ -33,8 +33,7 @@ class RutaMensajeriaController extends Controller{
             $request->merge(['fecha' => Carbon::today('America/Guatemala')->toDateString()]);
         }
 
-        $query = RutaMensajeria::with('mensajero')
-            ->withCount('detalles');
+        $query = RutaMensajeria::with(['mensajero', 'usuarioRegistro'])->withCount('detalles');
 
        if ($this->esMensajero()) {
             $query->where('mensajero_id', auth()->id());
@@ -114,6 +113,8 @@ class RutaMensajeriaController extends Controller{
 
             'observaciones' =>
                 $datos['observaciones'] ?? null,
+
+            'registrado_por' => $request->user()->id,
         ]);
 
         return redirect()
@@ -129,6 +130,7 @@ class RutaMensajeriaController extends Controller{
 
         $ruta->load([
             'mensajero',
+            'usuarioRegistro',
             'detalles.ordenTrabajo.paciente',
             'detalles.odontologo',
             'detalles.clinica',

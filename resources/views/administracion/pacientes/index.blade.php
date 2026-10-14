@@ -668,74 +668,31 @@
 
                             </td>
 
+                        {{-- ACCIONES --}}
+                    <td class="px-5 py-4 text-right align-top">
+                        @if(auth()->user()->role?->nombre === 'Administrador')
+                            <div class="flex items-center justify-end gap-3 whitespace-nowrap">
+                                <a href="{{ route('administracion.pacientes.edit', $paciente) }}" class="text-blue-700 font-semibold hover:text-blue-900 hover:underline">
+                                    Editar
+                                </a>
 
-                            {{-- ACCIONES --}}
-                            <td class="px-5 py-4
-                                       text-right
-                                       align-top">
+                                <form method="POST" action="{{ route('administracion.pacientes.estado', $paciente) }}">
+                                    @csrf
+                                    @method('PATCH')
 
-                                <div class="flex
-                                            items-center
-                                            justify-end
-                                            gap-3
-                                            whitespace-nowrap">
-
-
-                                    <a
-                                        href="{{ route(
-                                            'administracion.pacientes.edit',
-                                            $paciente
-                                        ) }}"
-                                        class="text-blue-700
-                                               font-semibold
-                                               hover:text-blue-900
-                                               hover:underline"
+                                    <button
+                                        type="submit"
+                                        onclick="return confirm('{{ $paciente->estado ? '¿Está seguro de desactivar este paciente?' : '¿Está seguro de activar este paciente?' }}')"
+                                        class="font-semibold hover:underline {{ $paciente->estado ? 'text-red-600 hover:text-red-800' : 'text-emerald-600 hover:text-emerald-800' }}"
                                     >
-                                        Editar
-                                    </a>
-
-
-                                    <form
-                                        method="POST"
-                                        action="{{ route(
-                                            'administracion.pacientes.estado',
-                                            $paciente
-                                        ) }}"
-                                    >
-
-                                        @csrf
-                                        @method('PATCH')
-
-
-                                        <button
-                                            type="submit"
-                                            onclick="return confirm(
-                                                '{{ $paciente->estado
-                                                    ? '¿Está seguro de desactivar este paciente?'
-                                                    : '¿Está seguro de activar este paciente?'
-                                                }}'
-                                            )"
-                                            class="font-semibold
-                                                   hover:underline
-                                                   {{ $paciente->estado
-                                                       ? 'text-red-600 hover:text-red-800'
-                                                       : 'text-emerald-600 hover:text-emerald-800'
-                                                   }}"
-                                        >
-
-                                            {{ $paciente->estado
-                                                ? 'Desactivar'
-                                                : 'Activar'
-                                            }}
-
-                                        </button>
-
-                                    </form>
-
-                                </div>
-
-                            </td>
-
+                                        {{ $paciente->estado ? 'Desactivar' : 'Activar' }}
+                                    </button>
+                                </form>
+                            </div>
+                        @else
+                            <span class="text-xs text-slate-400">Solo consulta</span>
+                        @endif
+                    </td>
                         </tr>
 
 

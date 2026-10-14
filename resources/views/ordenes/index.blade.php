@@ -251,10 +251,7 @@
                         Ver
                     </a>
 
-                    @if(in_array(
-                        auth()->user()->role?->nombre,
-                        ['Administrador', 'Recepcion']
-                    ))
+                    @if(auth()->user()->role?->nombre==='Administrador')
                         <a
                             href="{{ route('ordenes.edit', $orden) }}"
                             class="ml-3 text-amber-600 font-semibold hover:underline"

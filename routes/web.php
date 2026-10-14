@@ -45,30 +45,26 @@ Route::middleware('auth')->group(function () {
     Route::get('/dashboard', [DashboardController::class,'index',])->name('dashboard');
     Route::view('/ajustes', 'ajustes.index')->name('ajustes.index');
 
-    // =================================================
-    // ÓRDENES: ADMINISTRADOR Y RECEPCIÓN
-    // =================================================
-
+    // CREAR ÓRDENES, RÓTULOS, DEVOLUCIONES Y REPETICIONES
+    // ADMINISTRADOR Y RECEPCIÓN
     Route::middleware('role:Administrador,Recepcion')->group(function () {
+        Route::get('/ordenes/crear', [OrdenTrabajoController::class, 'create'])->name('ordenes.create');
+        Route::post('/ordenes', [OrdenTrabajoController::class, 'store'])->name('ordenes.store');
+        Route::get('/ordenes/{orden}/rotulo', [OrdenTrabajoController::class, 'rotulo'])->name('ordenes.rotulo');
 
-        Route::get('/ordenes/crear', [OrdenTrabajoController::class,'create',])->name('ordenes.create');
-        Route::post('/ordenes', [OrdenTrabajoController::class,'store',])->name('ordenes.store');
+        Route::get('/ordenes/{orden}/repetir', [OrdenTrabajoController::class, 'repetir'])->name('ordenes.repetir');
 
-        Route::get('/ordenes/{orden}/editar', [OrdenTrabajoController::class,'edit',])->name('ordenes.edit');
-        Route::put('/ordenes/{orden}', [OrdenTrabajoController::class,'update',])->name('ordenes.update');
-        Route::get('/ordenes/{orden}/cancelar', [OrdenTrabajoController::class,'confirmarCancelacion',])->name('ordenes.cancelar.confirmar');
-        Route::patch('/ordenes/{orden}/cancelar', [OrdenTrabajoController::class,'cancelar',])->name('ordenes.cancelar');
-        Route::get('/ordenes/{orden}/rotulo', [OrdenTrabajoController::class,'rotulo',])->name('ordenes.rotulo');
-        Route::get('/ordenes/{orden}/repetir', [ OrdenTrabajoController::class,'repetir',])->name('ordenes.repetir');
+        Route::get('/ordenes/{orden}/devolucion/crear', [DevolucionController::class, 'create'])->name('devoluciones.create');
+        Route::post('/ordenes/{orden}/devolucion', [DevolucionController::class, 'store'])->name('devoluciones.store');
+    });
 
-        // DEVOLUCIONES
+    // EDITAR Y CANCELAR ÓRDENES: SOLO ADMINISTRADOR
+    Route::middleware('role:Administrador')->group(function () {
+        Route::get('/ordenes/{orden}/editar', [OrdenTrabajoController::class, 'edit'])->name('ordenes.edit');
+        Route::put('/ordenes/{orden}', [OrdenTrabajoController::class, 'update'])->name('ordenes.update');
 
-        Route::get('/ordenes/{orden}/devolucion/crear', [ DevolucionController::class, 'create',])->name('devoluciones.create');
-        Route::post('/ordenes/{orden}/devolucion', [DevolucionController::class, 'store',])->name('devoluciones.store');
-
-        // PAGO DE LA ORDEN
-
-        Route::get('/ordenes/{orden}/pago', [PagoController::class,'show',])->name('pagos.show');
+        Route::get('/ordenes/{orden}/cancelar', [OrdenTrabajoController::class, 'confirmarCancelacion'])->name('ordenes.cancelar.confirmar');
+        Route::patch('/ordenes/{orden}/cancelar', [OrdenTrabajoController::class, 'cancelar'])->name('ordenes.cancelar');
     });
 
     // =================================================
@@ -76,7 +72,7 @@ Route::middleware('auth')->group(function () {
     // ADMINISTRADOR, RECEPCIÓN Y TÉCNICO
     // =================================================
 
-    Route::middleware('role:Administrador,Recepcion,Técnico')->group(function () {
+    Route::middleware('role:Administrador,Recepcion,Técnico,Contabilidad')->group(function () {
 
         Route::get('/ordenes', [OrdenTrabajoController::class,'index',])->name('ordenes.index');
         Route::get('/ordenes/{orden}', [OrdenTrabajoController::class,'show',])->name('ordenes.show');
@@ -86,109 +82,88 @@ Route::middleware('auth')->group(function () {
     // PRODUCCIÓN
     // =================================================
 
-    Route::get('/produccion', [ProduccionController::class,'index',])->name('produccion.index');
+    Route::get('/produccion', [ProduccionController::class, 'index'])->middleware('role:Administrador,Técnico')->name('produccion.index');
 
     // =================================================
     // AGENDA
     // =================================================
 
-    Route::get('/agenda', [AgendaController::class,'index',])->name('agenda.index');
+    Route::get('/agenda', [AgendaController::class, 'index'])->middleware('role:Administrador,Recepcion,Técnico,Contabilidad')->name('agenda.index');
 
     // =================================================
     // INVENTARIO
     // =================================================
 
-    Route::get('/inventario', [InventarioController::class,'index',])->name('inventario.index');
+    Route::get('/inventario', [InventarioController::class, 'index'])->middleware('role:Administrador,Técnico,Contabilidad')->name('inventario.index');
 
     // Estas rutas deben ir antes de /inventario/{material}.
 
-    Route::get('/inventario/tecnicos', [InventarioController::class,'tecnicos',])->middleware('role:Administrador,Recepcion')->name('inventario.tecnicos');
-    Route::get('/inventario/tecnicos/{tecnico}', [InventarioController::class,'tecnicoDetalle',])->middleware('role:Administrador,Recepcion')->name('inventario.tecnicos.show');
-    Route::get('/inventario/movimientos', [ InventarioController::class,'movimientos',])->middleware('role:Administrador,Recepcion')->name('inventario.movimientos');
+    Route::get('/inventario/tecnicos', [InventarioController::class,'tecnicos',])->middleware('role:Administrador,Contabilidad')->name('inventario.tecnicos');
+    Route::get('/inventario/tecnicos/{tecnico}', [InventarioController::class,'tecnicoDetalle',])->middleware('role:Administrador,Contabilidad')->name('inventario.tecnicos.show');
+    Route::get('/inventario/movimientos', [ InventarioController::class,'movimientos',])->middleware('role:Administrador,Contabilidad')->name('inventario.movimientos');
 
     // CREAR MATERIAL
 
-    Route::get('/inventario/crear', [InventarioController::class, 'create'])->middleware('role:Administrador,Recepcion')->name('inventario.create');
-    Route::post('/inventario', [InventarioController::class, 'store'])->middleware('role:Administrador,Recepcion')->name('inventario.store');
+    Route::get('/inventario/crear', [InventarioController::class, 'create'])->middleware('role:Administrador')->name('inventario.create');
+    Route::post('/inventario', [InventarioController::class, 'store'])->middleware('role:Administrador')->name('inventario.store');
     
     // ASIGNAR MATERIAL A TÉCNICO
 
-    Route::get('/inventario/{material}/asignar', [InventarioController::class,'createAsignacion',])->middleware('role:Administrador,Recepcion')->name('inventario.asignar');
+    Route::get('/inventario/{material}/asignar', [InventarioController::class,'createAsignacion',])->middleware('role:Administrador')->name('inventario.asignar');
 
-    Route::post('/inventario/{material}/asignar', [InventarioController::class,'storeAsignacion',])->middleware('role:Administrador,Recepcion')->name('inventario.asignar.store');
+    Route::post('/inventario/{material}/asignar', [InventarioController::class,'storeAsignacion',])->middleware('role:Administrador')->name('inventario.asignar.store');
 
     // MOVIMIENTOS DE MATERIAL
 
-    Route::get('/inventario/{material}/movimiento', [InventarioController::class, 'createMovimiento'])->middleware('role:Administrador,Recepcion')->name('inventario.movimiento.create');
-    Route::post('/inventario/{material}/movimiento', [InventarioController::class, 'storeMovimiento'])->middleware('role:Administrador,Recepcion')->name('inventario.movimiento.store');
+    Route::get('/inventario/{material}/movimiento', [InventarioController::class, 'createMovimiento'])->middleware('role:Administrador')->name('inventario.movimiento.create');
+    Route::post('/inventario/{material}/movimiento', [InventarioController::class, 'storeMovimiento'])->middleware('role:Administrador')->name('inventario.movimiento.store');
     // EDITAR MATERIAL
 
-    Route::get('/inventario/{material}/editar', [InventarioController::class, 'edit'])->middleware('role:Administrador,Recepcion')->name('inventario.edit');
-    Route::put('/inventario/{material}', [InventarioController::class, 'update'])->middleware('role:Administrador,Recepcion')->name('inventario.update');
+    Route::get('/inventario/{material}/editar', [InventarioController::class, 'edit'])->middleware('role:Administrador')->name('inventario.edit');
+    Route::put('/inventario/{material}', [InventarioController::class, 'update'])->middleware('role:Administrador')->name('inventario.update');
 
     // DETALLE DEL MATERIAL
 
-    Route::get('/inventario/{material}', [InventarioController::class,'show',])->name('inventario.show');
+    Route::get('/inventario/{material}', [InventarioController::class, 'show'])->middleware('role:Administrador,Técnico,Contabilidad')->name('inventario.show');
 
     // =================================================
     // GARANTÍAS Y DEVOLUCIONES
     // =================================================
 
-    Route::get('/garantias', [GarantiaDevolucionController::class, 'index'])->middleware('role:Administrador,Recepcion')->name('garantias.index');
-    
+    Route::get('/garantias', [GarantiaDevolucionController::class, 'index'])->middleware('role:Administrador')->name('garantias.index');
+
     // =================================================
     // REPORTES: ADMINISTRADOR Y RECEPCIÓN
     // =================================================
 
-    Route::middleware('role:Administrador,Recepcion')
-        ->prefix('reportes')
-        ->name('reportes.')
-        ->group(function () {
+    Route::middleware('role:Administrador,Contabilidad')
+    ->prefix('reportes')
+    ->name('reportes.')
+    ->group(function () {
+        Route::get('/', [ReporteController::class, 'index'])->name('index');
 
-            // MENÚ DE REPORTES
+        Route::middleware('role:Administrador')->group(function () {
+            Route::get('/produccion', [ReporteController::class, 'produccion'])->name('produccion');
+            Route::get('/produccion/exportar', [ReporteController::class, 'exportar'])->name('produccion.exportar');
+            Route::get('/produccion/imprimir', [ReporteController::class, 'imprimir'])->name('produccion.imprimir');
+            Route::get('/produccion/{orden}/trazabilidad', [ReporteController::class, 'trazabilidad'])->name('trazabilidad');
 
-            Route::get('/', [ReporteController::class,'index',])->name('index');
-
-            // PRODUCCIÓN
-            Route::get('/produccion', [ReporteController::class,'produccion',])->name('produccion');
-            Route::get('/produccion/exportar', [ReporteController::class,'exportar',])->name('produccion.exportar');
-            Route::get('/produccion/imprimir', [ReporteController::class,'imprimir',])->name('produccion.imprimir');
-            Route::get('/produccion/{orden}/trazabilidad', [ReporteController::class,'trazabilidad',])->name('trazabilidad');
-
-            // PRODUCCIÓN POR TÉCNICO
-
-            Route::get('/tecnicos', [ReporteTecnicoController::class,'index',])->name('tecnicos');
-            Route::get('/tecnicos/exportar', [ReporteTecnicoController::class,'exportar',])->name('tecnicos.exportar');
-            Route::get('/tecnicos/imprimir', [ReporteTecnicoController::class,'imprimir',])->name('tecnicos.imprimir');
-
-            // INVENTARIO, CALIDAD, PAGOS, MENSAJERÍA
-            // Y REPORTE MENSUAL POR ODONTÓLOGO
-
-            foreach ([
-                'inventario',
-                'calidad',
-                'pagos',
-                'mensajeria',
-                'odontologos',
-                'pacientes',
-            ] as $reporte) {
-
-                Route::get('/' . $reporte, [ReporteAdicionalController::class,'index',
-                ])
-                    ->defaults('reporte', $reporte)
-                    ->name($reporte);
-
-                Route::get('/' . $reporte . '/exportar', [ReporteAdicionalController::class,'exportar',
-                ])
-                    ->defaults('reporte', $reporte)
-                    ->name($reporte . '.exportar');
-
-                Route::get('/' . $reporte . '/imprimir', [ReporteAdicionalController::class,'imprimir',
-                ])
-                    ->defaults('reporte', $reporte)
-                    ->name($reporte . '.imprimir');
-            }
+            Route::get('/tecnicos', [ReporteTecnicoController::class, 'index'])->name('tecnicos');
+            Route::get('/tecnicos/exportar', [ReporteTecnicoController::class, 'exportar'])->name('tecnicos.exportar');
+            Route::get('/tecnicos/imprimir', [ReporteTecnicoController::class, 'imprimir'])->name('tecnicos.imprimir');
         });
+
+        foreach (['inventario', 'calidad', 'pagos', 'mensajeria', 'odontologos', 'pacientes'] as $reporte) {
+            $acceso = in_array($reporte, ['inventario', 'pagos', 'odontologos'], true)
+                ? 'role:Administrador,Contabilidad'
+                : 'role:Administrador';
+
+            Route::get('/' . $reporte, [ReporteAdicionalController::class, 'index'])->middleware($acceso)->defaults('reporte', $reporte)->name($reporte);
+
+            Route::get('/' . $reporte . '/exportar', [ReporteAdicionalController::class, 'exportar'])->middleware($acceso)->defaults('reporte', $reporte)->name($reporte . '.exportar');
+            Route::get('/' . $reporte . '/imprimir', [ReporteAdicionalController::class, 'imprimir'])->middleware($acceso)->defaults('reporte', $reporte)->name($reporte . '.imprimir');
+        }
+    });
 
     // =================================================
     // ADMINISTRACIÓN: SOLO ADMINISTRADOR
@@ -228,7 +203,7 @@ Route::middleware('auth')->group(function () {
     // CLIENTES: ADMINISTRADOR Y RECEPCIÓN
     // =================================================
 
-    Route::middleware('role:Administrador,Recepcion')->group(function () {
+    Route::middleware('role:Administrador')->group(function () {
 
         // ODONTÓLOGOS
         Route::get('/administracion/odontologos', [OdontologoController::class,'index',])->name('administracion.odontologos.index');
@@ -249,34 +224,39 @@ Route::middleware('auth')->group(function () {
         Route::patch('/administracion/clinicas/{clinica}/estado', [ClinicaController::class,'toggleEstado',])->name('administracion.clinicas.estado');
 
         // PACIENTES
-        Route::get('/administracion/pacientes', [PacienteController::class,'index',])->name('administracion.pacientes.index');
-        Route::get('/administracion/pacientes/crear', [PacienteController::class,'create',])->name('administracion.pacientes.create');
-        Route::post('/administracion/pacientes', [PacienteController::class,'store',])->name('administracion.pacientes.store');
+        // CONSULTAR Y CREAR PACIENTES
 
         Route::get('/administracion/pacientes/{paciente}/editar', [PacienteController::class,'edit',])->name('administracion.pacientes.edit');
         Route::put('/administracion/pacientes/{paciente}', [PacienteController::class,'update',])->name('administracion.pacientes.update');
         Route::patch('/administracion/pacientes/{paciente}/estado', [PacienteController::class,'toggleEstado',])->name('administracion.pacientes.estado');
     });
 
+        Route::middleware('role:Administrador,Recepcion')->group(function () {
+            Route::get('/administracion/pacientes', [PacienteController::class, 'index'])->name('administracion.pacientes.index');
+            Route::get('/administracion/pacientes/crear', [PacienteController::class, 'create'])->name('administracion.pacientes.create');
+            Route::post('/administracion/pacientes', [PacienteController::class, 'store'])->name('administracion.pacientes.store');
+    });
     // =================================================
     // PAGOS
     // =================================================
 
-    Route::put('/pagos/{pago}/monto', [PagoController::class, 'actualizarMonto'])->middleware('role:Administrador,Recepcion')->name('pagos.monto.update');
-    // ABONOS
-    Route::post('/pagos/{pago}/abonos', [AbonoController::class, 'store'])->middleware(['auth', 'role:Administrador,Recepcion'])->name('abonos.store');
-    Route::get('/abonos/{abono}/comprobante', [AbonoController::class, 'comprobante'])->middleware(['auth', 'role:Administrador,Recepcion'])->name('abonos.comprobante');
-    // PAGOS A CRÉDITO
-    Route::get('/pagos', [PagoCreditoController::class, 'index'])->middleware('role:Administrador,Recepcion')->name('pagos.index');
-    // =================================================
-    // CUENTAS DE ODONTÓLOGOS
-    // =================================================
+    // PAGOS Y CUENTAS: ADMINISTRADOR Y CONTABILIDAD
+Route::middleware('role:Administrador,Contabilidad')->group(function () {
+    Route::get('/pagos', [PagoCreditoController::class, 'index'])->name('pagos.index');
+    Route::get('/ordenes/{orden}/pago', [PagoController::class, 'show'])->name('pagos.show');
 
-    Route::get('/cuentas-odontologos', [CuentaOdontologoController::class, 'index'])->middleware('role:Administrador,Recepcion')->name('cuentas-odontologos.index');
-    Route::get('/odontologos/{odontologo}/cuenta', [CuentaOdontologoController::class, 'edit'])->middleware('role:Administrador,Recepcion')->name('cuentas-odontologos.edit');
-    Route::put('/odontologos/{odontologo}/cuenta', [CuentaOdontologoController::class, 'update'])->middleware('role:Administrador,Recepcion')->name('cuentas-odontologos.update');
-    Route::get('/odontologos/{odontologo}/cuenta/detalle', [CuentaOdontologoController::class, 'show'])->middleware('role:Administrador,Recepcion')->name('cuentas-odontologos.show');
-    
+    Route::post('/pagos/{pago}/abonos', [AbonoController::class, 'store'])->name('abonos.store');
+    Route::get('/abonos/{abono}/comprobante', [AbonoController::class, 'comprobante'])->name('abonos.comprobante');
+
+    Route::get('/cuentas-odontologos', [CuentaOdontologoController::class, 'index'])->name('cuentas-odontologos.index');
+    Route::get('/odontologos/{odontologo}/cuenta', [CuentaOdontologoController::class, 'edit'])->name('cuentas-odontologos.edit');
+    Route::put('/odontologos/{odontologo}/cuenta', [CuentaOdontologoController::class, 'update'])->name('cuentas-odontologos.update');
+    Route::get('/odontologos/{odontologo}/cuenta/detalle', [CuentaOdontologoController::class, 'show'])->name('cuentas-odontologos.show');
+});
+
+    // MODIFICAR EL MONTO DEL TRABAJO: ADMINISTRADOR
+    Route::put('/pagos/{pago}/monto', [PagoController::class, 'actualizarMonto'])->middleware('role:Administrador')->name('pagos.monto.update');
+
     // =================================================
     // PLANIFICACIÓN DE MENSAJERÍA
     // ADMINISTRADOR Y RECEPCIÓN
@@ -300,7 +280,7 @@ Route::middleware('auth')->group(function () {
     // ADMINISTRADOR, RECEPCIÓN Y MENSAJERO
     // =================================================
 
-    Route::middleware('role:Administrador,Recepcion,Mensajero')->group(function () {
+    Route::middleware('role:Administrador,Mensajero,Recepcion')->group(function () {
 
         Route::get('/mensajeria', [RutaMensajeriaController::class,'index',])->name('mensajeria.index');
         Route::get('/mensajeria/entregas', [RutaMensajeriaController::class,'entregas',])->name('mensajeria.entregas');
@@ -325,7 +305,7 @@ Route::middleware('auth')->group(function () {
     // Debe ir después de las rutas fijas de mensajería.
     // =================================================
 
-    Route::middleware('role:Administrador,Recepcion,Mensajero')->group(function () {
+    Route::middleware('role:Administrador,Mensajero,Recepcion')->group(function () {
 
         Route::get('/mensajeria/{ruta}', [RutaMensajeriaController::class,'show',])->name('mensajeria.show');
     });

@@ -7,14 +7,11 @@
 @php
     $rolActual = auth()->user()->role?->nombre;
 
-    $puedeAdministrar = in_array(
-        $rolActual,
-        [
-            'Administrador',
-            'Recepcion',
-        ],
-        true
-    );
+    $puedeAdministrar = $rolActual === 'Administrador';
+    $puedeImprimirRotulo = in_array($rolActual, ['Administrador', 'Recepcion'], true);
+    $puedeRegistrarDevolucion = in_array($rolActual, ['Administrador', 'Recepcion'], true);
+    $puedeCrearRepeticion = in_array($rolActual, ['Administrador', 'Recepcion'], true);
+    $puedeVerImportes = in_array($rolActual, ['Administrador', 'Recepcion', 'Contabilidad'], true);
 
     $esTecnico = $rolActual === 'Técnico';
 
@@ -109,93 +106,38 @@
              BOTONES ADMINISTRATIVOS
              SOLO ADMINISTRADOR / RECEPCIÓN
         ====================================================== --}}
-        @if($puedeAdministrar)
-
+        @if($puedeAdministrar || $puedeImprimirRotulo || $puedeRegistrarDevolucion || $puedeCrearRepeticion)
             <div class="flex flex-wrap gap-3">
-
-                @if($orden->estadoOrden?->nombre !== 'Cancelado')
-
-                    <a
-                        href="{{ route('devoluciones.create', $orden) }}"
-                        class="inline-flex items-center justify-center
-                               px-5 py-3
-                               border border-purple-300
-                               text-purple-700
-                               hover:bg-purple-50
-                               rounded-lg
-                               font-semibold text-sm"
-                    >
+                @if($puedeRegistrarDevolucion && $orden->estadoOrden?->nombre !== 'Cancelado')
+                    <a href="{{ route('devoluciones.create', $orden) }}" class="inline-flex items-center justify-center px-5 py-3 border border-purple-300 text-purple-700 hover:bg-purple-50 rounded-lg font-semibold text-sm">
                         Registrar Devolución
                     </a>
+                @endif
 
-
-                    <a
-                        href="{{ route('ordenes.edit', $orden) }}"
-                        class="inline-flex items-center justify-center
-                               px-5 py-3
-                               bg-blue-800
-                               hover:bg-blue-900
-                               text-white
-                               rounded-lg
-                               font-semibold text-sm"
-                    >
+                @if($puedeAdministrar && $orden->estadoOrden?->nombre !== 'Cancelado')
+                    <a href="{{ route('ordenes.edit', $orden) }}" class="inline-flex items-center justify-center px-5 py-3 bg-blue-800 hover:bg-blue-900 text-white rounded-lg font-semibold text-sm">
                         Editar Orden
                     </a>
+                @endif
 
-
-                    <a
-                        href="{{ route('ordenes.repetir', $orden) }}"
-                        class="inline-flex items-center justify-center
-                               px-5 py-3
-                               border border-amber-500
-                               text-amber-700
-                               hover:bg-amber-50
-                               rounded-lg
-                               font-semibold text-sm"
-                    >
+                @if($puedeCrearRepeticion && $orden->estadoOrden?->nombre !== 'Cancelado')
+                    <a href="{{ route('ordenes.repetir', $orden) }}" class="inline-flex items-center justify-center px-5 py-3 border border-amber-500 text-amber-700 hover:bg-amber-50 rounded-lg font-semibold text-sm">
                         Crear Repetición
                     </a>
-
                 @endif
 
+                @if($puedeImprimirRotulo)
+                    <a href="{{ route('ordenes.rotulo', $orden) }}" target="_blank" rel="noopener" class="inline-flex items-center justify-center px-5 py-3 border border-slate-300 text-slate-700 hover:bg-slate-50 rounded-lg font-semibold text-sm">
+                        Imprimir Rótulo
+                    </a>
+                @endif
 
-                <a
-                    href="{{ route('ordenes.rotulo', $orden) }}"
-                    target="_blank"
-                    class="inline-flex items-center justify-center
-                           px-5 py-3
-                           border border-slate-300
-                           text-slate-700
-                           hover:bg-slate-50
-                           rounded-lg
-                           font-semibold text-sm"
-                >
-                    🖨 Imprimir Rótulo
-                </a>
-
-
-                @if($orden->estadoOrden?->nombre !== 'Cancelado')
-
-                    <a
-                        href="{{ route(
-                            'ordenes.cancelar.confirmar',
-                            $orden
-                        ) }}"
-                        class="inline-flex items-center justify-center
-                               px-5 py-3
-                               border border-red-300
-                               text-red-700
-                               hover:bg-red-50
-                               rounded-lg
-                               font-semibold text-sm"
-                    >
+                @if($puedeAdministrar && $orden->estadoOrden?->nombre !== 'Cancelado')
+                    <a href="{{ route('ordenes.cancelar.confirmar', $orden) }}" class="inline-flex items-center justify-center px-5 py-3 border border-red-300 text-red-700 hover:bg-red-50 rounded-lg font-semibold text-sm">
                         Cancelar Orden
                     </a>
-
                 @endif
-
             </div>
-
         @endif
 
     </div>
@@ -714,10 +656,9 @@
             </div>
 
 
-            {{-- PRECIO DEL TRABAJO
-                 SOLO ADMIN / RECEPCIÓN --}}
-            @if($puedeAdministrar)
-
+                {{-- PRECIO DEL TRABAJO
+                SOLO ADMIN / RECEPCIÓN --}}
+            @if($puedeVerImportes)
                 <div>
 
                     <p class="text-xs font-semibold text-slate-400 uppercase">
@@ -1535,14 +1476,8 @@
 
             </div>
 
-
             {{-- SOLO ADMIN / RECEPCIÓN --}}
-            @if(
-                $puedeAdministrar
-                &&
-                $orden->estadoOrden?->nombre !== 'Cancelado'
-            )
-
+            @if($puedeRegistrarDevolucion && $orden->estadoOrden?->nombre !== 'Cancelado')
                 <a
                     href="{{ route(
                         'devoluciones.create',
@@ -1806,13 +1741,8 @@
 
                         </div>
 
-
                         {{-- ACCIÓN DE REPETICIÓN --}}
-                        @if(
-                            $puedeAdministrar
-                            &&
-                            $devolucion->requiere_repeticion
-                        )
+                        @if($puedeCrearRepeticion && $devolucion->requiere_repeticion)
 
                             <div class="lg:shrink-0">
 

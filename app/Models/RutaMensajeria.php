@@ -1,15 +1,11 @@
 <?php
-
 namespace App\Models;
-
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\HasMany;
-
 class RutaMensajeria extends Model
 {
     protected $table = 'rutas_mensajeria';
-
     protected $fillable = [
         'mensajero_id',
         'fecha',
@@ -17,6 +13,7 @@ class RutaMensajeria extends Model
         'hora_salida',
         'hora_regreso',
         'observaciones',
+        'registrado_por',
     ];
 
     protected $casts = [
@@ -31,6 +28,13 @@ class RutaMensajeria extends Model
         );
     }
 
+    public function usuarioRegistro(): BelongsTo
+    {
+        return $this->belongsTo(
+            User::class,
+            'registrado_por'
+        );
+    }
     public function detalles(): HasMany
     {
         return $this->hasMany(DetalleMensajeria::class);

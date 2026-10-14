@@ -144,35 +144,9 @@
 
             {{-- CERRAR SIDEBAR EN MÓVIL --}}
 
-            <button
-
-                id="closeSidebar"
-
+            <button id="closeSidebar"
                 type="button"
-
-                class="lg:hidden
-
-                    w-9 h-9
-
-                    flex items-center
-
-                    justify-center
-
-                    rounded-lg
-
-                    text-slate-500
-
-                    hover:bg-slate-100
-
-                    hover:text-slate-900
-
-                    transition
-
-                    shrink-0"
-
-                aria-label="Cerrar menú"
-
-            >
+                class="lg:hidden w-9 h-9 flex items-center justify-center rounded-lg text-slate-500 hover:bg-slate-100 hover:text-slate-900 transition shrink-0" aria-label="Cerrar menú">
 
                 ✕
 
@@ -181,9 +155,7 @@
         </div>
 
         {{-- =================================================
-
              MENÚ
-
         ================================================== --}}
 
         <nav class="flex-1 min-h-0 py-5 overflow-y-auto overscroll-contain">
@@ -194,7 +166,7 @@
 
             ================================================== --}}
 
-            @if(in_array($rol, ['Administrador', 'Recepcion']))
+            @if($rol === 'Administrador')
 
                 {{-- DASHBOARD --}}
 
@@ -816,29 +788,15 @@
 
             ================================================== --}}
 
+            @elseif($rol === 'Recepcion')
+                @include('layouts.partials.menu-recepcion')
+
+            @elseif($rol === 'Contabilidad')
+                @include('layouts.partials.menu-contabilidad')
+
             @elseif($rol === 'Mensajero')
 
-                <p
-
-                    class="
-
-                        px-6
-
-                        mb-2
-
-                        text-xs
-
-                        font-semibold
-
-                        text-slate-400
-
-                        uppercase
-
-                        tracking-widest
-
-                    "
-
-                >
+                <p class="px-6 mb-2 text-xs font-semibold text-slate-400 uppercase tracking-widest">
 
                     Mensajería
 
@@ -846,21 +804,7 @@
 
                 {{-- MIS RUTAS --}}
 
-                <a
-
-                    href="{{ route('mensajeria.index') }}"
-
-                    class="
-
-                        flex
-
-                        items-center
-
-                        gap-3
-
-                        px-6
-
-                        py-4
+                <a href="{{ route('mensajeria.index') }}" class=" flex items-center gap-3 px-6 py-4
 
                         {{ request()->routeIs('mensajeria.index')
 
@@ -872,11 +816,7 @@
 
                         }}
 
-                        transition
-
-                    "
-
-                >
+                        transition">
 
                 @include('layouts.partials.icono', ['icono' => 'mensajeria'])
                     Mis rutas
@@ -886,12 +826,7 @@
                 {{-- MIS ENTREGAS --}}
 
                 <a href="{{ route('mensajeria.entregas') }}"
-                    class="
-                        flex
-                        items-center
-                        gap-3
-                        px-6
-                        py-4
+                    class=" flex items-center  gap-3  px-6 py-4
 
                         {{ request()->routeIs('mensajeria.entregas*')
 
@@ -950,9 +885,7 @@
                 </a>
 
             {{-- =================================================
-
                  TÉCNICO
-
             ================================================== --}}
 
             @elseif($rol === 'Técnico')

@@ -1,14 +1,15 @@
 @php
-    $camposClinica = [
+        $camposClinica = [
         'nombre' => 'Nombre de la clínica',
+        'departamento' => 'Departamento',
+        'municipio' => 'Municipio',
         'direccion' => 'Dirección exacta',
         'asistente_secretaria' => 'Asistente o secretaria',
         'nit' => 'NIT',
         'telefono' => 'Teléfono de la clínica',
         'correo' => 'Correo de la clínica',
-        'departamento' => 'Departamento',
-        'municipio' => 'Municipio',
     ];
+
     $clinicaSeleccionada = old('clinica_id', isset($odontologo) ? $odontologo->clinica_id : null);
     $datosClinicas = $clinicas->mapWithKeys(function ($clinica) use ($camposClinica) {
         $datos = [];
@@ -19,6 +20,7 @@
     })->all();
     $datosIniciales = $datosClinicas[(string) $clinicaSeleccionada] ?? null;
 @endphp
+
 <section class="mt-6 rounded-xl border border-slate-200 bg-slate-50 p-4 sm:p-5"
          aria-labelledby="titulo_datos_clinica">
     <div class="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
