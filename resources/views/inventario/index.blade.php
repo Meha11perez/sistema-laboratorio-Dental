@@ -23,11 +23,11 @@
             </p>
         </div>
 
-        <a
-            href="{{ route('inventario.create') }}"
-           class="inline-flex w-full md:w-auto shrink-0 items-center justify-center gap-2 bg-[#315875] hover:bg-[#182d47] text-white px-5 py-3 rounded-lg font-semibold text-sm transition-colors">
-            + Nuevo Material
-        </a>
+        @if(auth()->user()->role?->nombre === 'Administrador')
+            <a href="{{ route('inventario.create') }}" class="inline-flex w-full md:w-auto shrink-0 items-center justify-center gap-2 bg-[#315875] hover:bg-[#182d47] text-white px-5 py-3 rounded-lg font-semibold text-sm transition-colors">
+                + Nuevo Material
+            </a>
+        @endif
 
     </div>
 
@@ -200,7 +200,6 @@
 
                 </thead>
 
-
                 <tbody class="divide-y divide-slate-100">
 
                     @forelse($materiales as $material)
@@ -268,23 +267,19 @@
 
                             <td class="px-6 py-4">
 
-                               <div class="flex items-center gap-3 whitespace-nowrap">
-                                    <a
-                                        href="{{ route('inventario.show', $material) }}"
-                                        class="text-[#315875] font-semibold hover:underline"
-                                    >
-                                        Ver
-                                    </a>
+                               <td class="px-6 py-4">
+                                    <div class="flex items-center gap-3 whitespace-nowrap">
+                                        <a href="{{ route('inventario.show', $material) }}" class="text-[#315875] font-semibold hover:underline">
+                                            Ver
+                                        </a>
 
-                                    <a
-                                        href="{{ route('inventario.asignar', $material) }}"
-                                        class="text-emerald-700 font-semibold hover:underline"
-                                    >
-                                        Asignar
-                                    </a>
-
-                                </div>
-
+                                        @if(auth()->user()->role?->nombre === 'Administrador')
+                                            <a href="{{ route('inventario.asignar', $material) }}" class="text-emerald-700 font-semibold hover:underline">
+                                                Asignar
+                                            </a>
+                                        @endif
+                                    </div>
+                                </td>
                             </td>
 
                         </tr>
@@ -307,7 +302,6 @@
             </table>
 
         </div>
-
 
         @if($materiales->hasPages())
 

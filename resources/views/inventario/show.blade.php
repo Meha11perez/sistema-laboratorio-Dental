@@ -190,40 +190,18 @@
 
             </div>
 
+            {{-- BOTONES: SOLO ADMINISTRADOR --}}
+            @if(auth()->user()->role?->nombre === 'Administrador')
+                <div class="flex flex-wrap gap-3">
+                    <a href="{{ route('inventario.asignar', $material) }}" class="inline-flex items-center justify-center bg-emerald-600 hover:bg-emerald-700 text-white px-5 py-3 rounded-lg font-semibold text-sm transition">
+                        Asignar a técnico
+                    </a>
 
-            {{-- BOTONES --}}
-            <div class="flex flex-wrap gap-3">
-
-                {{-- ASIGNAR A TÉCNICO --}}
-                <a
-                    href="{{ route(
-                        'inventario.asignar',
-                        $material
-                    ) }}"
-                    class="inline-flex items-center justify-center
-                        bg-emerald-600 hover:bg-emerald-700
-                        text-white px-5 py-3 rounded-lg
-                        font-semibold text-sm transition"
-                >
-                    Asignar a técnico
-                </a>
-
-
-                {{-- REGISTRAR MOVIMIENTO --}}
-                <a
-                    href="{{ route(
-                        'inventario.movimiento.create',
-                        $material
-                    ) }}"
-                    class="inline-flex items-center justify-center
-                        bg-blue-800 hover:bg-blue-900
-                        text-white px-5 py-3 rounded-lg
-                        font-semibold text-sm transition"
-                >
-                    + Registrar Movimiento
-                </a>
-
-            </div>
+                    <a href="{{ route('inventario.movimiento.create', $material) }}" class="inline-flex items-center justify-center bg-blue-800 hover:bg-blue-900 text-white px-5 py-3 rounded-lg font-semibold text-sm transition">
+                        + Registrar Movimiento
+                    </a>
+                </div>
+            @endif
 
         </div>
 
