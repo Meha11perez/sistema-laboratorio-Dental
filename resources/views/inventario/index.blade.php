@@ -266,22 +266,18 @@
                             </td>
 
                             <td class="px-6 py-4">
+                                <div class="flex items-center gap-3 whitespace-nowrap">
+                                    <a href="{{ route('inventario.show', $material) }}" class="text-[#315875] font-semibold hover:underline">
+                                        Ver
+                                    </a>
 
-                               <td class="px-6 py-4">
-                                    <div class="flex items-center gap-3 whitespace-nowrap">
-                                        <a href="{{ route('inventario.show', $material) }}" class="text-[#315875] font-semibold hover:underline">
-                                            Ver
+                                    @if(auth()->user()->role?->nombre === 'Administrador')
+                                        <a href="{{ route('inventario.asignar', $material) }}" class="text-emerald-700 font-semibold hover:underline">
+                                            Asignar
                                         </a>
-
-                                        @if(auth()->user()->role?->nombre === 'Administrador')
-                                            <a href="{{ route('inventario.asignar', $material) }}" class="text-emerald-700 font-semibold hover:underline">
-                                                Asignar
-                                            </a>
-                                        @endif
-                                    </div>
-                                </td>
+                                    @endif
+                                </div>
                             </td>
-
                         </tr>
 
                     @empty
