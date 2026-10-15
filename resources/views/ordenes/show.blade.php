@@ -362,37 +362,7 @@
                         $orden->estadoOrden?->nombre === 'En proceso'
                     )
 
-                        <form
-                            method="POST"
-                            action="{{ route(
-                                'ordenes.produccion.completar',
-                                $orden
-                            ) }}"
-                            onsubmit="
-                                return confirm(
-                                    '¿Confirmas que terminaste esta etapa?'
-                                )
-                            "
-                        >
-
-                            @csrf
-                            @method('PUT')
-
-
-                            <button
-                                type="submit"
-                                class="inline-flex items-center justify-center
-                                       px-5 py-2.5
-                                       bg-blue-700
-                                       hover:bg-blue-800
-                                       text-white
-                                       rounded-lg
-                                       font-semibold"
-                            >
-                                Completar mi etapa
-                            </button>
-
-                        </form>
+                        @include('ordenes.partials.confirmar-etapa')
 
 
                     @elseif(

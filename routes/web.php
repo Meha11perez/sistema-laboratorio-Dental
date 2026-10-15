@@ -77,6 +77,12 @@ Route::middleware('auth')->group(function () {
         Route::get('/ordenes', [OrdenTrabajoController::class,'index',])->name('ordenes.index');
         Route::get('/ordenes/{orden}', [OrdenTrabajoController::class,'show',])->name('ordenes.show');
     });
+    // REVISAR ETAPAS COMPLETADAS: ADMINISTRADOR Y RECEPCIÓN
+    Route::middleware('role:Administrador,Recepcion')->group(function () {
+        Route::get('/produccion/revisiones', [\App\Http\Controllers\RevisionProduccionController::class, 'index'])->name('produccion.revisiones.index');
+        Route::get('/produccion/revisiones/{historial}', [\App\Http\Controllers\RevisionProduccionController::class, 'show'])->name('produccion.revisiones.show');
+        Route::patch('/produccion/revisiones/{historial}', [\App\Http\Controllers\RevisionProduccionController::class, 'update'])->name('produccion.revisiones.update');
+    });
 
     // =================================================
     // PRODUCCIÓN

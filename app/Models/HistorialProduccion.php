@@ -19,11 +19,16 @@ class HistorialProduccion extends Model
         'estado',
         'observaciones',
         'duracion_minutos',
+        'pendiente_revision',
+        'revisado_por',
+        'fecha_revision',
     ];
 
     protected $casts = [
         'fecha_inicio' => 'datetime',
         'fecha_fin' => 'datetime',
+        'pendiente_revision' => 'boolean',
+        'fecha_revision' => 'datetime',
     ];
 
     public function ordenTrabajo(): BelongsTo
@@ -43,9 +48,11 @@ class HistorialProduccion extends Model
 
     public function usuarioRegistro(): BelongsTo
     {
-        return $this->belongsTo(
-            User::class,
-            'registrado_por'
-        );
+        return $this->belongsTo(User::class, 'registrado_por');
+    }
+
+    public function usuarioRevision(): BelongsTo
+    {
+        return $this->belongsTo(User::class, 'revisado_por');
     }
 }

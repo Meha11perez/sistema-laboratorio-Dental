@@ -9,7 +9,6 @@ use Illuminate\Database\Eloquent\Relations\BelongsToMany;
 class EtapaProduccion extends Model
 {
     protected $table = 'etapas_produccion';
-
     protected $fillable = [
         'nombre',
         'descripcion',
