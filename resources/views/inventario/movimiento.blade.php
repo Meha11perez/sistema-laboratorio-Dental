@@ -75,8 +75,7 @@
         @csrf
 
         <div class="mb-6 rounded-lg bg-slate-50 p-4 text-sm text-slate-600">
-            <p><strong>Entrada:</strong> agrega material comprado o recibido a bodega.</p>
-            <p><strong>Salida:</strong> retira material de bodega por otro motivo; detalle el destino en observaciones.</p>
+            <p>Las entradas por compra se confirman desde <a href="{{ route('compras.index') }}" class="font-semibold underline">Compras</a>.</p>
             <p><strong>Devolución:</strong> devuelve material sin usar a bodega. Seleccione el técnico si proviene de su inventario.</p>
             <p><strong>Ajuste:</strong> fija la existencia real después de un conteo físico, incluso cero.</p>
             <p class="mt-2">Para entregar material a un técnico, use «Asignar material». El consumo en una orden se registra desde esa orden.</p>
@@ -99,10 +98,6 @@
 
                     <option value="">
                         Seleccione...
-                    </option>
-
-                    <option value="Entrada" @selected(old('tipo_movimiento') === 'Entrada')>
-                        Entrada
                     </option>
 
                     <option value="Salida" @selected(old('tipo_movimiento') === 'Salida')>

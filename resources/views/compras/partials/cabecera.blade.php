@@ -1,0 +1,4 @@
+@include('caja_chica.partials.estilos')
+<style>.compras .cc-card{padding:1.25rem}.compras fieldset.cc-card{margin-top:1rem}.compras .compras-check{display:flex;align-items:center;gap:.75rem;margin-top:1rem}.compras .compras-check input{width:auto;flex:0 0 auto}.compras summary{cursor:pointer;padding:.5rem 0}.compras .cc-grid>div{min-width:0}.compras .cc-btn:disabled{opacity:.5;cursor:default}.compras td{min-width:105px}.compras td:first-child{white-space:nowrap}.compras td:nth-child(2){min-width:180px}</style>
+@include('caja_chica.partials.mensajes')
+<div class="cc-header"><div><p class="cc-kicker">Administración y contabilidad</p><h1>{{ $titulo }}</h1><p class="cc-muted">Facturas de materiales y servicios. La recepción de materiales se confirma por separado.</p></div><div class="cc-actions"><a class="cc-btn" href="{{ route('compras.index') }}">Compras</a><a class="cc-btn" href="{{ route('compras.solicitudes') }}">Solicitudes</a></div></div>

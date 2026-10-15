@@ -84,6 +84,7 @@
                 ['Calidad', 'Garantías y devoluciones', 'Garantías, motivos de devolución y órdenes de repetición con su seguimiento.', 'reportes.calidad', 'M12 3 4 6v6c0 5 8 9 8 9s8-4 8-9V6l-8-3zM8 12l3 3 5-6'],
                 ['Pagos', 'Pagos y créditos', 'Cobros del período y saldos actuales, con filtros por odontólogo y modalidad de cuenta.', 'reportes.pagos', 'M4 5h16v14H4zM4 9h16M7 15h3M15 15h2'],
                 ['Mensajería', 'Entregas y recolecciones', 'Visitas por fecha de ruta, mensajero, odontólogo y estado registrado.', 'reportes.mensajeria', 'M3 5h11v12H3zM14 9h4l3 4v4h-7M5 17a2 2 0 1 0 4 0 2 2 0 1 0-4 0M16 17a2 2 0 1 0 4 0 2 2 0 1 0-4 0M14 13h7'],
+                ['Gastos', 'Gastos mensuales', 'Consulta Caja chica y compras de materiales y servicios, con resumen por mes.', 'reportes.gastos', 'M4 3h16v18H4zM8 7h8M8 11h8M8 15h3M8 18h5'],
             ] as [$categoria, $titulo, $descripcion, $ruta, $icono])
                 <article class="rm-card">
                     <div class="rm-card-top">

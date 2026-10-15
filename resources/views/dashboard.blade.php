@@ -17,44 +17,56 @@
             <h1>Panel de control</h1>
 
             <p class="dd-subtitle">
-                Producción, entregas y seguimiento del laboratorio.
+                Resumen de {{ $mesTexto }}. Órdenes agrupadas por su fecha de ingreso.
             </p>
         </div>
 
-        <div class="dd-actions">
-            <a
-                href="{{ route('agenda.index', ['fecha' => $fechaHoy]) }}"
-                class="dd-button dd-button-secondary"
-            >
-                Ver agenda
-            </a>
-
-            @if($puedeGestionarOrdenes)
-                <a
-                    href="{{ route('ordenes.create') }}"
-                    class="dd-button"
-                >
-                    + Nueva orden
-                </a>
-            @endif
-        </div>
     </header>
+
+    <style>
+        .dental-dashboard .dd-period { display:flex; align-items:flex-end; flex-wrap:wrap; gap:12px; padding:18px; margin-bottom:18px; background:#fff; border:1px solid var(--dd-border); border-radius:14px; }
+        .dental-dashboard .dd-period label { display:block; font-size:13px; font-weight:600; margin-bottom:7px; }
+        .dental-dashboard .dd-period input { min-height:42px; max-width:100%; border:1px solid var(--dd-border); border-radius:8px; padding:8px 12px; color:var(--dd-text); background:#fff; font:inherit; }
+        .dental-dashboard .dd-period-note { margin-bottom:18px; line-height:1.7; }
+        .dental-dashboard .dd-previous { margin-bottom:18px; padding:16px 18px; border:1px solid #e8c98e; border-radius:12px; background:#fff9ed; font-size:13px; line-height:1.7; }
+    </style>
+    <form method="GET" action="{{ route('dashboard') }}" class="dd-period">
+        <div>
+            <label for="mes">Mes del resumen</label>
+            <input type="month" id="mes" name="mes" value="{{ $mesSeleccionado }}" required aria-describedby="dd-period-help">
+        </div>
+        <button type="submit" class="dd-button">Consultar</button>
+        <a href="{{ route('dashboard') }}" class="dd-button dd-button-secondary">Mes actual</a>
+        @error('mes')<p role="alert">{{ $message }}</p>@enderror
+    </form>
+    <p id="dd-period-help" class="dd-note dd-period-note">
+        Se muestran órdenes ingresadas en {{ $mesTexto }}, con su estado actual.
+        Al consultar meses anteriores no se reconstruye el estado que tenían al cierre de ese mes.
+    </p>
+    @if($pendientesMesesAnteriores > 0)
+        <aside class="dd-previous" aria-label="Pendientes de meses anteriores">
+            <strong>{{ $pendientesMesesAnteriores }} órdenes de meses anteriores siguen abiertas.</strong>
+            Son órdenes ingresadas antes de {{ $mesTexto }} y actualmente sin entregar ni anular.
+            No se suman a los indicadores del mes seleccionado.
+            <a href="{{ route('ordenes.index') }}" class="dd-link">Consultar el listado general de órdenes</a>
+        </aside>
+    @endif
 
     {{-- INDICADORES --}}
     <div class="dd-metrics">
 
         <article class="dd-metric dd-metric-cyan">
-            <p class="dd-label">Programadas hoy</p>
+            <p class="dd-label">Órdenes ingresadas en el mes</p>
 
-            <strong class="dd-number">{{ $trabajosHoy }}</strong>
+            <strong class="dd-number">{{ $totalOrdenesMes }}</strong>
 
             <p class="dd-note">
-                {{ $porEntregarHoy }} pendientes de entrega hoy
+                {{ $ordenesCanceladas }} anuladas dentro de este total
             </p>
         </article>
 
         <article class="dd-metric">
-            <p class="dd-label">Órdenes pendientes</p>
+            <p class="dd-label">Pendientes del mes</p>
 
             <strong class="dd-number">{{ $ordenesPendientes }}</strong>
 
@@ -69,7 +81,7 @@
             <strong class="dd-number">{{ $ordenesEnProceso }}</strong>
 
             <p class="dd-note">
-                Trabajos actualmente en proceso
+                Órdenes del mes actualmente en proceso
             </p>
         </article>
 
@@ -89,7 +101,7 @@
             <strong class="dd-number">{{ $ordenesEntregadas }}</strong>
 
             <p class="dd-note">
-                Total de órdenes con estado Entregado
+                Órdenes del mes actualmente entregadas
             </p>
         </article>
 
@@ -99,7 +111,7 @@
             <strong class="dd-number">{{ $ordenesAtrasadas }}</strong>
 
             <p class="dd-note">
-                Fecha vencida y todavía sin entregar
+                Órdenes del mes con fecha vencida, al día de hoy
             </p>
         </article>
 
@@ -107,10 +119,7 @@
 
     {{-- ACCESOS --}}
     <nav class="dd-shortcuts" aria-label="Accesos del laboratorio">
-        <a
-            href="{{ route('agenda.index', ['fecha' => $fechaHoy]) }}"
-            class="dd-shortcut"
-        >
+        <a href="{{ route('agenda.index', ['fecha' => $fechaHoy]) }}" class="dd-shortcut">
             <span>Agenda de producción</span>
             <span aria-hidden="true">→</span>
         </a>
@@ -138,7 +147,7 @@
             <div class="dd-panel-header">
                 <div>
                     <h2 id="dd-areas-title">
-                        Órdenes abiertas por área
+                        Órdenes del mes abiertas por área
                     </h2>
 
                     <p class="dd-note">
@@ -170,11 +179,7 @@
                             </span>
                         </div>
 
-                        <progress
-                            value="{{ $area['total'] }}"
-                            max="{{ max(1, $totalActivas) }}"
-                            aria-label="Órdenes abiertas de {{ $area['nombre'] }}"
-                        ></progress>
+                        <progress value="{{ $area['total'] }}" max="{{ max(1, $totalActivas) }}" aria-label="Órdenes abiertas de {{ $area['nombre'] }}"></progress>
                     </article>
                 @endforeach
             </div>
@@ -193,7 +198,7 @@
                     <h2 id="dd-stages-title">Etapas actuales</h2>
 
                     <p class="dd-note">
-                        Distribución de las órdenes abiertas.
+                        Distribución actual de las órdenes abiertas del mes elegido.
                     </p>
                 </div>
 
@@ -211,7 +216,7 @@
                             </span>
 
                             <span class="dd-count">
-                                {{ $etapa->total }}
+                                {{ (int) $etapa->cantidad_ordenes }}
                             </span>
                         </li>
                     @endforeach
@@ -230,7 +235,7 @@
         <div class="dd-panel-header">
             <div>
                 <h2 id="dd-deliveries-title">
-                    Entregas por atender
+                    Entregas por atender del mes seleccionado
                 </h2>
 
                 <p class="dd-note">
@@ -245,12 +250,7 @@
         </div>
 
         @if($entregasPorAtender->isNotEmpty())
-            <div
-                class="dd-table-scroll"
-                role="region"
-                aria-label="Listado de entregas por atender"
-                tabindex="0"
-            >
+            <div class="dd-table-scroll" role="region" aria-label="Listado de entregas por atender" tabindex="0">
                 <table>
                     <thead>
                         <tr>
@@ -270,22 +270,13 @@
                                     $orden->fecha_entrega_estimada
                                 );
 
-                                $estaAtrasada =
-                                    $fechaEntrega->toDateString() < $fechaHoy;
-
-                                $nombrePaciente = trim(
-                                    ($orden->paciente?->nombre ?? '')
-                                    .' '.
-                                    ($orden->paciente?->apellido ?? '')
-                                );
+                                $estaAtrasada = $fechaEntrega->toDateString() < $fechaHoy;
+                                $nombrePaciente = trim(($orden->paciente?->nombre ?? '').' '.($orden->paciente?->apellido ?? ''));
                             @endphp
 
                             <tr>
                                 <td>
-                                    <a
-                                        class="dd-link"
-                                        href="{{ route('ordenes.show', $orden) }}"
-                                    >
+                                    <a class="dd-link" href="{{ route('ordenes.show', $orden) }}">
                                         {{ $orden->codigo_area ?: $orden->codigo }}
                                     </a>
                                 </td>
@@ -329,11 +320,7 @@
                                 </td>
 
                                 <td>
-                                    <a
-                                        class="dd-link"
-                                        href="{{ route('ordenes.show', $orden) }}"
-                                        aria-label="Ver orden {{ $orden->codigo }}"
-                                    >
+                                    <a class="dd-link" href="{{ route('ordenes.show', $orden) }}" aria-label="Ver orden {{ $orden->codigo }}">
                                         Ver orden
                                     </a>
                                 </td>
@@ -351,8 +338,8 @@
             </p>
         @else
             <p class="dd-empty">
-                No hay entregas pendientes para hoy ni órdenes
-                con fecha de entrega vencida.
+                No hay órdenes del mes seleccionado con entrega pendiente para hoy
+                ni con fecha de entrega vencida.
             </p>
         @endif
     </section>
@@ -362,7 +349,7 @@
             {{ $usuario->name }} · {{ $rol ?? 'Sin rol' }}
         </p>
 
-        <p>Los indicadores cuentan órdenes de trabajo.</p>
+        <p>Período: {{ $mesTexto }} · Estados y atrasos consultados al {{ $fechaTexto }}.</p>
     </footer>
 
 </div>

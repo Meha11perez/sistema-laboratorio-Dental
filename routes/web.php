@@ -23,6 +23,7 @@ use App\Http\Controllers\RoleController;
 use App\Http\Controllers\RutaMensajeriaController;
 use App\Http\Controllers\TecnicoController;
 use App\Http\Controllers\UserController;
+use App\Http\Controllers\CompraController;
 use Illuminate\Support\Facades\Route;
 
 // =====================================================
@@ -60,6 +61,30 @@ Route::middleware('auth')->group(function () {
         Route::patch('/{gasto}/autorizar', [CajaChicaController::class, 'resolver'])->middleware('role:Administrador')->name('resolver');
         Route::get('/{gasto}', [CajaChicaController::class, 'show'])->name('show');
     });
+
+    // COMPRAS: ADMINISTRADOR Y CONTABILIDAD
+    Route::middleware(['auth', 'role:Administrador,Contabilidad'])
+        ->prefix('compras')
+        ->name('compras.')
+        ->group(function () {
+            Route::get('/', [CompraController::class, 'index'])->name('index');
+            Route::get('/crear', [CompraController::class, 'create'])->name('create');
+            Route::post('/', [CompraController::class, 'store'])->name('store');
+
+            Route::get('/solicitudes', [CompraController::class, 'solicitudes'])->name('solicitudes');
+
+            Route::patch('/solicitudes/{correccion}', [CompraController::class, 'resolver'])
+                ->middleware('role:Administrador')->name('resolver');
+
+            Route::get('/{compra}/comprobante', [CompraController::class, 'comprobante'])->name('comprobante');
+            Route::get('/{compra}/corregir', [CompraController::class, 'corregir'])->name('corregir');
+            Route::post('/{compra}/solicitudes', [CompraController::class, 'solicitar'])->name('solicitar');
+
+         Route::post('/{compra}/recibir', [CompraController::class, 'recibir'])
+                ->middleware('role:Administrador')->name('recibir');
+
+         Route::get('/{compra}', [CompraController::class, 'show'])->name('show');
+     });
 
     Route::get('/dashboard', [DashboardController::class,'index',])->name('dashboard');
     Route::view('/ajustes', 'ajustes.index')->name('ajustes.index');
@@ -132,17 +157,13 @@ Route::middleware('auth')->group(function () {
     Route::get('/inventario/crear', [InventarioController::class, 'create'])->middleware('role:Administrador')->name('inventario.create');
     Route::post('/inventario', [InventarioController::class, 'store'])->middleware('role:Administrador')->name('inventario.store');
     
-    // ASIGNAR MATERIAL A TÉCNICO
+   // ASIGNAR MATERIALES: ADMINISTRADOR Y CONTABILIDAD
+    Route::get('/inventario/{material}/asignar', [InventarioController::class, 'createAsignacion'])->middleware('role:Administrador,Contabilidad')->name('inventario.asignar');
+    Route::post('/inventario/{material}/asignar', [InventarioController::class, 'storeAsignacion'])->middleware('role:Administrador,Contabilidad')->name('inventario.asignar.store');
 
-    Route::get('/inventario/{material}/asignar', [InventarioController::class,'createAsignacion',])->middleware('role:Administrador')->name('inventario.asignar');
-
-    Route::post('/inventario/{material}/asignar', [InventarioController::class,'storeAsignacion',])->middleware('role:Administrador')->name('inventario.asignar.store');
-
-    // MOVIMIENTOS DE MATERIAL
-
-    Route::get('/inventario/{material}/movimiento', [InventarioController::class, 'createMovimiento'])->middleware('role:Administrador')->name('inventario.movimiento.create');
-    Route::post('/inventario/{material}/movimiento', [InventarioController::class, 'storeMovimiento'])->middleware('role:Administrador')->name('inventario.movimiento.store');
-    // EDITAR MATERIAL
+    // REGISTRAR MOVIMIENTOS: ADMINISTRADOR Y CONTABILIDAD
+    Route::get('/inventario/{material}/movimiento', [InventarioController::class, 'createMovimiento'])->middleware('role:Administrador,Contabilidad')->name('inventario.movimiento.create');
+    Route::post('/inventario/{material}/movimiento', [InventarioController::class, 'storeMovimiento'])->middleware('role:Administrador,Contabilidad')->name('inventario.movimiento.store');
 
     Route::get('/inventario/{material}/editar', [InventarioController::class, 'edit'])->middleware('role:Administrador')->name('inventario.edit');
     Route::put('/inventario/{material}', [InventarioController::class, 'update'])->middleware('role:Administrador')->name('inventario.update');
@@ -344,5 +365,11 @@ Route::middleware('role:Administrador,Contabilidad')->group(function () {
         Route::put('/ordenes/{orden}/produccion/iniciar', [ OrdenTrabajoController::class,'iniciarEtapa',])->name('ordenes.produccion.iniciar');
         Route::put('/ordenes/{orden}/produccion/completar', [OrdenTrabajoController::class,'completarEtapa',])->name('ordenes.produccion.completar');
         Route::post('/ordenes/{orden}/materiales', [OrdenTrabajoController::class,'registrarMaterial',])->name('ordenes.materiales.store');
+    });
+    // GASTOS MENSUALES: ADMINISTRADOR Y CONTABILIDAD
+    Route::middleware(['auth', 'role:Administrador,Contabilidad'])->group(function () {
+        Route::get('/reportes/gastos-mensuales', [\App\Http\Controllers\ReporteGastoController::class, 'index'])->name('reportes.gastos');
+
+        Route::get('/reportes/gastos-mensuales/imprimir', [\App\Http\Controllers\ReporteGastoController::class, 'imprimir'])->name('reportes.gastos.imprimir');
     });
 });

@@ -575,16 +575,17 @@ class ReporteAdicionalController extends Controller
             $query->where('d.clinica_id', $filtros['clinica_id']);
         }
         $totales = DB::query()->fromSub(clone $query, 'r')->selectRaw('COALESCE(SUM(registros), 0) AS registros, COALESCE(SUM(valor_trabajos), 0) AS valor_trabajos, COALESCE(SUM(cobrado), 0) AS cobrado')->first();
-        $metricas = [
-            $this->metrica('Órdenes registradas en el mes', $totales->registros),
-            $this->metrica('Valor de trabajos no cancelados', $totales->valor_trabajos, 'moneda'),
-            $this->metrica('Cobrado durante el mes', $totales->cobrado, 'moneda'),
+       $metricas = [
+        $this->metrica('Órdenes ingresadas en el mes', $totales->registros),
+        $this->metrica('Valor de órdenes del mes, excluyendo anuladas', $totales->valor_trabajos, 'moneda'),
+        $this->metrica('Abonos recibidos en el mes', $totales->cobrado, 'moneda'),
+
         ];
         $query->orderBy('d.nombre')->orderBy('d.id');
         $columnas = $this->columnas([
             'codigo' => 'Código de cliente', 'doctor' => 'Odontólogo', 'clinica' => 'Clínica', 'mes' => 'Mes',
-            'ordenes' => 'Órdenes registradas', 'canceladas' => 'De ellas, canceladas', 'valor' => 'Valor de trabajos no cancelados',
-            'cobrado' => 'Cobrado durante el mes', 'saldo' => 'Saldo actual de todos los meses',
+            'ordenes' => 'Órdenes ingresadas en el mes, canceladas', 'valor' => 'Valor de trabajos no cancelados',
+            'cobrado' => 'Abonos recibidos en el mes', 'saldo' => 'Saldo actual de todos los meses',
         ], ['valor', 'cobrado', 'saldo']);
         $mapear = fn ($r) => [
             'codigo' => $r->codigo_cliente, 'doctor' => $r->nombre, 'clinica' => $r->clinica ?? 'Sin clínica', 'mes' => $mes->format('m/Y'),

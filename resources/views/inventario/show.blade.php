@@ -190,8 +190,8 @@
 
             </div>
 
-            {{-- BOTONES: SOLO ADMINISTRADOR --}}
-            @if(auth()->user()->role?->nombre === 'Administrador')
+            {{-- ASIGNACIONES Y MOVIMIENTOS: ADMINISTRADOR Y CONTABILIDAD --}}
+            @if(in_array(auth()->user()->role?->nombre, ['Administrador', 'Contabilidad'], true))
                 <div class="flex flex-wrap gap-3">
                     <a href="{{ route('inventario.asignar', $material) }}" class="inline-flex items-center justify-center bg-emerald-600 hover:bg-emerald-700 text-white px-5 py-3 rounded-lg font-semibold text-sm transition">
                         Asignar a técnico

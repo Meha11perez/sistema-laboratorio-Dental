@@ -23,9 +23,9 @@
             </p>
         </div>
 
-        @if(auth()->user()->role?->nombre === 'Administrador')
-            <a href="{{ route('inventario.create') }}" class="inline-flex w-full md:w-auto shrink-0 items-center justify-center gap-2 bg-[#315875] hover:bg-[#182d47] text-white px-5 py-3 rounded-lg font-semibold text-sm transition-colors">
-                + Nuevo Material
+        @if(in_array(auth()->user()->role?->nombre, ['Administrador', 'Contabilidad'], true))
+            <a href="{{ route('compras.create') }}" class="inline-flex w-full md:w-auto shrink-0 items-center justify-center gap-2 bg-[#315875] hover:bg-[#182d47] text-white px-5 py-3 rounded-lg font-semibold text-sm transition-colors">
+                + Registrar compra
             </a>
         @endif
 
@@ -271,7 +271,7 @@
                                         Ver
                                     </a>
 
-                                    @if(auth()->user()->role?->nombre === 'Administrador')
+                                    @if(in_array(auth()->user()->role?->nombre, ['Administrador', 'Contabilidad'], true))
                                         <a href="{{ route('inventario.asignar', $material) }}" class="text-emerald-700 font-semibold hover:underline">
                                             Asignar
                                         </a>
