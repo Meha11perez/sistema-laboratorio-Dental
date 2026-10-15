@@ -1,0 +1,1 @@
+<span class="cc-badge {{ in_array($estado, ['Registrado', 'Autorizado', 'Aprobada'], true) ? 'cc-badge-ok' : (in_array($estado, ['Pendiente', 'Pendiente de autorización'], true) ? 'cc-badge-pending' : 'cc-badge-no') }}">{{ $estado }}</span>

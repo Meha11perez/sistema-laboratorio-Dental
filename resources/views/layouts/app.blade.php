@@ -318,6 +318,11 @@
                         </a>
                     </div>
                 </details>
+                {{-- CAJA CHICA --}}
+                <a href="{{ route('caja-chica.index') }}" class="flex items-center gap-3 border-l-4 px-6 py-4 transition {{ request()->routeIs('caja-chica.*') ? 'border-[#315875] bg-[#e7eef8] font-semibold text-[#315875]' : 'border-transparent text-slate-600 hover:bg-slate-50 hover:text-[#182d47]' }}">
+                    @include('layouts.partials.icono', ['icono' => 'pagos'])
+                    Caja chica
+                </a>
 
                 {{-- =================================================
                      MENSAJERÍA

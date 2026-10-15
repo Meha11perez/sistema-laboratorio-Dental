@@ -3,6 +3,7 @@
 use App\Http\Controllers\AbonoController;
 use App\Http\Controllers\AgendaController;
 use App\Http\Controllers\ClinicaController;
+use App\Http\Controllers\CajaChicaController;
 use App\Http\Controllers\CuentaOdontologoController;
 use App\Http\Controllers\DashboardController;
 use App\Http\Controllers\DetalleMensajeriaController;
@@ -41,6 +42,24 @@ Route::middleware('auth')->group(function () {
     // =================================================
     // DASHBOARD
     // =================================================
+
+    // CAJA CHICA: ADMINISTRADOR Y CONTABILIDAD
+    Route::middleware('role:Administrador,Contabilidad')->prefix('caja-chica')->name('caja-chica.')->group(function () {
+        Route::get('/', [CajaChicaController::class, 'index'])->name('index');
+        Route::get('/crear', [CajaChicaController::class, 'create'])->name('create');
+        Route::post('/', [CajaChicaController::class, 'store'])->name('store');
+        Route::get('/solicitudes', [CajaChicaController::class, 'solicitudes'])->name('solicitudes');
+        Route::get('/exportar', [CajaChicaController::class, 'exportar'])->name('exportar');
+        Route::get('/excel', [CajaChicaController::class, 'excel'])->name('excel');
+        Route::get('/imprimir', [CajaChicaController::class, 'imprimir'])->name('imprimir');
+        Route::get('/correcciones/{correccion}/comprobante', [CajaChicaController::class, 'comprobanteCorreccion'])->name('correcciones.comprobante');
+        Route::patch('/correcciones/{correccion}', [CajaChicaController::class, 'resolverCorreccion'])->middleware('role:Administrador')->name('correcciones.resolver');
+        Route::get('/{gasto}/comprobante', [CajaChicaController::class, 'comprobante'])->name('comprobante');
+        Route::get('/{gasto}/corregir', [CajaChicaController::class, 'solicitarCorreccion'])->name('correcciones.create');
+        Route::post('/{gasto}/correcciones', [CajaChicaController::class, 'guardarCorreccion'])->name('correcciones.store');
+        Route::patch('/{gasto}/autorizar', [CajaChicaController::class, 'resolver'])->middleware('role:Administrador')->name('resolver');
+        Route::get('/{gasto}', [CajaChicaController::class, 'show'])->name('show');
+    });
 
     Route::get('/dashboard', [DashboardController::class,'index',])->name('dashboard');
     Route::view('/ajustes', 'ajustes.index')->name('ajustes.index');

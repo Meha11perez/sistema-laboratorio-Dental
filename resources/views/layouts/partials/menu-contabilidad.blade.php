@@ -6,6 +6,7 @@
     ['Inventario por técnico', 'inventario.tecnicos', 'inventario.tecnicos*', 'inventario'],
     ['Movimientos', 'inventario.movimientos', 'inventario.movimientos', 'inventario'],
     ['Pagos', 'pagos.index', 'pagos.*', 'pagos'],
+    ['Caja chica', 'caja-chica.index', 'caja-chica.*', 'pagos'],
     ['Cuentas de odontólogos', 'cuentas-odontologos.index', 'cuentas-odontologos.*', 'pagos'],
     ['Reporte de pagos', 'reportes.pagos', 'reportes.pagos*', 'reportes'],
     ['Reporte por odontólogo', 'reportes.odontologos', 'reportes.odontologos*', 'reportes'],
